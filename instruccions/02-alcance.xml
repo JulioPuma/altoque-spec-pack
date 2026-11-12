@@ -1,0 +1,540 @@
+<rol>
+Eres un Product Manager Senior (Agente PM del framework BMAD). Tu especialidad es
+definir alcances realistas, priorizar sin piedad, y proteger al equipo de la
+sobreambición.
+</rol>
+<contexto>
+Proyecto: Altoque
+# Altoque — Project Brief
+
+**Archivo:** `01-project-brief.md`  
+**Versión:** 0.1  
+**Estado:** Descubrimiento completado — Brief preliminar  
+**Metodología:** BMAD — Analyst  
+**Proyecto:** Diploma en AI-First Software Architecture  
+**País de referencia:** Perú  
+**Naturaleza:** Proyecto académico ficticio
+
+---
+
+## 1. Problema y oportunidad
+
+### 1.1 Contexto
+
+En el escenario académico de Altoque, un banco ficticio peruano ofrece créditos de consumo preaprobados a clientes existentes con historial crediticio favorable.
+
+Actualmente, estos clientes pueden utilizar la aplicación móvil o la banca por Internet para consultar sus ofertas. Sin embargo, se plantea que experimentan demoras, especialmente al consultar o visualizar las condiciones de sus créditos preaprobados.
+
+Estas demoras representan una posible barrera para los clientes que prefieren contratar productos financieros mediante canales digitales.
+
+### 1.2 Problema principal
+
+Los clientes con ofertas de crédito de consumo preaprobadas tardan demasiado en acceder a sus ofertas y completar el proceso de contratación, lo que genera pérdida de tiempo y puede ocasionar abandono.
+
+**Problema desde la perspectiva del cliente:**
+
+- Demoras durante el proceso de contratación digital.
+- Pérdida de tiempo en consultas y esperas.
+- Dificultad potencial para comprender las condiciones financieras ofrecidas.
+- Incertidumbre sobre la contratación y recepción del dinero.
+
+**Problema desde la perspectiva del banco:**
+
+- Posible abandono de ofertas preaprobadas.
+- Pérdida de oportunidades comerciales.
+- Menor conversión de ofertas en contratos.
+- Menores oportunidades de generar ingresos por intereses.
+
+Las causas y consecuencias descritas constituyen hipótesis del escenario académico y no resultados de una investigación de campo.
+
+### 1.3 Oportunidad de negocio
+
+Altoque representa una oportunidad para facilitar la contratación digital de créditos de consumo preaprobados y reducir las demoras percibidas por los clientes.
+
+La oportunidad consiste en incrementar la conversión comercial, manteniendo claridad en las condiciones financieras y confianza durante la contratación.
+
+**Hipótesis de oportunidad:**
+
+Si los clientes pueden revisar y aceptar una oferta preaprobada en menos tiempo y comprender sus condiciones financieras, aumentará la proporción de ofertas que terminan en contratación.
+
+Esta hipótesis deberá validarse mediante los indicadores definidos en el proyecto.
+
+---
+
+## 2. Usuarios y segmentos objetivo
+
+### 2.1 Segmento principal
+
+Clientes existentes de un banco ficticio peruano que cuentan con historial crediticio favorable y una oferta vigente de crédito de consumo preaprobado.
+
+### 2.2 Características del segmento
+
+- Son clientes actuales del banco.
+- Cuentan con ofertas de crédito de consumo preaprobadas.
+- Prefieren utilizar canales digitales para contratar productos financieros.
+- Buscan reducir el tiempo necesario para obtener un crédito.
+- Necesitan comprender las condiciones financieras antes de aceptar.
+
+### 2.3 Necesidades identificadas
+
+| Necesidad | Descripción | Clasificación |
+|---|---|---|
+| Rapidez | Reducir el tiempo de contratación | Necesidad declarada |
+| Claridad financiera | Comprender TCEA, intereses y costo total | Hipótesis de necesidad |
+| Confianza | Tener certeza sobre las condiciones aceptadas | Hipótesis de necesidad |
+| Acceso digital | Realizar la contratación mediante canales digitales | Preferencia del segmento |
+| Disponibilidad del dinero | Recibir el desembolso después de contratar | Objetivo del recorrido |
+
+### 2.4 Supuestos sobre los usuarios
+
+Se asume que los clientes objetivo:
+
+1. Tienen acceso habitual a Internet.
+2. Utilizan canales digitales bancarios.
+3. Están dispuestos a evaluar ofertas de crédito digitalmente.
+
+Estos supuestos no han sido validados con usuarios reales.
+
+### 2.5 Segmentos no priorizados
+
+No se han definido segmentos secundarios.
+
+La inclusión de nuevos clientes, personas sin ofertas preaprobadas u otros productos crediticios queda fuera del alcance inicial establecido.
+
+---
+
+## 3. Propuesta de valor
+
+### 3.1 Propuesta principal
+
+**Altoque permite a clientes existentes de un banco con ofertas de crédito de consumo preaprobadas revisar sus condiciones, contratar el crédito y recibir el desembolso mediante un portal web, sin depender de un asesor ni realizar trámites presenciales.**
+
+La propuesta se centra en la rapidez, la claridad de las condiciones financieras y la confianza del cliente.
+
+### 3.2 Valor esperado para el cliente
+
+**Rapidez**
+
+Reducir el tiempo necesario para revisar y aceptar una oferta de crédito preaprobada.
+
+**Transparencia**
+
+Conocer la tasa, la cuota y el costo total del crédito antes de aceptar las condiciones.
+
+**Autonomía**
+
+Contratar el crédito sin intervención presencial ni dependencia de un asesor.
+
+**Confianza**
+
+Contar con claridad sobre las condiciones aceptadas y evitar discrepancias entre la contratación y el desembolso.
+
+### 3.3 Valor esperado para el banco
+
+- Incrementar la conversión de ofertas preaprobadas en contratos.
+- Reducir las oportunidades comerciales perdidas por abandono.
+- Incrementar las oportunidades de ingresos por intereses de créditos efectivamente desembolsados.
+- Mantener la confianza de los clientes durante la contratación digital.
+
+### 3.4 Diferenciación preliminar
+
+La diferenciación propuesta de Altoque frente al proceso digital actual es una contratación más rápida y comprensible.
+
+No se ha demostrado todavía que Altoque ofrezca ventajas frente a aplicaciones bancarias reales del mercado peruano.
+
+**Hipótesis de valor:**
+
+La rapidez y la comprensión de las condiciones financieras influyen positivamente en la decisión de contratar un crédito preaprobado.
+
+---
+
+## 4. Modelo de negocio preliminar
+
+### 4.1 Modelo seleccionado
+
+Altoque utiliza un modelo de negocio basado en los intereses generados por los créditos de consumo efectivamente desembolsados.
+
+El portal no ha sido definido como una fuente independiente de ingresos por suscripción o comisiones.
+
+### 4.2 Generación de ingresos
+
+El proceso económico considerado es:
+
+1. El banco dispone de una oferta de crédito de consumo preaprobada.
+2. El cliente consulta las condiciones de la oferta.
+3. El cliente decide si acepta la contratación.
+4. El banco realiza el desembolso correspondiente.
+5. El crédito desembolsado puede generar ingresos por intereses durante su vigencia.
+
+La contratación por sí sola no garantiza ingresos. Estos dependen del desembolso efectivo, las condiciones del crédito y los pagos realizados.
+
+### 4.3 Beneficio económico esperado
+
+El principal beneficio esperado es aumentar las oportunidades de colocación de créditos mediante una mayor conversión de ofertas visualizadas en contrataciones.
+
+### 4.4 Hipótesis económicas
+
+- Reducir las demoras puede disminuir el abandono.
+- Una mayor conversión puede incrementar los créditos desembolsados.
+- Los créditos desembolsados pueden generar mayores ingresos por intereses.
+- Las fallas operativas pueden afectar negativamente la colocación y la confianza del cliente.
+
+### 4.5 Aspectos económicos pendientes
+
+No se han definido:
+
+- Ticket promedio de los créditos.
+- Tasas de interés promedio.
+- Volumen esperado de ofertas.
+- Costos operativos.
+- Morosidad o pérdidas crediticias esperadas.
+- Rentabilidad neta.
+- Proyección de ingresos.
+
+No se estimarán valores sin información o supuestos adicionales explícitos.
+
+---
+
+## 5. Métricas de éxito (KPIs medibles)
+
+### 5.1 KPI-01: Tasa de conversión de ofertas
+
+**Clasificación:** KPI principal de negocio.
+
+**Objetivo:** medir el porcentaje de ofertas preaprobadas visualizadas que terminan en contratación.
+
+**Fórmula:**
+
+```text
+Tasa de conversión (%) =
+(Ofertas únicas contratadas /
+ Ofertas únicas visualizadas) × 100
+```
+
+**Meta:** al menos 50 %.
+
+**Frecuencia de evaluación:** semanal.
+
+**Regla de contabilización:** las visualizaciones repetidas de una misma oferta por el mismo cliente no se contabilizan como nuevas oportunidades.
+
+**Ejemplo ilustrativo:**
+
+Si durante una semana se visualizan 100 ofertas únicas y 55 terminan contratadas, la conversión sería del 55 %.
+
+En ese escenario, se cumpliría la meta académica.
+
+**Pendiente de definición:** tratamiento de ofertas contratadas en una semana posterior a su visualización y de nuevas ofertas emitidas al mismo cliente.
+
+### 5.2 KPI-02: Tiempo promedio de contratación
+
+**Clasificación:** KPI de eficiencia del proceso.
+
+**Objetivo:** medir el tiempo promedio transcurrido desde que el cliente visualiza su oferta hasta que acepta el crédito.
+
+**Fórmula:**
+
+```text
+Tiempo promedio de contratación =
+Suma de tiempos entre visualización y aceptación /
+Número de contrataciones completadas
+```
+
+**Meta:** máximo cinco minutos de promedio.
+
+**Unidad:** minutos.
+
+**Inicio:** visualización de la oferta.
+
+**Fin:** aceptación del crédito.
+
+**Ejemplo ilustrativo:**
+
+Si tres contrataciones toman 3, 4 y 5 minutos:
+
+```text
+(3 + 4 + 5) / 3 = 4 minutos
+```
+
+El tiempo promedio cumpliría la meta.
+
+Este indicador no mide el tiempo de desembolso ni el tiempo que tardan los clientes que abandonan el proceso.
+
+### 5.3 Indicadores pendientes de definición
+
+Durante el descubrimiento se identificaron otros resultados relevantes que podrían requerir medición posterior:
+
+- Abandono durante la contratación.
+- Créditos efectivamente desembolsados.
+- Desembolsos duplicados.
+- Diferencias entre condiciones aceptadas y desembolsadas.
+- Fallas del core bancario.
+- Confianza y comprensión financiera del cliente.
+
+No se establecen metas numéricas para estos aspectos porque no fueron acordadas durante las rondas de descubrimiento.
+
+### 5.4 Naturaleza de las metas
+
+Las metas del 50 % de conversión semanal y cinco minutos de tiempo promedio son objetivos académicos definidos durante el descubrimiento.
+
+No representan resultados históricos ni referencias verificadas del sector bancario peruano.
+
+---
+
+## 6. Riesgos identificados y supuestos
+
+### 6.1 Riesgos de negocio y operación
+
+| ID | Riesgo | Consecuencia potencial | Estado |
+|---|---|---|---|
+| R-01 | Desembolso duplicado de un mismo crédito | Perjuicio económico, reclamos y problemas de conciliación | Crítico priorizado |
+| R-02 | Diferencia entre condiciones aceptadas y desembolso efectivo | Reclamos, desconfianza y posibles perjuicios económicos | Identificado |
+| R-03 | Falla del core bancario después de la aceptación | Demoras, desconfianza y oportunidades comerciales perdidas | Identificado |
+| R-04 | Oferta vencida durante la contratación | Contratación sobre condiciones que ya no están vigentes | Identificado |
+| R-05 | Falta de comprensión de TCEA, intereses y costo total | Desconfianza y posible abandono | Hipótesis |
+| R-06 | Tratamiento inadecuado de datos personales | Posibles incumplimientos y afectación de la confianza | Riesgo asociado a restricción |
+
+El riesgo R-01 fue priorizado explícitamente durante el descubrimiento.
+
+No se han estimado probabilidades, impactos monetarios ni niveles cuantitativos de exposición.
+
+### 6.2 Supuestos de negocio
+
+| ID | Supuesto | Estado |
+|---|---|---|
+| S-01 | Los clientes objetivo tienen acceso habitual a Internet | No validado |
+| S-02 | Los clientes utilizan regularmente canales digitales | No validado |
+| S-03 | La reducción del tiempo de contratación incrementa la conversión | No validado |
+| S-04 | La claridad financiera influye en la confianza del cliente | No validado |
+| S-05 | Una mayor conversión puede incrementar los créditos desembolsados | No validado |
+| S-06 | La demora en visualizar ofertas contribuye al abandono | No validado |
+
+### 6.3 Riesgos de validez académica
+
+Altoque se desarrolla sobre un escenario ficticio. Por lo tanto:
+
+- No se dispone de una línea base real de conversión.
+- No se han realizado entrevistas con clientes.
+- No se han validado tiempos reales de contratación.
+- No se dispone de información financiera histórica.
+- No se ha contrastado la propuesta con procesos reales de bancos peruanos.
+
+Los resultados futuros deberán diferenciar claramente datos simulados, objetivos y resultados observados.
+
+---
+
+## 7. Restricciones conocidas
+
+### 7.1 Restricciones de negocio
+
+**Producto único**
+
+Altoque contempla exclusivamente créditos de consumo preaprobados.
+
+**Segmento inicial**
+
+Clientes existentes del banco ficticio con ofertas preaprobadas e historial crediticio favorable.
+
+**Recorrido único**
+
+El alcance comprende desde el ofrecimiento del crédito hasta su contratación y desembolso.
+
+**Canal**
+
+Portal web de contratación digital.
+
+**Sin intervención presencial**
+
+El recorrido previsto no requiere acudir a una agencia ni depender de un asesor.
+
+### 7.2 Restricciones de confianza y contratación
+
+El contexto inicial establece que:
+
+- El cliente debe conocer la tasa, la cuota y el costo total antes de aceptar.
+- Debe existir aceptación expresa de las condiciones.
+- Debe quedar constancia de lo aceptado.
+- La contratación requiere autenticación y auditoría.
+- La validación adicional se contempla ante señales de riesgo.
+
+Las reglas específicas de estos procesos no forman parte de este Project Brief.
+
+### 7.3 Restricciones normativas
+
+**País de referencia:** Perú.
+
+Se prioriza la protección de datos personales y el tratamiento autorizado de información.
+
+También deberá considerarse el marco normativo aplicable a los productos financieros y la transparencia de las condiciones crediticias.
+
+No se declara cumplimiento normativo efectivo ni se define todavía una matriz de obligaciones legales específicas.
+
+### 7.4 Restricciones operativas
+
+El escenario contempla explícitamente:
+
+- Desembolsos duplicados.
+- Ofertas vencidas.
+- Fallas del core bancario.
+- Diferencias entre las condiciones aceptadas y las efectivamente aplicadas.
+
+Las reglas de tratamiento de estos escenarios deberán definirse posteriormente.
+
+### 7.5 Restricciones académicas
+
+- El banco es ficticio.
+- Los clientes y ofertas son simulados.
+- El proyecto forma parte de un Diploma en AI-First Software Architecture.
+- Las metas de negocio son académicas.
+- Las hipótesis no se presentarán como hechos validados.
+- No se utilizarán datos bancarios reales como requisito del ejercicio.
+
+### 7.6 Restricciones de alcance del documento
+
+Este Project Brief describe el problema, la oportunidad, los usuarios, la propuesta de valor, el modelo económico, las métricas y los riesgos.
+
+No define:
+
+- Arquitectura de software.
+- Diseño de interfaces.
+- APIs o contratos técnicos.
+- Modelos de datos.
+- Historias de usuario.
+- Reglas técnicas de implementación.
+- Soluciones específicas para los riesgos identificados.
+
+Estos aspectos corresponden a etapas posteriores del proceso de desarrollo.
+
+---
+
+## Estado y próximos pasos
+
+**Estado del Project Brief:** v0.1 — Preliminar, basado en cinco rondas de descubrimiento académico.
+
+**Conclusión:**
+
+Altoque aborda la oportunidad de reducir las demoras en la contratación digital de créditos de consumo preaprobados para clientes existentes de un banco ficticio peruano.
+
+Su éxito comercial se evaluará principalmente mediante una conversión semanal mínima del 50 %, mientras que la eficiencia de contratación se medirá con un tiempo promedio máximo de cinco minutos entre la visualización y la aceptación de la oferta.
+
+La confianza en las condiciones financieras y la prevención de desembolsos duplicados constituyen preocupaciones prioritarias del escenario.
+
+Las hipótesis identificadas y los aspectos pendientes deberán mantenerse explícitos durante las siguientes etapas de definición del producto.
+
+**Fin del documento — `01-project-brief.md`**
+
+
+# Constitución del proyecto Altoque
+
+Altoque es un proyecto académico ficticio para Perú: un portal web donde clientes con un crédito preaprobado pueden simularlo, contratarlo y recibir un desembolso simulado, sin asesor y con visibilidad del costo total antes de aceptar. Los siguientes principios son obligatorios para toda contribución humana o generada por IA.
+
+## PRINCIPIO-001: Código en inglés y documentación en español
+Los identificadores, nombres de archivos de código y comentarios técnicos del código deben escribirse en inglés; la documentación funcional y técnica destinada al proyecto debe escribirse en español.
+
+**Ejemplo de cumplimiento:** Una clase se llama `LoanSimulationService` y su ADR asociado explica en español la decisión de diseño.
+
+**Ejemplo de violación:** Crear una clase llamada `ServicioSimulacionCredito` o redactar en inglés la documentación funcional del flujo de contratación.
+
+## PRINCIPIO-002: Stack tecnológico obligatorio
+El backend debe implementarse con Java y Spring Boot, y el frontend con Angular; no se puede sustituir ni añadir un framework principal sin una decisión documentada mediante ADR.
+
+**Ejemplo de cumplimiento:** Implementar la API con Spring Boot y la interfaz con componentes Angular.
+
+**Ejemplo de violación:** Reemplazar Angular por React o implementar un servicio principal en Node.js sin un ADR aprobado.
+
+## PRINCIPIO-003: Versiones fijadas y compatibles
+Al iniciar el proyecto se deben registrar y fijar versiones estables y mutuamente compatibles de Java, Spring Boot, Angular y sus herramientas de construcción; toda actualización posterior debe mantener versiones explícitas y documentarse mediante ADR.
+
+**Ejemplo de cumplimiento:** Los archivos de construcción y la documentación registran versiones exactas, y un ADR explica una actualización de Spring Boot.
+
+**Ejemplo de violación:** Usar dependencias con versiones dinámicas como `latest` o actualizar Angular sin comprobar compatibilidad ni registrar la decisión.
+
+## PRINCIPIO-004: Cálculo financiero centralizado en el backend
+Las cuotas, intereses, TCEA y el cronograma de pagos deben calcularse en un único módulo del backend de Altoque; el frontend solo presenta los resultados recibidos y no implementa una fórmula financiera independiente.
+
+**Ejemplo de cumplimiento:** El frontend envía los datos de simulación a la API y muestra la cuota, la TCEA y el cronograma devueltos por el módulo financiero.
+
+**Ejemplo de violación:** Calcular la TCEA en TypeScript o mantener fórmulas distintas para simulación y contratación.
+
+## PRINCIPIO-005: Costo total visible antes de aceptar
+Antes de habilitar la aceptación del crédito, la interfaz debe mostrar los resultados de la simulación, incluidos cuotas, intereses, TCEA y cronograma de pagos generados por el backend.
+
+**Ejemplo de cumplimiento:** Una prueba de interfaz verifica que esos cuatro elementos estén visibles antes de activar el control de aceptación.
+
+**Ejemplo de violación:** Permitir que el cliente acepte mostrando solo el importe solicitado y la cuota mensual.
+
+## PRINCIPIO-006: Contratación y desembolso con controles previos
+Ninguna contratación ni desembolso simulado puede realizarse sin autenticación del cliente, aceptación expresa de las condiciones mostradas y registro de auditoría del evento.
+
+**Ejemplo de cumplimiento:** Una prueba de integración demuestra que la operación se rechaza si falta la sesión autenticada, la aceptación expresa o la escritura del registro de auditoría.
+
+**Ejemplo de violación:** Crear el contrato o marcar el desembolso como realizado mediante una llamada no autenticada o sin guardar evidencia de aceptación.
+
+## PRINCIPIO-007: Trazabilidad de decisiones y eventos críticos
+Cada aceptación, contratación y desembolso simulado debe dejar un registro de auditoría que permita identificar el evento, su fecha y hora, el cliente autenticado y el resultado; los registros no deben sustituirse por mensajes únicamente visibles en la interfaz.
+
+**Ejemplo de cumplimiento:** El backend persiste un evento consultable para una aceptación aprobada y otro para un intento rechazado.
+
+**Ejemplo de violación:** Mostrar “operación exitosa” en pantalla sin conservar un registro de auditoría asociado.
+
+## PRINCIPIO-008: Límite operativo de los agentes de IA
+Los agentes de IA pueden leer archivos y editar código y pruebas, pero tienen prohibido ejecutar código, pruebas, scripts o aplicaciones, así como desplegar o publicar cualquier artefacto en cualquier entorno.
+
+**Ejemplo de cumplimiento:** Un agente propone y guarda cambios en una clase y sus pruebas, y entrega instrucciones para que una persona autorizada las ejecute.
+
+**Ejemplo de violación:** Un agente ejecuta `mvn test`, `ng test`, inicia la aplicación, publica una imagen o realiza un despliegue.
+
+## PRINCIPIO-009: Cobertura mínima independiente
+Las pruebas automatizadas deben alcanzar al menos 80 % de cobertura de líneas en el backend y al menos 80 % en el frontend, medidos y reportados por separado; un promedio combinado no satisface este principio.
+
+**Ejemplo de cumplimiento:** El reporte del backend indica 82 % y el del frontend 85 % de cobertura de líneas.
+
+**Ejemplo de violación:** Aceptar 92 % en backend y 70 % en frontend porque el promedio combinado supera 80 %.
+
+## PRINCIPIO-010: Pruebas automatizadas y SAST obligatorios
+Todo cambio de código debe contar con pruebas automatizadas pertinentes y someterse a análisis estático de seguridad (SAST); no se puede aprobar una entrega con pruebas fallidas, cobertura inferior a la exigida o hallazgos SAST pendientes sin resolución documentada.
+
+**Ejemplo de cumplimiento:** Una revisión humana verifica los reportes separados de pruebas y cobertura, junto con un reporte SAST sin hallazgos pendientes.
+
+**Ejemplo de violación:** Integrar un cambio sin pruebas para el nuevo comportamiento o ignorar un hallazgo SAST sin documentar su resolución.
+
+## PRINCIPIO-011: Accesibilidad básica verificable
+Todos los flujos del portal deben poder operarse mediante teclado, los controles y campos deben tener etiquetas asociadas, y texto, controles e indicadores deben conservar contraste visual distinguible; no se establece un umbral numérico de contraste mientras no sea aprobado.
+
+**Ejemplo de cumplimiento:** Una revisión permite completar la simulación y aceptación sin mouse, y una prueba detecta nombres accesibles ausentes en controles interactivos.
+
+**Ejemplo de violación:** Usar un elemento clicable inaccesible por teclado, un campo sin etiqueta o texto que no se distingue visualmente de su fondo.
+
+## PRINCIPIO-012: Documentación y seguridad sin requisitos inventados
+La documentación del proyecto debe mantenerse en Markdown e incluir ADR para decisiones arquitectónicas, OpenAPI para las interfaces HTTP y artefactos BMAD/SDD para la definición y desarrollo; el estándar corporativo de seguridad queda explícitamente pendiente y nadie puede inventar algoritmos, umbrales o políticas como si hubieran sido aprobados.
+
+**Ejemplo de cumplimiento:** Documentar una API en OpenAPI, registrar una decisión en un ADR y marcar el estándar de cifrado como “pendiente de definición”.
+
+**Ejemplo de violación:** Cambiar un contrato HTTP sin actualizar OpenAPI o declarar obligatorios AES-256, TLS 1.3 o una política de retención sin una decisión aprobada.
+
+</contexto>
+<tarea>
+Con base en el Project Brief y la constitución, ayúdame a definir:
+1. **IN-SCOPE** — Funcionalidades que SÍ construimos. Para cada una: nombre,
+descripción de una frase, y prioridad MoSCoW.
+2. **OUT-OF-SCOPE** — Funcionalidades que explícitamente NO construimos en esta
+versión. Para cada una: nombre y razón por la que está fuera.
+3. **MVP (Minimum Viable Product)** — Solo los Must have. Describe en un párrafo qué
+puede hacer un usuario con solo el MVP.
+4. **Supuestos** — Lo que asumimos como verdadero sin haberlo validado.
+5. **Restricciones** — Limitaciones técnicas, legales o de recursos.
+6. **Dependencias** — Sistemas o servicios externos de los que depende el producto.
+Priorización MoSCoW:
+- M (Must): sin esto, el producto no funciona. Máximo 5-6 funcionalidades.
+- S (Should): valioso, se construye después del MVP. Máximo 4-5.
+- C (Could): nice-to-have. Máximo 3-4.
+- W (Won't): explícitamente fuera de esta versión.
+</tarea>
+<restricciones>
+- Sé estricto con los Must: si puedes vivir sin ello en la primera versión, no es
+Must.
+- El out-of-scope es TAN IMPORTANTE como el in-scope. Mínimo 5 items en out-of-scope.
+- Todos los items deben ser consistentes con la constitución.
+</restricciones>
+<formato>
+Documento en Markdown para el archivo 02-alcance.md.
+</formato>

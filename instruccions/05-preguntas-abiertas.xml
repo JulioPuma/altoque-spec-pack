@@ -1,0 +1,1258 @@
+<rol>
+Eres un QA Senior y Abogado del Diablo (Agente QA del framework BMAD). Tu trabajo es
+encontrar TODOS los defectos en una especificación de producto antes de que un agente
+de IA intente implementarla. Eres meticuloso, escéptico y no asumes nada.
+</rol>
+<contexto>
+Revisa el siguiente Spec Pack completo:
+Constitución:
+# Constitución del proyecto Altoque
+
+Altoque es un proyecto académico ficticio para Perú: un portal web donde clientes con un crédito preaprobado pueden simularlo, contratarlo y recibir un desembolso simulado, sin asesor y con visibilidad del costo total antes de aceptar. Los siguientes principios son obligatorios para toda contribución humana o generada por IA.
+
+## PRINCIPIO-001: Código en inglés y documentación en español
+Los identificadores, nombres de archivos de código y comentarios técnicos del código deben escribirse en inglés; la documentación funcional y técnica destinada al proyecto debe escribirse en español.
+
+**Ejemplo de cumplimiento:** Una clase se llama `LoanSimulationService` y su ADR asociado explica en español la decisión de diseño.
+
+**Ejemplo de violación:** Crear una clase llamada `ServicioSimulacionCredito` o redactar en inglés la documentación funcional del flujo de contratación.
+
+## PRINCIPIO-002: Stack tecnológico obligatorio
+El backend debe implementarse con Java y Spring Boot, y el frontend con Angular; no se puede sustituir ni añadir un framework principal sin una decisión documentada mediante ADR.
+
+**Ejemplo de cumplimiento:** Implementar la API con Spring Boot y la interfaz con componentes Angular.
+
+**Ejemplo de violación:** Reemplazar Angular por React o implementar un servicio principal en Node.js sin un ADR aprobado.
+
+## PRINCIPIO-003: Versiones fijadas y compatibles
+Al iniciar el proyecto se deben registrar y fijar versiones estables y mutuamente compatibles de Java, Spring Boot, Angular y sus herramientas de construcción; toda actualización posterior debe mantener versiones explícitas y documentarse mediante ADR.
+
+**Ejemplo de cumplimiento:** Los archivos de construcción y la documentación registran versiones exactas, y un ADR explica una actualización de Spring Boot.
+
+**Ejemplo de violación:** Usar dependencias con versiones dinámicas como `latest` o actualizar Angular sin comprobar compatibilidad ni registrar la decisión.
+
+## PRINCIPIO-004: Cálculo financiero centralizado en el backend
+Las cuotas, intereses, TCEA y el cronograma de pagos deben calcularse en un único módulo del backend de Altoque; el frontend solo presenta los resultados recibidos y no implementa una fórmula financiera independiente.
+
+**Ejemplo de cumplimiento:** El frontend envía los datos de simulación a la API y muestra la cuota, la TCEA y el cronograma devueltos por el módulo financiero.
+
+**Ejemplo de violación:** Calcular la TCEA en TypeScript o mantener fórmulas distintas para simulación y contratación.
+
+## PRINCIPIO-005: Costo total visible antes de aceptar
+Antes de habilitar la aceptación del crédito, la interfaz debe mostrar los resultados de la simulación, incluidos cuotas, intereses, TCEA y cronograma de pagos generados por el backend.
+
+**Ejemplo de cumplimiento:** Una prueba de interfaz verifica que esos cuatro elementos estén visibles antes de activar el control de aceptación.
+
+**Ejemplo de violación:** Permitir que el cliente acepte mostrando solo el importe solicitado y la cuota mensual.
+
+## PRINCIPIO-006: Contratación y desembolso con controles previos
+Ninguna contratación ni desembolso simulado puede realizarse sin autenticación del cliente, aceptación expresa de las condiciones mostradas y registro de auditoría del evento.
+
+**Ejemplo de cumplimiento:** Una prueba de integración demuestra que la operación se rechaza si falta la sesión autenticada, la aceptación expresa o la escritura del registro de auditoría.
+
+**Ejemplo de violación:** Crear el contrato o marcar el desembolso como realizado mediante una llamada no autenticada o sin guardar evidencia de aceptación.
+
+## PRINCIPIO-007: Trazabilidad de decisiones y eventos críticos
+Cada aceptación, contratación y desembolso simulado debe dejar un registro de auditoría que permita identificar el evento, su fecha y hora, el cliente autenticado y el resultado; los registros no deben sustituirse por mensajes únicamente visibles en la interfaz.
+
+**Ejemplo de cumplimiento:** El backend persiste un evento consultable para una aceptación aprobada y otro para un intento rechazado.
+
+**Ejemplo de violación:** Mostrar “operación exitosa” en pantalla sin conservar un registro de auditoría asociado.
+
+## PRINCIPIO-008: Límite operativo de los agentes de IA
+Los agentes de IA pueden leer archivos y editar código y pruebas, pero tienen prohibido ejecutar código, pruebas, scripts o aplicaciones, así como desplegar o publicar cualquier artefacto en cualquier entorno.
+
+**Ejemplo de cumplimiento:** Un agente propone y guarda cambios en una clase y sus pruebas, y entrega instrucciones para que una persona autorizada las ejecute.
+
+**Ejemplo de violación:** Un agente ejecuta `mvn test`, `ng test`, inicia la aplicación, publica una imagen o realiza un despliegue.
+
+## PRINCIPIO-009: Cobertura mínima independiente
+Las pruebas automatizadas deben alcanzar al menos 80 % de cobertura de líneas en el backend y al menos 80 % en el frontend, medidos y reportados por separado; un promedio combinado no satisface este principio.
+
+**Ejemplo de cumplimiento:** El reporte del backend indica 82 % y el del frontend 85 % de cobertura de líneas.
+
+**Ejemplo de violación:** Aceptar 92 % en backend y 70 % en frontend porque el promedio combinado supera 80 %.
+
+## PRINCIPIO-010: Pruebas automatizadas y SAST obligatorios
+Todo cambio de código debe contar con pruebas automatizadas pertinentes y someterse a análisis estático de seguridad (SAST); no se puede aprobar una entrega con pruebas fallidas, cobertura inferior a la exigida o hallazgos SAST pendientes sin resolución documentada.
+
+**Ejemplo de cumplimiento:** Una revisión humana verifica los reportes separados de pruebas y cobertura, junto con un reporte SAST sin hallazgos pendientes.
+
+**Ejemplo de violación:** Integrar un cambio sin pruebas para el nuevo comportamiento o ignorar un hallazgo SAST sin documentar su resolución.
+
+## PRINCIPIO-011: Accesibilidad básica verificable
+Todos los flujos del portal deben poder operarse mediante teclado, los controles y campos deben tener etiquetas asociadas, y texto, controles e indicadores deben conservar contraste visual distinguible; no se establece un umbral numérico de contraste mientras no sea aprobado.
+
+**Ejemplo de cumplimiento:** Una revisión permite completar la simulación y aceptación sin mouse, y una prueba detecta nombres accesibles ausentes en controles interactivos.
+
+**Ejemplo de violación:** Usar un elemento clicable inaccesible por teclado, un campo sin etiqueta o texto que no se distingue visualmente de su fondo.
+
+## PRINCIPIO-012: Documentación y seguridad sin requisitos inventados
+La documentación del proyecto debe mantenerse en Markdown e incluir ADR para decisiones arquitectónicas, OpenAPI para las interfaces HTTP y artefactos BMAD/SDD para la definición y desarrollo; el estándar corporativo de seguridad queda explícitamente pendiente y nadie puede inventar algoritmos, umbrales o políticas como si hubieran sido aprobados.
+
+**Ejemplo de cumplimiento:** Documentar una API en OpenAPI, registrar una decisión en un ADR y marcar el estándar de cifrado como “pendiente de definición”.
+
+**Ejemplo de violación:** Cambiar un contrato HTTP sin actualizar OpenAPI o declarar obligatorios AES-256, TLS 1.3 o una política de retención sin una decisión aprobada.
+
+Project Brief:
+# Altoque — Project Brief
+
+**Archivo:** `01-project-brief.md`  
+**Versión:** 0.1  
+**Estado:** Descubrimiento completado — Brief preliminar  
+**Metodología:** BMAD — Analyst  
+**Proyecto:** Diploma en AI-First Software Architecture  
+**País de referencia:** Perú  
+**Naturaleza:** Proyecto académico ficticio
+
+---
+
+## 1. Problema y oportunidad
+
+### 1.1 Contexto
+
+En el escenario académico de Altoque, un banco ficticio peruano ofrece créditos de consumo preaprobados a clientes existentes con historial crediticio favorable.
+
+Actualmente, estos clientes pueden utilizar la aplicación móvil o la banca por Internet para consultar sus ofertas. Sin embargo, se plantea que experimentan demoras, especialmente al consultar o visualizar las condiciones de sus créditos preaprobados.
+
+Estas demoras representan una posible barrera para los clientes que prefieren contratar productos financieros mediante canales digitales.
+
+### 1.2 Problema principal
+
+Los clientes con ofertas de crédito de consumo preaprobadas tardan demasiado en acceder a sus ofertas y completar el proceso de contratación, lo que genera pérdida de tiempo y puede ocasionar abandono.
+
+**Problema desde la perspectiva del cliente:**
+
+- Demoras durante el proceso de contratación digital.
+- Pérdida de tiempo en consultas y esperas.
+- Dificultad potencial para comprender las condiciones financieras ofrecidas.
+- Incertidumbre sobre la contratación y recepción del dinero.
+
+**Problema desde la perspectiva del banco:**
+
+- Posible abandono de ofertas preaprobadas.
+- Pérdida de oportunidades comerciales.
+- Menor conversión de ofertas en contratos.
+- Menores oportunidades de generar ingresos por intereses.
+
+Las causas y consecuencias descritas constituyen hipótesis del escenario académico y no resultados de una investigación de campo.
+
+### 1.3 Oportunidad de negocio
+
+Altoque representa una oportunidad para facilitar la contratación digital de créditos de consumo preaprobados y reducir las demoras percibidas por los clientes.
+
+La oportunidad consiste en incrementar la conversión comercial, manteniendo claridad en las condiciones financieras y confianza durante la contratación.
+
+**Hipótesis de oportunidad:**
+
+Si los clientes pueden revisar y aceptar una oferta preaprobada en menos tiempo y comprender sus condiciones financieras, aumentará la proporción de ofertas que terminan en contratación.
+
+Esta hipótesis deberá validarse mediante los indicadores definidos en el proyecto.
+
+---
+
+## 2. Usuarios y segmentos objetivo
+
+### 2.1 Segmento principal
+
+Clientes existentes de un banco ficticio peruano que cuentan con historial crediticio favorable y una oferta vigente de crédito de consumo preaprobado.
+
+### 2.2 Características del segmento
+
+- Son clientes actuales del banco.
+- Cuentan con ofertas de crédito de consumo preaprobadas.
+- Prefieren utilizar canales digitales para contratar productos financieros.
+- Buscan reducir el tiempo necesario para obtener un crédito.
+- Necesitan comprender las condiciones financieras antes de aceptar.
+
+### 2.3 Necesidades identificadas
+
+| Necesidad | Descripción | Clasificación |
+|---|---|---|
+| Rapidez | Reducir el tiempo de contratación | Necesidad declarada |
+| Claridad financiera | Comprender TCEA, intereses y costo total | Hipótesis de necesidad |
+| Confianza | Tener certeza sobre las condiciones aceptadas | Hipótesis de necesidad |
+| Acceso digital | Realizar la contratación mediante canales digitales | Preferencia del segmento |
+| Disponibilidad del dinero | Recibir el desembolso después de contratar | Objetivo del recorrido |
+
+### 2.4 Supuestos sobre los usuarios
+
+Se asume que los clientes objetivo:
+
+1. Tienen acceso habitual a Internet.
+2. Utilizan canales digitales bancarios.
+3. Están dispuestos a evaluar ofertas de crédito digitalmente.
+
+Estos supuestos no han sido validados con usuarios reales.
+
+### 2.5 Segmentos no priorizados
+
+No se han definido segmentos secundarios.
+
+La inclusión de nuevos clientes, personas sin ofertas preaprobadas u otros productos crediticios queda fuera del alcance inicial establecido.
+
+---
+
+## 3. Propuesta de valor
+
+### 3.1 Propuesta principal
+
+**Altoque permite a clientes existentes de un banco con ofertas de crédito de consumo preaprobadas revisar sus condiciones, contratar el crédito y recibir el desembolso mediante un portal web, sin depender de un asesor ni realizar trámites presenciales.**
+
+La propuesta se centra en la rapidez, la claridad de las condiciones financieras y la confianza del cliente.
+
+### 3.2 Valor esperado para el cliente
+
+**Rapidez**
+
+Reducir el tiempo necesario para revisar y aceptar una oferta de crédito preaprobada.
+
+**Transparencia**
+
+Conocer la tasa, la cuota y el costo total del crédito antes de aceptar las condiciones.
+
+**Autonomía**
+
+Contratar el crédito sin intervención presencial ni dependencia de un asesor.
+
+**Confianza**
+
+Contar con claridad sobre las condiciones aceptadas y evitar discrepancias entre la contratación y el desembolso.
+
+### 3.3 Valor esperado para el banco
+
+- Incrementar la conversión de ofertas preaprobadas en contratos.
+- Reducir las oportunidades comerciales perdidas por abandono.
+- Incrementar las oportunidades de ingresos por intereses de créditos efectivamente desembolsados.
+- Mantener la confianza de los clientes durante la contratación digital.
+
+### 3.4 Diferenciación preliminar
+
+La diferenciación propuesta de Altoque frente al proceso digital actual es una contratación más rápida y comprensible.
+
+No se ha demostrado todavía que Altoque ofrezca ventajas frente a aplicaciones bancarias reales del mercado peruano.
+
+**Hipótesis de valor:**
+
+La rapidez y la comprensión de las condiciones financieras influyen positivamente en la decisión de contratar un crédito preaprobado.
+
+---
+
+## 4. Modelo de negocio preliminar
+
+### 4.1 Modelo seleccionado
+
+Altoque utiliza un modelo de negocio basado en los intereses generados por los créditos de consumo efectivamente desembolsados.
+
+El portal no ha sido definido como una fuente independiente de ingresos por suscripción o comisiones.
+
+### 4.2 Generación de ingresos
+
+El proceso económico considerado es:
+
+1. El banco dispone de una oferta de crédito de consumo preaprobada.
+2. El cliente consulta las condiciones de la oferta.
+3. El cliente decide si acepta la contratación.
+4. El banco realiza el desembolso correspondiente.
+5. El crédito desembolsado puede generar ingresos por intereses durante su vigencia.
+
+La contratación por sí sola no garantiza ingresos. Estos dependen del desembolso efectivo, las condiciones del crédito y los pagos realizados.
+
+### 4.3 Beneficio económico esperado
+
+El principal beneficio esperado es aumentar las oportunidades de colocación de créditos mediante una mayor conversión de ofertas visualizadas en contrataciones.
+
+### 4.4 Hipótesis económicas
+
+- Reducir las demoras puede disminuir el abandono.
+- Una mayor conversión puede incrementar los créditos desembolsados.
+- Los créditos desembolsados pueden generar mayores ingresos por intereses.
+- Las fallas operativas pueden afectar negativamente la colocación y la confianza del cliente.
+
+### 4.5 Aspectos económicos pendientes
+
+No se han definido:
+
+- Ticket promedio de los créditos.
+- Tasas de interés promedio.
+- Volumen esperado de ofertas.
+- Costos operativos.
+- Morosidad o pérdidas crediticias esperadas.
+- Rentabilidad neta.
+- Proyección de ingresos.
+
+No se estimarán valores sin información o supuestos adicionales explícitos.
+
+---
+
+## 5. Métricas de éxito (KPIs medibles)
+
+### 5.1 KPI-01: Tasa de conversión de ofertas
+
+**Clasificación:** KPI principal de negocio.
+
+**Objetivo:** medir el porcentaje de ofertas preaprobadas visualizadas que terminan en contratación.
+
+**Fórmula:**
+
+```text
+Tasa de conversión (%) =
+(Ofertas únicas contratadas /
+ Ofertas únicas visualizadas) × 100
+```
+
+**Meta:** al menos 50 %.
+
+**Frecuencia de evaluación:** semanal.
+
+**Regla de contabilización:** las visualizaciones repetidas de una misma oferta por el mismo cliente no se contabilizan como nuevas oportunidades.
+
+**Ejemplo ilustrativo:**
+
+Si durante una semana se visualizan 100 ofertas únicas y 55 terminan contratadas, la conversión sería del 55 %.
+
+En ese escenario, se cumpliría la meta académica.
+
+**Pendiente de definición:** tratamiento de ofertas contratadas en una semana posterior a su visualización y de nuevas ofertas emitidas al mismo cliente.
+
+### 5.2 KPI-02: Tiempo promedio de contratación
+
+**Clasificación:** KPI de eficiencia del proceso.
+
+**Objetivo:** medir el tiempo promedio transcurrido desde que el cliente visualiza su oferta hasta que acepta el crédito.
+
+**Fórmula:**
+
+```text
+Tiempo promedio de contratación =
+Suma de tiempos entre visualización y aceptación /
+Número de contrataciones completadas
+```
+
+**Meta:** máximo cinco minutos de promedio.
+
+**Unidad:** minutos.
+
+**Inicio:** visualización de la oferta.
+
+**Fin:** aceptación del crédito.
+
+**Ejemplo ilustrativo:**
+
+Si tres contrataciones toman 3, 4 y 5 minutos:
+
+```text
+(3 + 4 + 5) / 3 = 4 minutos
+```
+
+El tiempo promedio cumpliría la meta.
+
+Este indicador no mide el tiempo de desembolso ni el tiempo que tardan los clientes que abandonan el proceso.
+
+### 5.3 Indicadores pendientes de definición
+
+Durante el descubrimiento se identificaron otros resultados relevantes que podrían requerir medición posterior:
+
+- Abandono durante la contratación.
+- Créditos efectivamente desembolsados.
+- Desembolsos duplicados.
+- Diferencias entre condiciones aceptadas y desembolsadas.
+- Fallas del core bancario.
+- Confianza y comprensión financiera del cliente.
+
+No se establecen metas numéricas para estos aspectos porque no fueron acordadas durante las rondas de descubrimiento.
+
+### 5.4 Naturaleza de las metas
+
+Las metas del 50 % de conversión semanal y cinco minutos de tiempo promedio son objetivos académicos definidos durante el descubrimiento.
+
+No representan resultados históricos ni referencias verificadas del sector bancario peruano.
+
+---
+
+## 6. Riesgos identificados y supuestos
+
+### 6.1 Riesgos de negocio y operación
+
+| ID | Riesgo | Consecuencia potencial | Estado |
+|---|---|---|---|
+| R-01 | Desembolso duplicado de un mismo crédito | Perjuicio económico, reclamos y problemas de conciliación | Crítico priorizado |
+| R-02 | Diferencia entre condiciones aceptadas y desembolso efectivo | Reclamos, desconfianza y posibles perjuicios económicos | Identificado |
+| R-03 | Falla del core bancario después de la aceptación | Demoras, desconfianza y oportunidades comerciales perdidas | Identificado |
+| R-04 | Oferta vencida durante la contratación | Contratación sobre condiciones que ya no están vigentes | Identificado |
+| R-05 | Falta de comprensión de TCEA, intereses y costo total | Desconfianza y posible abandono | Hipótesis |
+| R-06 | Tratamiento inadecuado de datos personales | Posibles incumplimientos y afectación de la confianza | Riesgo asociado a restricción |
+
+El riesgo R-01 fue priorizado explícitamente durante el descubrimiento.
+
+No se han estimado probabilidades, impactos monetarios ni niveles cuantitativos de exposición.
+
+### 6.2 Supuestos de negocio
+
+| ID | Supuesto | Estado |
+|---|---|---|
+| S-01 | Los clientes objetivo tienen acceso habitual a Internet | No validado |
+| S-02 | Los clientes utilizan regularmente canales digitales | No validado |
+| S-03 | La reducción del tiempo de contratación incrementa la conversión | No validado |
+| S-04 | La claridad financiera influye en la confianza del cliente | No validado |
+| S-05 | Una mayor conversión puede incrementar los créditos desembolsados | No validado |
+| S-06 | La demora en visualizar ofertas contribuye al abandono | No validado |
+
+### 6.3 Riesgos de validez académica
+
+Altoque se desarrolla sobre un escenario ficticio. Por lo tanto:
+
+- No se dispone de una línea base real de conversión.
+- No se han realizado entrevistas con clientes.
+- No se han validado tiempos reales de contratación.
+- No se dispone de información financiera histórica.
+- No se ha contrastado la propuesta con procesos reales de bancos peruanos.
+
+Los resultados futuros deberán diferenciar claramente datos simulados, objetivos y resultados observados.
+
+---
+
+## 7. Restricciones conocidas
+
+### 7.1 Restricciones de negocio
+
+**Producto único**
+
+Altoque contempla exclusivamente créditos de consumo preaprobados.
+
+**Segmento inicial**
+
+Clientes existentes del banco ficticio con ofertas preaprobadas e historial crediticio favorable.
+
+**Recorrido único**
+
+El alcance comprende desde el ofrecimiento del crédito hasta su contratación y desembolso.
+
+**Canal**
+
+Portal web de contratación digital.
+
+**Sin intervención presencial**
+
+El recorrido previsto no requiere acudir a una agencia ni depender de un asesor.
+
+### 7.2 Restricciones de confianza y contratación
+
+El contexto inicial establece que:
+
+- El cliente debe conocer la tasa, la cuota y el costo total antes de aceptar.
+- Debe existir aceptación expresa de las condiciones.
+- Debe quedar constancia de lo aceptado.
+- La contratación requiere autenticación y auditoría.
+- La validación adicional se contempla ante señales de riesgo.
+
+Las reglas específicas de estos procesos no forman parte de este Project Brief.
+
+### 7.3 Restricciones normativas
+
+**País de referencia:** Perú.
+
+Se prioriza la protección de datos personales y el tratamiento autorizado de información.
+
+También deberá considerarse el marco normativo aplicable a los productos financieros y la transparencia de las condiciones crediticias.
+
+No se declara cumplimiento normativo efectivo ni se define todavía una matriz de obligaciones legales específicas.
+
+### 7.4 Restricciones operativas
+
+El escenario contempla explícitamente:
+
+- Desembolsos duplicados.
+- Ofertas vencidas.
+- Fallas del core bancario.
+- Diferencias entre las condiciones aceptadas y las efectivamente aplicadas.
+
+Las reglas de tratamiento de estos escenarios deberán definirse posteriormente.
+
+### 7.5 Restricciones académicas
+
+- El banco es ficticio.
+- Los clientes y ofertas son simulados.
+- El proyecto forma parte de un Diploma en AI-First Software Architecture.
+- Las metas de negocio son académicas.
+- Las hipótesis no se presentarán como hechos validados.
+- No se utilizarán datos bancarios reales como requisito del ejercicio.
+
+### 7.6 Restricciones de alcance del documento
+
+Este Project Brief describe el problema, la oportunidad, los usuarios, la propuesta de valor, el modelo económico, las métricas y los riesgos.
+
+No define:
+
+- Arquitectura de software.
+- Diseño de interfaces.
+- APIs o contratos técnicos.
+- Modelos de datos.
+- Historias de usuario.
+- Reglas técnicas de implementación.
+- Soluciones específicas para los riesgos identificados.
+
+Estos aspectos corresponden a etapas posteriores del proceso de desarrollo.
+
+---
+
+## Estado y próximos pasos
+
+**Estado del Project Brief:** v0.1 — Preliminar, basado en cinco rondas de descubrimiento académico.
+
+**Conclusión:**
+
+Altoque aborda la oportunidad de reducir las demoras en la contratación digital de créditos de consumo preaprobados para clientes existentes de un banco ficticio peruano.
+
+Su éxito comercial se evaluará principalmente mediante una conversión semanal mínima del 50 %, mientras que la eficiencia de contratación se medirá con un tiempo promedio máximo de cinco minutos entre la visualización y la aceptación de la oferta.
+
+La confianza en las condiciones financieras y la prevención de desembolsos duplicados constituyen preocupaciones prioritarias del escenario.
+
+Las hipótesis identificadas y los aspectos pendientes deberán mantenerse explícitos durante las siguientes etapas de definición del producto.
+
+**Fin del documento — `01-project-brief.md`**
+
+Alcance:
+# Altoque — Definición de Alcance del Producto
+
+**Archivo:** `02-alcance.md`  
+**Versión:** 0.1  
+**Estado:** Propuesta de alcance — Pendiente de aprobación  
+**Metodología:** BMAD — Product Manager  
+**Proyecto:** Diploma en AI-First Software Architecture  
+**País de referencia:** Perú  
+**Naturaleza:** Proyecto académico ficticio
+
+---
+
+## 1. IN-SCOPE — Funcionalidades incluidas
+
+### 1.1 Criterios de priorización
+
+Se utiliza el método MoSCoW:
+
+- **M — Must Have:** indispensable para completar el recorrido mínimo de contratación y desembolso simulado.
+- **S — Should Have:** aporta valor significativo, pero puede implementarse después del MVP.
+- **C — Could Have:** mejora opcional que no compromete el funcionamiento básico.
+- **W — Won't Have:** excluido explícitamente de esta versión.
+
+Los principios constitucionales son obligatorios y no pueden degradarse a funcionalidades opcionales.
+
+### 1.2 Must Have — Funcionalidades indispensables
+
+| ID | Funcionalidad | Descripción | Prioridad |
+|---|---|---|---|
+| M-01 | Autenticación del cliente | Permitir que un cliente simulado se autentique para acceder de manera controlada a sus operaciones crediticias. | Must |
+| M-02 | Consulta de oferta preaprobada | Permitir al cliente autenticado visualizar una oferta vigente de crédito de consumo preaprobado y sus condiciones principales. | Must |
+| M-03 | Simulación y detalle financiero | Calcular en el backend y mostrar cuotas, intereses, TCEA, costo total y cronograma de pagos antes de aceptar el crédito. | Must |
+| M-04 | Aceptación expresa y contratación | Permitir al cliente aceptar explícitamente las condiciones mostradas y registrar la contratación del crédito correspondiente. | Must |
+| M-05 | Desembolso simulado y consulta de resultado | Procesar un desembolso ficticio asociado a la contratación y mostrar al cliente su resultado, evitando desembolsos duplicados. | Must |
+| M-06 | Auditoría de operaciones críticas | Registrar de forma persistente y trazable los eventos de aceptación, contratación y desembolso, incluidos los resultados relevantes de las operaciones rechazadas. | Must |
+
+**Justificación de la selección:**
+
+Las seis funcionalidades representan el recorrido mínimo de negocio:
+
+Cliente autenticado → Oferta preaprobada → Simulación financiera → Aceptación y contratación → Desembolso simulado.
+
+La auditoría es transversal a las operaciones críticas y obligatoria según la constitución.
+
+La prevención de desembolsos duplicados se incorpora en M-05 porque corresponde al riesgo crítico R-01. No se trata como una mejora opcional.
+
+**Regla de alcance:** las seis funcionalidades deben estar disponibles y ser verificables para declarar completado el MVP.
+
+### 1.3 Should Have — Funcionalidades posteriores al MVP
+
+| ID | Funcionalidad | Descripción | Prioridad |
+|---|---|---|---|
+| S-01 | Tratamiento de ofertas vencidas | Identificar y comunicar los casos en que una oferta pierde vigencia durante el proceso de contratación, con reglas de tratamiento pendientes de definir. | Should |
+| S-02 | Consulta del estado de contratación | Permitir al cliente consultar posteriormente el estado de una contratación y su desembolso simulado. | Should |
+| S-03 | Gestión visible de fallas del core simulado | Comunicar al cliente situaciones en que el procesamiento del desembolso no puede completarse y permitir consultar el resultado conocido. | Should |
+| S-04 | Indicadores operativos complementarios | Presentar indicadores sobre abandono, desembolsos, duplicidades y fallas operativas cuando sus definiciones hayan sido aprobadas. | Should |
+
+**Límites importantes:**
+
+S-01 no autoriza contratar ofertas vencidas. El MVP debe rechazar una oferta que no esté vigente; lo posterior es el tratamiento ampliado y su comunicación específica.
+
+S-03 no significa que el MVP pueda registrar desembolsos exitosos cuando el resultado es desconocido. El procesamiento mínimo debe mantener estados coherentes y no duplicar operaciones.
+
+S-04 no sustituye la medición obligatoria de los dos KPIs principales del Project Brief.
+
+### 1.4 Could Have — Funcionalidades opcionales
+
+| ID | Funcionalidad | Descripción | Prioridad |
+|---|---|---|---|
+| C-01 | Comparación de escenarios de simulación | Facilitar la comparación visual de diferentes condiciones de simulación permitidas para una misma oferta. | Could |
+| C-02 | Explicaciones financieras contextuales | Incorporar ayudas informativas para comprender conceptos como TCEA, intereses y costo total. | Could |
+| C-03 | Visualización del historial de simulaciones | Permitir consultar simulaciones anteriores realizadas por el mismo cliente ficticio. | Could |
+
+Estas funcionalidades no forman parte del MVP ni constituyen compromisos de entrega.
+
+### 1.5 Requisitos transversales obligatorios
+
+Los siguientes requisitos no se contabilizan como funcionalidades MoSCoW independientes porque son condiciones de cumplimiento del producto:
+
+| ID | Requisito | Referencia |
+|---|---|---|
+| RT-01 | Código en inglés y documentación en español | PRINCIPIO-001 |
+| RT-02 | Backend Java/Spring Boot y frontend Angular | PRINCIPIO-002 |
+| RT-03 | Versiones estables, compatibles y fijadas al iniciar | PRINCIPIO-003 |
+| RT-04 | Cálculos financieros centralizados en backend | PRINCIPIO-004 |
+| RT-05 | Visibilidad de las condiciones financieras antes de aceptar | PRINCIPIO-005 |
+| RT-06 | Autenticación, aceptación expresa y auditoría | PRINCIPIO-006 |
+| RT-07 | Trazabilidad persistente de eventos críticos | PRINCIPIO-007 |
+| RT-08 | Agentes IA sin permisos de ejecución ni despliegue | PRINCIPIO-008 |
+| RT-09 | Cobertura mínima del 80 % de líneas en backend y frontend por separado | PRINCIPIO-009 |
+| RT-10 | Pruebas automatizadas y análisis SAST obligatorios | PRINCIPIO-010 |
+| RT-11 | Accesibilidad básica mediante teclado, etiquetas y contraste | PRINCIPIO-011 |
+| RT-12 | Documentación Markdown, ADR, OpenAPI y artefactos BMAD/SDD | PRINCIPIO-012 |
+
+La medición de los KPIs principales también debe estar contemplada desde el MVP:
+
+- **KPI-01:** conversión semanal mínima del 50 % de ofertas únicas visualizadas en contrataciones.
+- **KPI-02:** tiempo promedio máximo de cinco minutos entre visualización y aceptación.
+
+Estos son objetivos de evaluación académica, no garantías de rendimiento ni resultados ya alcanzados.
+
+---
+
+## 2. OUT-OF-SCOPE — Exclusiones explícitas
+
+Las siguientes capacidades no se construirán en la versión inicial de Altoque.
+
+| ID | Funcionalidad excluida | Razón de exclusión |
+|---|---|---|
+| W-01 | Solicitud de créditos desde cero | Altoque atiende únicamente ofertas previamente aprobadas. |
+| W-02 | Evaluación crediticia y scoring | La evaluación previa se considera parte del contexto simulado y no del recorrido de contratación. |
+| W-03 | Créditos hipotecarios, vehiculares o empresariales | El producto se limita a créditos de consumo preaprobados. |
+| W-04 | Aplicación móvil nativa | El canal definido es un portal web; no se construirán aplicaciones Android o iOS. |
+| W-05 | Integración con un banco o core bancario real | El proyecto es académico y no utilizará sistemas bancarios productivos. |
+| W-06 | Transferencias o desembolsos de dinero real | Los desembolsos serán ficticios, sin movimientos monetarios. |
+| W-07 | Integración con centrales de riesgo reales | No se realizará evaluación crediticia ni consulta de historiales reales. |
+| W-08 | Gestión de cobranza y recuperación de créditos | El recorrido termina con el desembolso simulado. |
+| W-09 | Pago de cuotas y amortización posterior | La administración del crédito después del desembolso no forma parte del alcance. |
+| W-10 | Refinanciamiento o reprogramación de créditos | Son operaciones posteriores a la contratación inicial. |
+| W-11 | Asistentes conversacionales con IA | No son necesarios para validar el recorrido mínimo de negocio. |
+| W-12 | Motor de recomendaciones personalizadas | La oferta preaprobada ya existe; no se requiere recomendar nuevos productos. |
+| W-13 | Notificaciones por SMS, WhatsApp o correo electrónico | No son indispensables para completar el recorrido mediante el portal web. |
+| W-14 | Panel administrativo bancario completo | La administración de clientes, campañas, productos y carteras excede el objetivo académico. |
+| W-15 | Firma digital mediante proveedores externos | No se ha definido un proveedor ni un mecanismo específico; el MVP conserva la aceptación expresa y su evidencia auditada. |
+| W-16 | Integración con sistemas de identidad biométrica | No se ha aprobado como mecanismo obligatorio de autenticación. |
+
+**Exclusión no significa ausencia de control.**
+
+Por ejemplo, excluir un proveedor de firma digital no elimina la obligación de registrar la aceptación expresa. Excluir un core bancario real tampoco elimina la necesidad de simular fallas relevantes y evitar desembolsos duplicados.
+
+La adopción futura de cualquier funcionalidad Won't requiere una nueva decisión de alcance.
+
+---
+
+## 3. MVP — Minimum Viable Product
+
+### 3.1 Definición del MVP
+
+El MVP de Altoque es un portal web académico que permite a un cliente ficticio autenticarse, consultar una oferta vigente de crédito de consumo preaprobado, revisar una simulación financiera calculada por el backend con sus cuotas, intereses, TCEA, costo total y cronograma de pagos, aceptar expresamente las condiciones presentadas y completar una contratación con desembolso simulado. El sistema registra los eventos críticos para auditoría, impide que una misma contratación produzca desembolsos duplicados y muestra el resultado de la operación. Todo el recorrido se realiza sin asesor presencial, sin dinero real y utilizando información simulada.
+
+### 3.2 Recorrido mínimo
+
+1. El cliente accede al portal web y se autentica.
+2. Consulta su oferta de crédito preaprobado vigente.
+3. Revisa los resultados financieros de la simulación.
+4. Acepta expresamente las condiciones presentadas.
+5. El sistema registra la contratación y procesa el desembolso simulado.
+6. El cliente visualiza el resultado de la operación y el sistema conserva su evidencia de auditoría.
+
+### 3.3 Criterios de aceptación del MVP
+
+El MVP se considera funcionalmente completo cuando puede demostrarse que:
+
+- Un cliente autenticado puede consultar únicamente las ofertas que le corresponden.
+- Una oferta inexistente o no vigente no puede contratarse.
+- Los resultados financieros se calculan en el backend y se presentan antes de la aceptación.
+- No es posible contratar sin aceptación expresa de las condiciones mostradas.
+- La contratación y el desembolso generan registros de auditoría.
+- Una misma contratación no produce desembolsos duplicados, incluso ante solicitudes repetidas.
+- Una falla del procesamiento no se presenta falsamente como desembolso exitoso.
+- El usuario puede conocer el resultado de su operación.
+- Se pueden obtener los datos necesarios para evaluar los dos KPIs acordados.
+- Se satisfacen los principios constitucionales de seguridad, pruebas, cobertura, documentación y accesibilidad.
+
+### 3.4 Lo que no necesita el MVP
+
+El MVP no necesita aplicaciones móviles nativas, inteligencia artificial conversacional, evaluación crediticia, desembolsos reales, cobranza, notificaciones externas ni un panel administrativo completo.
+
+Estas exclusiones permiten concentrar el esfuerzo en el flujo de contratación, la exactitud financiera y el riesgo crítico de desembolso duplicado.
+
+---
+
+## 4. Supuestos
+
+Los siguientes supuestos permiten delimitar el producto, pero no representan hechos validados.
+
+| ID | Supuesto | Estado |
+|---|---|---|
+| SUP-01 | Los clientes objetivo tienen acceso habitual a Internet. | No validado |
+| SUP-02 | Los clientes utilizan canales digitales bancarios. | No validado |
+| SUP-03 | Los clientes están dispuestos a contratar créditos preaprobados digitalmente. | No validado |
+| SUP-04 | Reducir las demoras de contratación puede incrementar la conversión. | No validado |
+| SUP-05 | La claridad de las condiciones financieras influye positivamente en la confianza. | No validado |
+| SUP-06 | Una mayor conversión puede incrementar el número de créditos desembolsados. | No validado |
+| SUP-07 | Las demoras de visualización contribuyen al abandono de ofertas. | No validado |
+| SUP-08 | Es posible representar el recorrido de contratación mediante clientes, ofertas y operaciones simuladas. | Supuesto de implementación |
+| SUP-09 | El comportamiento relevante del core bancario puede representarse mediante un simulador académico. | Supuesto de implementación |
+| SUP-10 | Los datos simulados permitirán evaluar el comportamiento funcional y calcular los KPIs, sin demostrar resultados reales de mercado. | Supuesto de evaluación |
+
+La validez de los supuestos comerciales deberá diferenciarse de la verificación técnica del MVP.
+
+---
+
+## 5. Restricciones
+
+### 5.1 Restricciones técnicas
+
+| ID | Restricción |
+|---|---|
+| RES-T01 | El backend debe utilizar Java y Spring Boot. |
+| RES-T02 | El frontend debe utilizar Angular. |
+| RES-T03 | Las versiones tecnológicas deben fijarse al iniciar y mantenerse compatibles. |
+| RES-T04 | Los cálculos financieros deben ejecutarse exclusivamente en el módulo backend de Altoque. |
+| RES-T05 | El frontend no debe implementar cálculos financieros independientes. |
+| RES-T06 | Las interfaces HTTP deben documentarse mediante OpenAPI. |
+| RES-T07 | Las decisiones arquitectónicas deben registrarse mediante ADR. |
+| RES-T08 | La cobertura mínima de líneas debe ser del 80 % para backend y frontend por separado. |
+| RES-T09 | Todo cambio debe contar con pruebas automatizadas pertinentes y análisis SAST. |
+| RES-T10 | El portal debe permitir navegación mediante teclado, etiquetas accesibles y contraste visual distinguible. |
+
+### 5.2 Restricciones de seguridad y confianza
+
+- Autenticación obligatoria antes de contratar o desembolsar.
+- Aceptación expresa de las condiciones financieras.
+- Registro persistente de auditoría para operaciones críticas.
+- Protección de la información del cliente.
+- Prevención de desembolsos duplicados.
+- Prohibición de presentar una operación fallida o incierta como exitosa.
+- Estándar corporativo específico de seguridad pendiente de definición.
+
+No se fijan algoritmos criptográficos, umbrales de riesgo, tiempos de retención ni mecanismos de autenticación no aprobados.
+
+### 5.3 Restricciones legales y regulatorias
+
+- Perú constituye el país de referencia.
+- Debe considerarse la protección de datos personales.
+- Debe considerarse la transparencia de las condiciones financieras.
+- No se utilizarán datos bancarios reales.
+- No se ejecutarán operaciones financieras reales.
+- No se afirma cumplimiento normativo formal de un banco productivo.
+
+La matriz de obligaciones legales específicas permanece pendiente de definición.
+
+### 5.4 Restricciones académicas y de recursos
+
+- Altoque es un proyecto académico ficticio.
+- El banco, los clientes, las ofertas y los desembolsos serán simulados.
+- No existe una línea base comercial real.
+- No se dispone de entrevistas ni validaciones con clientes reales.
+- No se dispone de información financiera histórica.
+- No se han definido presupuesto, número de integrantes, capacidad del equipo ni fecha límite de entrega.
+- Los agentes IA pueden leer y editar código y pruebas, pero no ejecutar código, pruebas, scripts o aplicaciones ni realizar despliegues.
+- La ejecución, validación operativa y publicación deben quedar a cargo de personas autorizadas.
+
+No se establecen compromisos de calendario o capacidad sin información adicional.
+
+---
+
+## 6. Dependencias
+
+### 6.1 Dependencias funcionales y de integración
+
+| ID | Dependencia | Tipo | Necesidad | Estado |
+|---|---|---|---|---|
+| DEP-01 | Datos simulados de clientes y ofertas preaprobadas | Interna | Proveer información para consultar ofertas y realizar contrataciones. | Requerida |
+| DEP-02 | Mecanismo de autenticación | Interna o externa | Identificar al cliente antes de acceder a sus operaciones. | Implementación pendiente |
+| DEP-03 | Módulo de cálculo financiero | Interna | Calcular cuotas, intereses, TCEA, costo total y cronograma. | Requerida |
+| DEP-04 | Simulador de core bancario | Simulada | Representar el procesamiento y resultado del desembolso. | Propuesto para el MVP |
+| DEP-05 | Persistencia de operaciones y auditoría | Interna | Conservar contrataciones, resultados y eventos críticos. | Requerida |
+| DEP-06 | Instrumentación de métricas | Interna | Registrar eventos y tiempos necesarios para evaluar los KPIs. | Requerida |
+
+### 6.2 Dependencias tecnológicas
+
+El producto depende de un entorno de desarrollo compatible con Java, Spring Boot y Angular, así como de herramientas para construcción, pruebas, análisis SAST y documentación OpenAPI.
+
+Las tecnologías concretas de persistencia, autenticación, infraestructura y observabilidad todavía no han sido seleccionadas.
+
+### 6.3 Dependencias externas reales
+
+**No se ha identificado ningún servicio externo real como dependencia obligatoria del MVP.**
+
+En particular:
+
+- No se requiere conexión a un banco real.
+- No se requiere acceso a centrales de riesgo.
+- No se requiere un proveedor real de desembolsos.
+- No se requiere un proveedor externo de firma digital.
+- No se requiere un servicio comercial de inteligencia artificial.
+
+Las herramientas de desarrollo podrán depender de paquetes o componentes de terceros, pero no se presupone una integración comercial específica.
+
+### 6.4 Dependencias pendientes de decisión
+
+Antes de implementar deben definirse, sin asumirlas como requisitos aprobados:
+
+- Mecanismo de autenticación.
+- Tecnología de persistencia.
+- Contrato del simulador de core bancario.
+- Reglas de cálculo financiero y parámetros de simulación.
+- Reglas de vigencia de las ofertas.
+- Tratamiento de resultados inciertos y fallas operativas.
+- Identificación de ofertas únicas para los KPIs.
+- Tratamiento de contrataciones entre semanas.
+- Versiones exactas del stack tecnológico.
+- Estándar específico de seguridad.
+
+Estas decisiones deben resolverse en los artefactos correspondientes de las siguientes etapas BMAD/SDD.
+
+---
+
+## 7. Control de alcance y decisiones pendientes
+
+### 7.1 Reglas de control de cambios
+
+1. Ninguna funcionalidad Should o Could puede desplazar una funcionalidad Must.
+2. Los principios constitucionales no pueden relajarse para acelerar la entrega.
+3. Toda ampliación funcional debe justificar su relación con el problema y los KPIs.
+4. Una funcionalidad Won't solo puede incorporarse mediante una revisión explícita del alcance.
+5. Las decisiones técnicas deben documentarse cuando corresponda mediante ADR.
+6. Los requisitos pendientes no pueden presentarse como decisiones aprobadas.
+
+### 7.2 Decisiones de producto propuestas
+
+| ID | Decisión | Justificación | Estado |
+|---|---|---|---|
+| DEC-01 | Limitar el MVP a seis funcionalidades Must. | Proteger el recorrido mínimo de negocio. | Propuesta |
+| DEC-02 | Utilizar datos y desembolsos simulados. | Respetar el carácter académico. | Derivada del contexto |
+| DEC-03 | Incluir prevención de desembolsos duplicados en el MVP. | Atender el riesgo crítico R-01. | Propuesta prioritaria |
+| DEC-04 | Posponer consultas ampliadas, indicadores complementarios y gestión visible de excepciones. | Evitar ampliar el MVP sin necesidad. | Propuesta |
+| DEC-05 | Excluir integraciones bancarias reales e IA conversacional. | No son necesarias para validar el recorrido mínimo. | Propuesta |
+| DEC-06 | Mantener las métricas principales como criterios de evaluación del producto. | Conservar los KPIs acordados en descubrimiento. | Derivada del Brief |
+
+### 7.3 Cuestiones abiertas
+
+El alcance no resuelve todavía:
+
+- Las reglas financieras exactas de la simulación.
+- El mecanismo concreto de autenticación.
+- Las reglas de aceptación y contratación.
+- Los estados y transiciones de las operaciones.
+- La estrategia técnica contra desembolsos duplicados.
+- El comportamiento detallado ante fallas del core simulado.
+- El tratamiento de ofertas que vencen durante la contratación.
+- Las reglas de contabilización de ofertas entre semanas.
+- El estándar de seguridad.
+- La planificación temporal y capacidad del equipo.
+
+Estas cuestiones requieren definición posterior y no autorizan a introducir requisitos adicionales de manera implícita.
+
+---
+
+## 8. Resumen ejecutivo del alcance
+
+| Categoría | Cantidad | Compromiso |
+|---|---:|---|
+| Must Have | 6 | Obligatorio para el MVP |
+| Should Have | 4 | Posterior al MVP |
+| Could Have | 3 | Opcional |
+| Won't Have | 16 | Excluido de esta versión |
+
+**Objetivo del MVP:** demostrar un recorrido completo y auditable de contratación digital de un crédito de consumo preaprobado, con condiciones financieras visibles, aceptación expresa y desembolso simulado sin duplicidades.
+
+**Indicadores de evaluación:**
+
+- Conversión semanal de ofertas únicas: al menos 50 %.
+- Tiempo promedio de visualización a aceptación: máximo cinco minutos.
+
+**Riesgo crítico:** desembolso duplicado.
+
+**Principio rector de alcance:** priorizar un flujo completo, verificable y confiable sobre una colección amplia de funcionalidades incompletas.
+
+**Estado final:** propuesta de alcance v0.1, pendiente de aprobación del Product Owner.
+
+---
+
+**Fin del documento — `02-alcance.md`**
+
+Reglas de negocio:
+# Altoque — Catálogo de reglas de negocio
+
+**Archivo:** `03-reglas-de-negocio.md`  
+**Versión:** 0.1  
+**Estado:** Borrador para validación  
+**Ámbito:** Funcionalidades Must y Should de Altoque  
+**País de referencia:** Perú  
+**Naturaleza:** Proyecto académico ficticio
+
+## 1. Criterios de interpretación
+
+- Cada regla es atómica y verificable.
+- **DEBE** y **NO DEBE** expresan obligaciones de prioridad MUST o SHOULD según la cabecera.
+- **PUEDE** expresa una capacidad opcional.
+- Los importes, fechas, identificadores y resultados de los ejemplos son datos ilustrativos; no aprueban tasas, fórmulas ni parámetros de producción.
+- La duración de vigencia se representa como `DURACION_VIGENCIA_OFERTA`, cuyo valor permanece pendiente.
+- El modelo financiero será académico y simplificado, pero su fórmula, tasa, amortización, seguros, comisiones, redondeo y calendario permanecen pendientes de aprobación.
+
+## 2. Reglas
+
+---
+**RN-001** | Categoría: Seguridad | Prioridad: MUST | Fuente: PRINCIPIO-006; M-01
+Patrón EARS: Ubiquitous
+El sistema DEBE exigir una sesión autenticada para consultar ofertas asignadas al cliente.
+✅ **Ejemplo:** El cliente `CLI-001` con sesión vigente consulta la oferta `OFR-1001` asignada a `CLI-001` el `2026-11-11T09:00:00-05:00`.
+❌ **Contraejemplo:** Una solicitud sin sesión obtiene los datos de `OFR-1001`, cuyo monto es S/ 10 000,00.
+---
+
+---
+**RN-002** | Categoría: Crédito | Prioridad: MUST | Fuente: M-02; criterio de aceptación del MVP
+Patrón EARS: Event-driven
+Cuando un cliente solicite una oferta, el sistema DEBE mostrarla únicamente si está asignada a ese cliente.
+✅ **Ejemplo:** `CLI-001` solicita `OFR-1001`, asignada a `CLI-001`, y recibe su monto de S/ 10 000,00.
+❌ **Contraejemplo:** `CLI-002` solicita `OFR-1001`, asignada a `CLI-001`, y recibe su monto de S/ 10 000,00.
+---
+
+---
+**RN-003** | Categoría: Crédito | Prioridad: MUST | Fuente: Decisión 1 del Product Owner; M-02
+Patrón EARS: State-driven
+Mientras no haya transcurrido `DURACION_VIGENCIA_OFERTA` desde la emisión, el sistema DEBE considerar vigente la oferta.
+✅ **Ejemplo:** `OFR-1001` fue emitida el `2026-11-11T09:00:00-05:00`; una consulta 30 minutos después se considera vigente cuando ese lapso es menor que `DURACION_VIGENCIA_OFERTA`.
+❌ **Contraejemplo:** `OFR-1001` se considera vencida 30 minutos después de emitirse aunque ese lapso es menor que `DURACION_VIGENCIA_OFERTA`.
+---
+
+---
+**RN-004** | Categoría: Crédito | Prioridad: MUST | Fuente: Decisión 1 del Product Owner; riesgo R-04
+Patrón EARS: State-driven
+Cuando haya transcurrido `DURACION_VIGENCIA_OFERTA` desde la emisión, el sistema NO DEBE permitir contratar la oferta.
+✅ **Ejemplo:** `OFR-1002`, emitida el `2026-11-01T10:00:00-05:00`, se rechaza el `2026-11-11T10:00:00-05:00` si el lapso supera `DURACION_VIGENCIA_OFERTA`.
+❌ **Contraejemplo:** `OFR-1002` se contrata el `2026-11-11T10:00:00-05:00` aunque el lapso desde su emisión supera `DURACION_VIGENCIA_OFERTA`.
+---
+
+---
+**RN-005** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-004; M-03
+Patrón EARS: Ubiquitous
+El sistema DEBE ejecutar el cálculo financiero en un único módulo del backend.
+✅ **Ejemplo:** Para S/ 10 000,00 a 12 cuotas, el backend devuelve una simulación identificada como `SIM-2001`.
+❌ **Contraejemplo:** Angular calcula una cuota de S/ 950,00 para `SIM-2001` sin usar el resultado del backend.
+---
+
+---
+**RN-006** | Categoría: Datos | Prioridad: MUST | Fuente: PRINCIPIO-004; RES-T05
+Patrón EARS: Ubiquitous
+El frontend NO DEBE implementar una fórmula financiera independiente.
+✅ **Ejemplo:** El frontend presenta para `SIM-2001` la TCEA de 24,50 % recibida del backend como dato ilustrativo.
+❌ **Contraejemplo:** El frontend recalcula la TCEA de `SIM-2001` y presenta 25,10 % frente al 24,50 % recibido.
+---
+
+---
+**RN-007** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-005; M-03
+Patrón EARS: State-driven
+Antes de habilitar la aceptación, el sistema DEBE mostrar el número de cuotas de la simulación vigente.
+✅ **Ejemplo:** Antes de aceptar `SIM-2001`, la interfaz muestra `12 cuotas`.
+❌ **Contraejemplo:** La aceptación de `SIM-2001` se habilita sin mostrar que corresponde a 12 cuotas.
+---
+
+---
+**RN-008** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-005; M-03
+Patrón EARS: State-driven
+Antes de habilitar la aceptación, el sistema DEBE mostrar el importe de la cuota de la simulación vigente.
+✅ **Ejemplo:** Antes de aceptar `SIM-2001`, la interfaz muestra una cuota ilustrativa de S/ 950,00.
+❌ **Contraejemplo:** La aceptación de `SIM-2001` se habilita sin mostrar la cuota ilustrativa de S/ 950,00.
+---
+
+---
+**RN-009** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-005; M-03
+Patrón EARS: State-driven
+Antes de habilitar la aceptación, el sistema DEBE mostrar los intereses totales de la simulación vigente.
+✅ **Ejemplo:** Antes de aceptar `SIM-2001`, la interfaz muestra intereses ilustrativos de S/ 1 400,00.
+❌ **Contraejemplo:** La aceptación de `SIM-2001` se habilita sin mostrar los intereses ilustrativos de S/ 1 400,00.
+---
+
+---
+**RN-010** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-005; M-03
+Patrón EARS: State-driven
+Antes de habilitar la aceptación, el sistema DEBE mostrar la TCEA de la simulación vigente.
+✅ **Ejemplo:** Antes de aceptar `SIM-2001`, la interfaz muestra una TCEA ilustrativa de 24,50 %.
+❌ **Contraejemplo:** La aceptación de `SIM-2001` se habilita sin mostrar la TCEA ilustrativa de 24,50 %.
+---
+
+---
+**RN-011** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-005; M-03
+Patrón EARS: State-driven
+Antes de habilitar la aceptación, el sistema DEBE mostrar el costo total de la simulación vigente.
+✅ **Ejemplo:** Antes de aceptar `SIM-2001`, la interfaz muestra un costo total ilustrativo de S/ 11 400,00.
+❌ **Contraejemplo:** La aceptación de `SIM-2001` se habilita sin mostrar el costo total ilustrativo de S/ 11 400,00.
+---
+
+---
+**RN-012** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-005; M-03
+Patrón EARS: State-driven
+Antes de habilitar la aceptación, el sistema DEBE mostrar el cronograma de pagos de la simulación vigente.
+✅ **Ejemplo:** Antes de aceptar `SIM-2001`, la interfaz muestra 12 vencimientos, incluido el ilustrativo `2026-12-15` por S/ 950,00.
+❌ **Contraejemplo:** La aceptación de `SIM-2001` se habilita sin mostrar ningún vencimiento.
+---
+
+---
+**RN-013** | Categoría: Crédito | Prioridad: MUST | Fuente: Decisión 2 del Product Owner; M-03
+Patrón EARS: Event-driven
+Cuando cambie una condición financiera mostrada, el sistema DEBE solicitar una nueva simulación.
+✅ **Ejemplo:** Al cambiar el monto de S/ 8 000,00 a S/ 10 000,00, el sistema solicita `SIM-2002`.
+❌ **Contraejemplo:** Tras cambiar el monto a S/ 10 000,00, el sistema conserva `SIM-2001`, calculada para S/ 8 000,00.
+---
+
+---
+**RN-014** | Categoría: Crédito | Prioridad: MUST | Fuente: Decisión 2 del Product Owner; PRINCIPIO-006
+Patrón EARS: Event-driven
+Cuando se genere una nueva simulación, el sistema DEBE solicitar una nueva aceptación expresa.
+✅ **Ejemplo:** La aceptación de `SIM-2001` a las `2026-11-11T09:04:00-05:00` no sirve para `SIM-2002`; el cliente acepta nuevamente a las `2026-11-11T09:05:00-05:00`.
+❌ **Contraejemplo:** El sistema contrata `SIM-2002` reutilizando la aceptación registrada para `SIM-2001`.
+---
+
+---
+**RN-015** | Categoría: Crédito | Prioridad: MUST | Fuente: PRINCIPIO-006; M-04
+Patrón EARS: State-driven
+Mientras no exista aceptación expresa de la simulación vigente, el sistema NO DEBE registrar la contratación.
+✅ **Ejemplo:** `SIM-2002` permanece sin contrato a las `2026-11-11T09:05:00-05:00` porque el cliente no la aceptó.
+❌ **Contraejemplo:** Se crea `CTR-3001` para `SIM-2002` sin aceptación expresa.
+---
+
+---
+**RN-016** | Categoría: Auditoría | Prioridad: MUST | Fuente: PRINCIPIO-007; M-06
+Patrón EARS: Event-driven
+Cuando ocurra una aceptación, el sistema DEBE persistir un evento de auditoría identificable.
+✅ **Ejemplo:** La aceptación de `SIM-2002` genera `AUD-4001` a las `2026-11-11T09:05:00-05:00` para `CLI-001` con resultado `ACEPTADA`.
+❌ **Contraejemplo:** La interfaz muestra `Aceptado` para `SIM-2002`, pero no existe un evento persistido.
+---
+
+---
+**RN-017** | Categoría: Auditoría | Prioridad: MUST | Fuente: PRINCIPIO-007; M-06
+Patrón EARS: Event-driven
+Cuando ocurra una contratación, el sistema DEBE persistir un evento de auditoría identificable.
+✅ **Ejemplo:** La creación de `CTR-3001` genera `AUD-4002` a las `2026-11-11T09:05:10-05:00` para `CLI-001` con resultado `CREADA`.
+❌ **Contraejemplo:** Existe `CTR-3001`, pero no hay evento de auditoría de contratación.
+---
+
+---
+**RN-018** | Categoría: Auditoría | Prioridad: MUST | Fuente: PRINCIPIO-007; M-06
+Patrón EARS: Event-driven
+Cuando se solicite un desembolso simulado, el sistema DEBE persistir su resultado en auditoría.
+✅ **Ejemplo:** La solicitud `DES-5001` genera `AUD-4003` a las `2026-11-11T09:05:20-05:00` con resultado `SIMULADO_EXITOSO`.
+❌ **Contraejemplo:** La solicitud `DES-5001` se informa como exitosa sin resultado persistido en auditoría.
+---
+
+---
+**RN-019** | Categoría: Pagos | Prioridad: MUST | Fuente: Decisión 3 del Product Owner; riesgo crítico R-01
+Patrón EARS: Unwanted
+Si se repite una solicitud de desembolso para la misma contratación, el sistema DEBE rechazar la solicitud repetida.
+✅ **Ejemplo:** Después de procesar `DES-5001` para `CTR-3001`, la solicitud `DES-5002` para `CTR-3001` se rechaza.
+❌ **Contraejemplo:** `DES-5001` y `DES-5002` producen cada una un desembolso simulado de S/ 10 000,00 para `CTR-3001`.
+---
+
+---
+**RN-020** | Categoría: Pagos | Prioridad: MUST | Fuente: Decisión 4 del Product Owner; criterio de aceptación del MVP
+Patrón EARS: Unwanted
+Si el core simulado falla, el sistema NO DEBE declarar exitoso el desembolso.
+✅ **Ejemplo:** El core devuelve `TIMEOUT` para `DES-5003` a los 30 segundos y el sistema no muestra `SIMULADO_EXITOSO`.
+❌ **Contraejemplo:** El core devuelve `TIMEOUT` para `DES-5003` a los 30 segundos y el sistema muestra `SIMULADO_EXITOSO`.
+---
+
+---
+**RN-021** | Categoría: Pagos | Prioridad: MUST | Fuente: Decisión 4 del Product Owner; M-05
+Patrón EARS: Unwanted
+Si el core simulado falla, el sistema DEBE dejar pendiente la gestión del estado del desembolso.
+✅ **Ejemplo:** Tras un `TIMEOUT` de 30 segundos en `DES-5003`, la operación queda como `PENDIENTE_DE_GESTION`.
+❌ **Contraejemplo:** Tras el mismo `TIMEOUT`, `DES-5003` queda como `SIMULADO_EXITOSO`.
+---
+
+---
+**RN-022** | Categoría: UX | Prioridad: SHOULD | Fuente: S-02; S-03
+Patrón EARS: Event-driven
+Cuando el cliente consulte una contratación, el sistema DEBE mostrar el último estado conocido de su desembolso simulado.
+✅ **Ejemplo:** `CLI-001` consulta `CTR-3001` a las `2026-11-11T09:06:00-05:00` y visualiza `PENDIENTE_DE_GESTION`.
+❌ **Contraejemplo:** Para `CTR-3001`, el sistema muestra `SIMULADO_EXITOSO` aunque el último estado persistido es `PENDIENTE_DE_GESTION`.
+---
+
+---
+**RN-023** | Categoría: Datos | Prioridad: MUST | Fuente: KPI-01; regla de contabilización del Project Brief
+Patrón EARS: Event-driven
+Cuando una misma oferta sea visualizada repetidamente por el mismo cliente, el sistema DEBE contabilizar una sola oferta visualizada para la conversión.
+✅ **Ejemplo:** `CLI-001` visualiza `OFR-1001` tres veces el `2026-11-11`; el denominador registra 1 oferta única, no 3.
+❌ **Contraejemplo:** Las tres visualizaciones de `OFR-1001` por `CLI-001` incrementan el denominador en 3.
+---
+
+---
+**RN-024** | Categoría: Datos | Prioridad: MUST | Fuente: Decisión 6 del Product Owner; KPI-01
+Patrón EARS: Event-driven
+Cuando una oferta sea contratada, el sistema DEBE atribuir la contratación a la semana calendario de contratación.
+✅ **Ejemplo:** `OFR-1001` se visualiza el `2026-11-08` y se contrata el `2026-11-10`; el numerador se atribuye a la semana calendario que contiene el `2026-11-10`.
+❌ **Contraejemplo:** La contratación del `2026-11-10` se atribuye a la semana que contiene el `2026-11-08` solo por ser la fecha de visualización.
+---
+
+---
+**RN-025** | Categoría: Datos | Prioridad: MUST | Fuente: KPI-01 del Project Brief
+Patrón EARS: Ubiquitous
+El sistema DEBE calcular la tasa de conversión como ofertas únicas contratadas divididas entre ofertas únicas visualizadas, multiplicado por 100.
+✅ **Ejemplo:** Con 55 ofertas únicas contratadas y 100 ofertas únicas visualizadas, la tasa es 55 %.
+❌ **Contraejemplo:** Con los mismos valores, el sistema informa 45 %.
+---
+
+---
+**RN-026** | Categoría: Datos | Prioridad: MUST | Fuente: KPI-02 del Project Brief
+Patrón EARS: Ubiquitous
+El sistema DEBE medir cada tiempo de contratación desde la primera visualización contabilizada hasta la aceptación correspondiente.
+✅ **Ejemplo:** Una oferta se visualiza a las `2026-11-11T09:00:00-05:00` y se acepta a las `2026-11-11T09:04:00-05:00`; el tiempo medido es 4 minutos.
+❌ **Contraejemplo:** Para esas marcas temporales, el sistema mide 2 minutos tomando como inicio una visualización posterior.
+---
+
+---
+**RN-027** | Categoría: Datos | Prioridad: MUST | Fuente: KPI-02 del Project Brief
+Patrón EARS: Ubiquitous
+El sistema DEBE calcular el tiempo promedio de contratación usando únicamente contrataciones completadas.
+✅ **Ejemplo:** Tres contrataciones completadas duran 3, 4 y 5 minutos; el promedio es 4 minutos.
+❌ **Contraejemplo:** El sistema incorpora un abandono de 20 minutos y reporta 8 minutos para esos cuatro recorridos.
+---
+
+---
+**RN-028** | Categoría: UX | Prioridad: MUST | Fuente: PRINCIPIO-011; RT-11
+Patrón EARS: Ubiquitous
+El portal DEBE permitir completar el recorrido mínimo mediante teclado.
+✅ **Ejemplo:** `CLI-001` consulta `OFR-1001`, revisa `SIM-2002` y activa la aceptación usando Tab y Enter.
+❌ **Contraejemplo:** El control que acepta `SIM-2002` solo responde a un clic del mouse.
+---
+
+## 3. Decisiones aprobadas incorporadas
+
+| ID | Decisión | Aplicación |
+|---|---|---|
+| DEC-RN-01 | La vigencia usa una duración fija desde la emisión. | RN-003 y RN-004; falta aprobar el valor de la duración. |
+| DEC-RN-02 | Un cambio de condiciones exige nueva simulación y nueva aceptación. | RN-013 y RN-014. |
+| DEC-RN-03 | Una solicitud repetida de desembolso se rechaza. | RN-019. |
+| DEC-RN-04 | Una falla del core no declara éxito y deja pendiente la gestión del estado. | RN-020 y RN-021. |
+| DEC-RN-05 | Se definirá un modelo financiero académico simplificado. | RN-005 a RN-012; la fórmula aún no está aprobada. |
+| DEC-RN-06 | La conversión se atribuye a la semana de contratación. | RN-024; aplica al numerador. |
+
+## 4. Parámetros y decisiones pendientes
+
+Estas cuestiones no constituyen reglas aprobadas y no deben completarse mediante supuestos:
+
+1. Valor y unidad de `DURACION_VIGENCIA_OFERTA`.
+2. Fórmula del modelo financiero académico simplificado.
+3. Tasa o fuente de la tasa usada por el modelo.
+4. Método de amortización.
+5. Inclusión de seguros, comisiones, impuestos o gastos.
+6. Convención de calendario, precisión y redondeo.
+7. Mecanismo concreto de autenticación.
+8. Transiciones posteriores desde `PENDIENTE_DE_GESTION`, responsables y plazos.
+9. Estrategia técnica de concurrencia contra solicitudes simultáneas; el rechazo de repetidos es la regla funcional aprobada.
+10. Denominador semanal de KPI-01 cuando la visualización ocurrió en una semana anterior a la contratación. La decisión aprobada fija la semana del numerador, pero no determina si el denominador debe usar una cohorte de visualización, una ventana semanal independiente u otra política.
+11. Tratamiento de nuevas ofertas emitidas al mismo cliente para KPI-01.
+12. Definiciones y metas de abandono, duplicidades, fallas operativas y otros indicadores complementarios.
+13. Umbral numérico de contraste, estándar corporativo de seguridad, retención de auditoría y matriz normativa específica.
+
+## 5. KPIs preservados
+
+- **KPI-01:** meta académica de conversión semanal de al menos 50 %, con la ambigüedad intersemanal indicada en la sección 4.
+- **KPI-02:** meta académica de tiempo promedio máximo de 5 minutos entre visualización y aceptación para contrataciones completadas.
+
+Las metas son objetivos de evaluación; no son resultados históricos ni garantías del sistema.
+
+Glosario:
+# Altoque — Glosario del dominio
+
+**Archivo:** `04-glosario.md`  
+**Versión:** 0.1  
+**Estado:** Borrador para validación  
+**Naturaleza:** Proyecto académico ficticio
+
+## 1. Lenguaje ubicuo
+
+| Término | Definición |
+|---|---|
+| **Aceptación expresa** | Acción verificable mediante la cual el cliente manifiesta conformidad con una simulación específica cuyas condiciones fueron mostradas previamente. Una aceptación no se reutiliza para otra simulación. |
+| **Auditoría** | Registro persistente de un evento crítico que permite identificar el evento, fecha y hora, cliente autenticado y resultado. |
+| **Cliente** | Persona ficticia existente del banco simulado que puede autenticarse y acceder únicamente a sus operaciones crediticias. |
+| **Condición financiera** | Dato que forma parte de una simulación, como monto, número de cuotas, importe de cuota, intereses, TCEA, costo total o cronograma. |
+| **Contratación** | Registro del crédito correspondiente a una simulación vigente aceptada expresamente por un cliente autenticado. |
+| **Conversión** | Relación porcentual entre ofertas únicas contratadas y ofertas únicas visualizadas, multiplicada por 100. |
+| **Core simulado** | Componente académico que representa el procesamiento del desembolso sin conectarse a un sistema bancario real. |
+| **Costo total** | Importe total mostrado al cliente para la simulación. Sus componentes exactos dependen del modelo financiero pendiente de aprobación. |
+| **Crédito de consumo preaprobado** | Producto crediticio ficticio cuya evaluación previa se considera realizada fuera de Altoque y que puede ofrecerse a un cliente existente. |
+| **Cronograma de pagos** | Secuencia de cuotas con sus fechas e importes, generada por el módulo financiero del backend para una simulación. |
+| **Desembolso simulado** | Representación sin movimiento de dinero real del resultado de desembolsar una contratación. |
+| **Duración de vigencia de la oferta** | Intervalo fijo contado desde la emisión de una oferta. Su valor y unidad están pendientes de aprobación y se representan como `DURACION_VIGENCIA_OFERTA`. |
+| **Emisión de oferta** | Evento fechado que inicia el cómputo de la duración fija de vigencia. |
+| **Intereses totales** | Suma de intereses informada por el modelo financiero para una simulación; su fórmula aún no está aprobada. |
+| **Modelo financiero académico simplificado** | Modelo centralizado en el backend que deberá producir cuotas, intereses, TCEA, costo total y cronograma con fines académicos. Sus fórmulas y parámetros permanecen pendientes. |
+| **Oferta preaprobada** | Propuesta ficticia de crédito de consumo asignada a un cliente, con fecha de emisión y condiciones que pueden ser simuladas mientras esté vigente. |
+| **Oferta única contratada** | Oferta contabilizada una vez en el numerador de conversión al existir una contratación. La decisión vigente la atribuye a la semana calendario de contratación. |
+| **Oferta única visualizada** | Combinación de cliente y oferta que se contabiliza una sola vez en el denominador de conversión, aunque el cliente la visualice repetidamente. |
+| **PENDIENTE_DE_GESTION** | Estado conocido de un desembolso cuyo core simulado falló y cuyo resultado no puede declararse exitoso. Las transiciones posteriores permanecen pendientes de definición. |
+| **Regla EARS** | Requisito redactado con un patrón de la notación Easy Approach to Requirements Syntax para expresar una obligación, prohibición o capacidad verificable. |
+| **Sesión autenticada** | Contexto en el que Altoque ha identificado al cliente mediante un mecanismo de autenticación aún pendiente de selección. |
+| **Simulación financiera** | Resultado identificable producido por el módulo financiero del backend para unas condiciones concretas. Si una condición cambia, se requiere otra simulación. |
+| **Solicitud repetida de desembolso** | Nueva petición de desembolso asociada a una contratación para la cual ya se recibió o procesó una solicitud; debe rechazarse según la decisión aprobada. |
+| **Tasa de conversión semanal** | KPI académico evaluado semanalmente con meta mínima de 50 %. La atribución del numerador usa la semana de contratación; el tratamiento intersemanal del denominador está pendiente. |
+| **TCEA** | Tasa de Costo Efectivo Anual mostrada antes de aceptar. El método exacto de cálculo no está aprobado para el modelo académico. |
+| **Tiempo de contratación** | Intervalo entre la primera visualización contabilizada de una oferta y su aceptación para una contratación completada. |
+| **Tiempo promedio de contratación** | Suma de los tiempos de contratación dividida entre el número de contrataciones completadas. Su meta académica máxima es 5 minutos. |
+| **Vigencia de oferta** | Estado de la oferta durante la duración fija contada desde su emisión. Una oferta vencida no puede contratarse. |
+| **Visualización de oferta** | Evento en el que un cliente autenticado accede a una oferta asignada. Las repeticiones de la misma oferta por el mismo cliente no crean oportunidades adicionales para KPI-01. |
+
+## 2. Estados y resultados usados
+
+| Valor | Significado |
+|---|---|
+| `ACEPTADA` | La aceptación expresa de una simulación específica quedó registrada. |
+| `CREADA` | La contratación fue registrada. |
+| `SIMULADO_EXITOSO` | El core simulado confirmó un resultado exitoso; no implica movimiento de dinero real. |
+| `PENDIENTE_DE_GESTION` | Una falla impide declarar éxito y requiere una gestión posterior aún no definida. |
+| `RECHAZADA_POR_DUPLICIDAD` | Resultado funcional esperado para una solicitud repetida de desembolso. |
+
+## 3. Distinciones obligatorias
+
+- **Oferta** no equivale a **simulación**: una oferta puede originar más de una simulación.
+- **Simulación** no equivale a **contratación**: requiere aceptación expresa antes de contratar.
+- **Contratación** no equivale a **desembolso exitoso**: el core simulado puede fallar.
+- **Desembolso simulado** no equivale a dinero real.
+- **Meta de KPI** no equivale a resultado histórico ni garantía.
+- **Duración fija aprobada** no equivale a valor de duración aprobado.
+- **Modelo simplificado aprobado como intención** no equivale a fórmula financiera aprobada.
+
+## 4. Ambigüedades y decisiones pendientes
+
+1. Falta el valor y la unidad de `DURACION_VIGENCIA_OFERTA`.
+2. Faltan las fórmulas y parámetros del modelo financiero académico simplificado.
+3. Falta definir cómo forma parte del denominador semanal una oferta visualizada en una semana y contratada en otra. La contratación sí pertenece al numerador de la semana en que se contrata.
+4. Falta definir la identidad de una nueva oferta emitida al mismo cliente para fines de KPI-01.
+5. Faltan las transiciones, responsables y plazos posteriores a `PENDIENTE_DE_GESTION`.
+6. Falta seleccionar el mecanismo concreto de autenticación y el estándar específico de seguridad.
+
+</contexto>
+<tarea>
+Realiza una auditoría completa del Spec Pack. Busca y reporta:
+1. **AMBIGÜEDADES**: Reglas que un agente de IA podría interpretar de más de una
+manera.
+2. **CONTRADICCIONES**: Reglas que se contradicen entre sí o con la constitución.
+3. **REGLAS FALTANTES**: Casos no cubiertos (especialmente: casos borde, errores,
+flujos alternativos).
+4. **INCONSISTENCIAS DE GLOSARIO**: Términos usados pero no definidos, o definidos
+pero no usados.
+5. **DEBILIDADES DE FORMATO**: Reglas que no siguen EARS, son compuestas, o tienen
+valores vagos.
+Para cada hallazgo, indica:
+- Severidad: CRÍTICA / ALTA / MEDIA / BAJA
+- Ubicación: archivo y regla/sección
+- Problema: qué está mal
+- Sugerencia: cómo corregirlo
+Al final, da un puntaje de madurez del Spec Pack: de 1 (muy inmaduro) a 5 (listo para
+agentes).
+</tarea>
+<restricciones>
+- Sé exhaustivo pero prioriza: empieza por las CRÍTICAS.
+- No inventes reglas de negocio: señala la falta, pero la decisión es del equipo.
+- Si un término del
