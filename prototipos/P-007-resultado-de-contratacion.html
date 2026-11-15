@@ -1,0 +1,547 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altoque P-007 Resultado de contratación</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: banda del prototipo arriba, pantalla P-007 al centro (ancho 960 px), notas de validación debajo. Tokens = 09-ui-spec.md §4. */
+:root{
+  --color-primary-700:#174EA6; --color-primary-800:#123B7A;
+  --color-secondary-700:#0B6B5B; --color-accent-500:#F5A623;
+  --color-bg-page:#F7F9FC; --color-bg-surface:#FFFFFF;
+  --color-text-primary:#172033; --color-text-secondary:#4B5565;
+  --color-border:#C9D2E3; --color-success-700:#18794E;
+  --color-warning-800:#8A4B08; --color-danger-700:#B42318;
+  --color-info-700:#175CD3; --color-focus:#7C3AED;
+  --on-primary:#FFFFFF;
+  --tint-info:#EAF1FD; --tint-danger:#FDECEA; --tint-warning:#FDF3E4; --tint-success:#E7F5EE;
+  --tint-neutral:#EEF1F7;
+  --proto-bg:#EEF1F7; --proto-ink:#4B5565;
+  --font:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --r-control:8px;--r-card:12px;--r-dialog:16px;
+  --shadow-card:0 1px 3px rgba(23,32,51,.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024; --tint-neutral:#1E2738;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024; --tint-neutral:#1E2738;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--color-bg-page);color:var(--color-text-primary);font:400 16px/1.5 var(--font)}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--color-primary-700)}
+button{font:inherit}
+.mono{font-variant-numeric:tabular-nums}
+.money{font-variant-numeric:tabular-nums;white-space:nowrap}
+.muted{color:var(--color-text-secondary)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- Banda del prototipo ---------- */
+.proto{background:var(--proto-bg);border-bottom:2px dashed var(--color-border);color:var(--proto-ink);font-size:14px;line-height:20px}
+.proto-in{max-width:1200px;margin:0 auto;padding-block:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.proto-tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.proto label{min-width:0;max-width:100%;display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.proto select{min-width:0;flex:0 1 auto;font:inherit;min-height:36px;max-width:100%;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary)}
+.proto code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--color-bg-surface);padding:1px 6px;border-radius:4px;border:1px solid var(--color-border);color:var(--color-text-primary)}
+
+/* ---------- Shell cliente ---------- */
+.skip{position:absolute;left:-9999px;top:8px;background:var(--color-primary-700);color:var(--on-primary);padding:var(--s3) var(--s4);border-radius:var(--r-control);z-index:5;text-decoration:none;font-weight:600}
+.skip:focus{left:16px}
+.screen{position:relative}
+.app-head{border-bottom:1px solid var(--color-border);background:var(--color-bg-surface)}
+.app-head-in{max-width:1200px;margin:0 auto;min-height:64px;display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2) var(--s5)}
+.logo{display:flex;align-items:center;gap:var(--s2);font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--color-text-primary);text-decoration:none;min-height:44px}
+.logo svg{flex:none}
+.shell-nav{display:flex;gap:var(--s4);align-items:center;flex-wrap:wrap;flex:1}
+.shell-nav a{text-decoration:none;font-weight:600;color:var(--color-text-secondary);padding:var(--s2) 0;border-bottom:2px solid transparent;min-height:44px;display:inline-flex;align-items:center}
+.shell-nav a:hover{color:var(--color-text-primary)}
+.shell-nav a[aria-current]{color:var(--color-primary-700);border-color:var(--color-primary-700)}
+.session{position:relative;margin-left:auto}
+.session-btn{min-height:44px;display:inline-flex;align-items:center;gap:var(--s2);background:none;border:1px solid var(--color-border);border-radius:999px;padding:0 var(--s3) 0 var(--s1);color:var(--color-text-primary);cursor:pointer}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--tint-info);color:var(--color-info-700);display:inline-grid;place-items:center;font-weight:700;font-size:13px}
+.session-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:240px;background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(23,32,51,.16);padding:var(--s2);z-index:10;list-style:none;margin:0}
+.session-menu li{margin:0}
+.session-menu .who{padding:var(--s2) var(--s3);font-size:14px;line-height:20px;color:var(--color-text-secondary);border-bottom:1px solid var(--color-border);margin-bottom:var(--s1)}
+.session-menu .who b{display:block;color:var(--color-text-primary)}
+.session-menu a{display:flex;align-items:center;min-height:44px;padding:0 var(--s3);border-radius:var(--r-control);text-decoration:none;color:var(--color-text-primary);font-weight:500}
+.session-menu a:hover,.session-menu a:focus-visible{background:var(--tint-neutral)}
+@media (max-width:599px){.session-btn .session-name{display:none}.shell-nav{order:3;flex-basis:100%;gap:var(--s4)}.app-head-in{padding-block:var(--s1)}}
+
+.crumbs{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.crumbs ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:var(--s1) var(--s2)}
+.crumbs li{display:flex;gap:var(--s2);align-items:center}
+.crumbs li+li::before{content:"›";color:var(--color-text-secondary)}
+.crumbs a{min-height:24px;display:inline-flex;align-items:center}
+
+main.page{margin:0 auto;padding-block:var(--s5) var(--s8);display:flex;flex-direction:column;gap:var(--s5)}
+main.page:focus{outline:none}
+.page h1{font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.015em}
+.page h2{font-size:24px;line-height:32px;font-weight:700}
+.page h3{font-size:20px;line-height:28px;font-weight:600}
+@media (max-width:599px){.page h1{font-size:28px;line-height:36px}.page h2{font-size:20px;line-height:28px}}
+.card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:var(--s5)}
+@media (max-width:599px){.card{padding:var(--s4)}}
+
+/* ---------- Alertas ---------- */
+.alert{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid currentColor;border-radius:var(--r-control);padding:var(--s3) var(--s4);font-size:14px;line-height:20px}
+.alert>svg{flex:none;margin-top:2px}
+.alert strong{display:block;font-size:16px;line-height:24px;color:var(--color-text-primary)}
+.alert p,.alert li{color:var(--color-text-primary)}
+.alert p+p{margin-top:var(--s1)}
+.alert ul{margin:var(--s1) 0 0;padding-left:20px}
+.alert .alert-actions{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+.alert-info{color:var(--color-info-700);background:var(--tint-info)}
+.alert-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.alert-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.alert-success{color:var(--color-success-700);background:var(--tint-success)}
+.alert:focus-visible{outline-offset:3px}
+.alert:focus{outline:none}
+.alert:focus-visible{outline:3px solid var(--color-focus)}
+
+/* ---------- Botones ---------- */
+.btn{min-height:44px;border-radius:var(--r-control);padding:0 var(--s4);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);border:1px solid transparent;text-decoration:none;font-size:16px;line-height:20px;text-align:center}
+.btn-primary{background:var(--color-primary-700);color:var(--on-primary);min-height:48px}
+.btn-primary:hover:not(:disabled):not([aria-disabled="true"]){background:var(--color-primary-800)}
+.btn-primary:disabled,.btn-primary[aria-disabled="true"]{cursor:not-allowed;opacity:.6}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-primary-700);border-color:var(--color-border)}
+.btn-secondary:hover:not(:disabled){border-color:var(--color-primary-700)}
+.btn-secondary:disabled{cursor:not-allowed;opacity:.6}
+.btn-sm{min-height:44px;padding:0 var(--s3);font-size:14px}
+.btn-link{background:none;border:0;padding:0;color:var(--color-primary-700);text-decoration:underline;cursor:pointer;min-height:44px;font-weight:500}
+.actions{display:flex;flex-wrap:wrap;gap:var(--s3)}
+@media (max-width:599px){.actions .btn{flex:1 1 100%}}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status-line{display:flex;align-items:center;gap:var(--s2);min-height:24px;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+
+/* ---------- Skeleton ---------- */
+.sk{display:block;background:linear-gradient(90deg,var(--tint-neutral) 0%,var(--color-border) 50%,var(--tint-neutral) 100%);background-size:200% 100%;animation:sk 1.4s ease-in-out infinite;border-radius:6px}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* ---------- Datos ---------- */
+.copy{display:inline-flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.copy-btn{min-height:32px;min-width:44px;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:6px;background:var(--color-bg-surface);color:var(--color-primary-700);font-size:14px;font-weight:600;cursor:pointer;position:relative}
+.copy-btn::after{content:"";position:absolute;inset:-6px 0}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:600;border:1px solid currentColor;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.tag-success{color:var(--color-success-700);background:var(--tint-success)}
+.tag-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.tag-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.tag-info{color:var(--color-info-700);background:var(--tint-info)}
+.tag-neutral{color:var(--color-text-secondary);background:var(--tint-neutral)}
+
+/* ---------- Pie y notas ---------- */
+.app-foot{border-top:1px solid var(--color-border)}
+.app-foot-in{max-width:1200px;margin:0 auto;padding-block:var(--s4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);font-size:14px;color:var(--color-text-secondary)}
+.notes{border-top:2px dashed var(--color-border);background:var(--proto-bg)}
+.notes-in{max-width:1200px;margin:0 auto;padding-block:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s5)}
+.notes h2{font-size:20px;line-height:28px;font-weight:600;margin-bottom:var(--s3)}
+.notes ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.notes b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+@media print{.proto,.notes,.app-head,.no-print{display:none!important}}
+
+main.page{max-width:960px}
+.panel{display:flex;gap:var(--s4);align-items:flex-start;border-width:2px;border-style:solid}
+.panel .p-ico{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;flex:none;border:2px solid currentColor}
+.panel .p-body{display:flex;flex-direction:column;gap:var(--s2);min-width:0}
+.panel .p-kicker{font-size:14px;line-height:20px;font-weight:600;letter-spacing:.02em}
+.panel h2{color:var(--color-text-primary)}
+.panel p{color:var(--color-text-primary)}
+.panel .p-id{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.tone-success{color:var(--color-success-700);border-color:var(--color-success-700)}.tone-success .p-ico{background:var(--tint-success)}
+.tone-warning{color:var(--color-warning-800);border-color:var(--color-warning-800)}.tone-warning .p-ico{background:var(--tint-warning)}
+.tone-info{color:var(--color-info-700);border-color:var(--color-info-700)}.tone-info .p-ico{background:var(--tint-info)}
+.tone-danger{color:var(--color-danger-700);border-color:var(--color-danger-700)}.tone-danger .p-ico{background:var(--tint-danger)}
+@media (max-width:599px){.panel{flex-direction:column;gap:var(--s3)}.panel .p-ico{width:48px;height:48px}}
+.progress{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3)}
+.progress li{display:flex;gap:var(--s3);align-items:flex-start;padding:var(--s3) var(--s4);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);position:relative}
+.progress li svg{flex:none;margin-top:2px}
+.progress .st-name{font-weight:600;display:block}
+.progress .st-val{font-size:14px;line-height:20px;display:block}
+.progress .st-n{font-size:12px;line-height:16px;color:var(--color-text-secondary);display:block;letter-spacing:.04em;text-transform:uppercase}
+.progress li.done{border-left:4px solid var(--color-success-700)}
+.progress li.done svg{color:var(--color-success-700)}
+.progress li.wait{border-left:4px dashed var(--color-warning-800)}
+.progress li.wait svg{color:var(--color-warning-800)}
+.progress li.rev{border-left:4px dashed var(--color-info-700)}
+.progress li.rev svg{color:var(--color-info-700)}
+.progress li.fail{border-left:4px solid var(--color-danger-700)}
+.progress li.fail svg{color:var(--color-danger-700)}
+.progress li.todo{border-left:4px dotted var(--color-border)}
+.progress li.todo svg{color:var(--color-text-secondary)}
+@media (max-width:759px){.progress{grid-template-columns:1fr}}
+.facts{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:0;padding:0;overflow:hidden}
+.facts>div{padding:var(--s3) var(--s5);border-bottom:1px solid var(--color-border);display:flex;flex-direction:column;gap:2px}
+.facts dt{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.facts dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center}
+.facts dd .tag{font-weight:600}
+.facts .na{color:var(--color-text-secondary);font-weight:400}
+@media (max-width:599px){.facts>div{padding:var(--s3) var(--s4)}}
+.section{display:flex;flex-direction:column;gap:var(--s3)}
+.section h2{font-size:20px!important;line-height:28px!important}
+.read-line{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);align-items:center;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.state-box{display:flex;flex-direction:column;gap:var(--s4);align-items:flex-start}
+.state-box .ico{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--tint-neutral);color:var(--color-text-secondary)}
+.sk-col{display:flex;flex-direction:column;gap:var(--s3)}
+</style>
+
+<!-- Banda de control: no forma parte de la pantalla -->
+<div class="proto gutter" role="region" aria-label="Controles del prototipo">
+  <div class="proto-in">
+    <span class="proto-tag">Prototipo · no es parte de la pantalla</span>
+    <label for="scenario">Ver estado
+      <select id="scenario">
+        <optgroup label="Contratación exitosa">
+          <option value="exitosa-solicitado">Exitosa · desembolso solicitado</option>
+          <option value="exitosa-procesando">Exitosa · desembolso procesando</option>
+          <option value="exitosa-exitoso">Exitosa · desembolso exitoso</option>
+          <option value="exitosa-gestion">Exitosa · desembolso pendiente de gestión</option>
+        </optgroup>
+        <optgroup label="Sin resultado definitivo">
+          <option value="pendiente">Contratación pendiente</option>
+          <option value="revision">Revisión contractual manual</option>
+          <option value="recuperable">Fallo recuperable</option>
+        </optgroup>
+        <optgroup label="Sin contrato">
+          <option value="definitivo">Fallo definitivo</option>
+          <option value="rechazada">Rechazo</option>
+        </optgroup>
+        <optgroup label="Lectura">
+          <option value="sin-lectura">Lectura no disponible</option>
+          <option value="cargando">Cargando</option>
+          <option value="vacio">Vacío · intento no encontrado</option>
+        </optgroup>
+      </select>
+    </label>
+    <label for="next">Próxima lectura
+      <select id="next">
+        <option value="avanza">Avanza en el recorrido</option>
+        <option value="igual">Sin cambios</option>
+        <option value="falla">No disponible</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="screen">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="app-head gutter">
+    <div class="app-head-in">
+      <a class="logo" href="P-002-oportunidades.html" aria-label="Altoque, ir a Oportunidades">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span aria-hidden="true">Altoque</span>
+      </a>
+      <nav class="shell-nav" aria-label="Principal">
+        <a href="P-002-oportunidades.html" aria-current="true">Oportunidades</a>
+        <a href="P-008-mis-operaciones.html">Mis operaciones</a>
+      </nav>
+      <div class="session">
+        <button type="button" id="session-btn" class="session-btn" aria-expanded="false" aria-controls="session-menu" aria-haspopup="true">
+          <span class="avatar" aria-hidden="true">LR</span><span class="session-name">Lucía Ramos</span><span class="sr-only">Menú de sesión de Lucía Ramos</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <ul id="session-menu" class="session-menu" hidden>
+          <li class="who"><b>Lucía Ramos Huamán</b>DNI sintético ···1238</li>
+          <li><a href="P-001-inicio-de-sesion.html">Cerrar sesión</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+
+  <main class="page gutter" id="contenido" tabindex="-1">
+    <nav class="crumbs" aria-label="Ruta de navegación">
+      <ol>
+        <li><a href="P-002-oportunidades.html">Oportunidades</a></li>
+        <li><span aria-current="page">Resultado de la contratación</span></li>
+      </ol>
+    </nav>
+    <h1>Resultado de tu contratación</h1>
+    <div id="live" class="sr-only" aria-live="polite"></div>
+
+    <div id="v-loading" hidden>
+      <p class="status-line" role="status"><span class="spinner" aria-hidden="true"></span>Consultando el resultado de tu contratación</p>
+      <div class="card sk-col" aria-hidden="true" style="margin-top:var(--s4)">
+        <span class="sk" style="height:56px;width:56px;border-radius:50%"></span><span class="sk" style="height:24px;width:55%"></span><span class="sk" style="height:16px;width:85%"></span><span class="sk" style="height:16px;width:70%"></span>
+      </div>
+    </div>
+
+    <div id="v-empty" class="card state-box" hidden>
+      <span class="ico"><svg width="24" height="24" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/></svg></span>
+      <h2>No encontramos esta contratación</h2>
+      <p class="muted">El enlace no corresponde a una contratación tuya. Tus operaciones están en Mis operaciones.</p>
+      <div class="actions"><a class="btn btn-primary" href="P-008-mis-operaciones.html">Ir a Mis operaciones</a></div>
+    </div>
+
+    <div id="v-main" style="display:flex;flex-direction:column;gap:var(--s5)">
+      <div id="read-alert" tabindex="-1" hidden></div>
+      <section class="card panel" id="panel" aria-labelledby="p-title" tabindex="-1"></section>
+
+      <section class="section" aria-labelledby="h-prog">
+        <h2 id="h-prog">Avance</h2>
+        <ol class="progress" id="progress"></ol>
+      </section>
+
+      <section class="section" aria-labelledby="h-data">
+        <h2 id="h-data">Datos de tu contratación</h2>
+        <dl class="card facts" id="facts"></dl>
+      </section>
+
+      <div id="nodup" hidden></div>
+
+      <div>
+        <div class="actions" id="actions">
+          <button type="button" class="btn btn-primary" id="refresh">Actualizar estado</button>
+          <button type="button" class="btn btn-primary" id="retry" hidden>Reintentar contratación</button>
+          <a class="btn btn-secondary" href="P-009-detalle-de-operacion.html?intento=CTR-ATT-5C21">Ver detalle</a>
+          <a class="btn btn-secondary" href="P-008-mis-operaciones.html">Mis operaciones</a>
+          <a class="btn btn-secondary" id="to-op" href="P-002-oportunidades.html" hidden>Ir a Oportunidades</a>
+        </div>
+        <p class="status-line" id="busy" aria-live="polite" style="margin-top:var(--s3)"></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot gutter">
+    <div class="app-foot-in"><span>Entorno de evaluación con datos sintéticos. El desembolso es simulado: no se mueve dinero real.</span></div>
+  </footer>
+</div>
+
+<section class="notes gutter" aria-label="Notas para validación">
+  <div class="notes-in">
+    <div>
+      <h2>Comportamiento a validar</h2>
+      <ul>
+        <li>Solo se comunica éxito con evidencia durable: contrato <b>CTR-8842</b> registrado. Una respuesta ambigua se muestra como pendiente.</li>
+        <li>Contrato y desembolso se muestran por separado: el contrato puede estar registrado mientras el desembolso <b>DSB-6A90F1</b> sigue en proceso.</li>
+        <li>«Actualizar estado» es solo lectura: no reenvía la contratación. Si falla, se conserva la última lectura confirmada con su hora.</li>
+        <li>Pendiente: se consulta cada 30 s hasta 15 min (hasta las <b>13:40</b>); luego pasa a revisión manual. El tiempo no decide el resultado.</li>
+        <li>Revisión manual: objetivo operativo de 4 h (<b>17:40</b>), sin promesa de resultado.</li>
+        <li>«Reintentar» aparece solo en fallo recuperable y reutiliza el mismo intento <b>CTR-ATT-5C21</b>. Nunca se ofrece «Contratar otra vez».</li>
+        <li>Reserva <b>S/ 5 000</b>: retenida mientras es incierto; convertida en consumo con contrato; liberada una vez en rechazo o fallo definitivo.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Reglas aplicadas</h2>
+      <ul>
+        <li><b>RN-021 / RN-049 / RN-128</b> Resultado incierto: pendiente, sin éxito ni fallo inferidos.</li>
+        <li><b>RN-181 / RN-182 / RN-183 / RN-185</b> Consulta 30 s × 15 min, revisión manual y objetivo de 4 h.</li>
+        <li><b>RN-016 / RN-090 / RN-126</b> Contrato, orden única y consumo en una transacción.</li>
+        <li><b>RN-089 / RN-091 / RN-178 / RN-179</b> Reserva retenida o liberada una sola vez.</li>
+        <li><b>RN-031 / RN-180</b> Solo fallo recuperable admite reintento del mismo intento.</li>
+        <li><b>RN-020 / RN-022 / RN-024 / RN-131</b> Estados de desembolso; recuperación sobre la operación original.</li>
+        <li><b>RN-108 / RN-017</b> Sin otro intento mientras este sea incierto; un contrato por oportunidad.</li>
+        <li><b>RN-079 / RN-118 / RN-120</b> Correlación conservada; consulta del estado propio.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+/* Utilidades comunes del prototipo (shell cliente, iconos, alertas, copiar). */
+const $ = id => document.getElementById(id);
+const svg = (d, s = 20) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + d + '</svg>';
+const ICON = {
+  info: d => svg('<circle cx="10" cy="10" r="8.5"/><path d="M10 9v5M10 6v.5"/>', d),
+  ok: d => svg('<circle cx="10" cy="10" r="8.5"/><path d="m6.2 10.3 2.6 2.6 5-5.4"/>', d),
+  warn: d => svg('<path d="M10 2.8 18 16.8H2z"/><path d="M10 8v4M10 14.4v.3"/>', d),
+  err: d => svg('<circle cx="10" cy="10" r="8.5"/><path d="M10 5.5v5.5M10 13.8v.4"/>', d),
+  clock: d => svg('<circle cx="10" cy="10" r="8.5"/><path d="M10 5.5V10l3 2"/>', d),
+  lock: d => svg('<rect x="4" y="9" width="12" height="8.5" rx="2"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9"/>', d),
+  pending: d => svg('<circle cx="10" cy="10" r="8.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01" stroke-width="2.4"/>', d),
+  review: d => svg('<circle cx="8.5" cy="8.5" r="5.5"/><path d="m12.6 12.6 4.6 4.6"/>', d),
+  x: d => svg('<circle cx="10" cy="10" r="8.5"/><path d="m7 7 6 6M13 7l-6 6"/>', d),
+  ban: d => svg('<circle cx="10" cy="10" r="8.5"/><path d="m4 16 12-12"/>', d),
+  todo: d => svg('<circle cx="10" cy="10" r="8.5" stroke-dasharray="2.5 2.5"/>', d),
+  doc: d => svg('<path d="M5 2.5h7l3.5 3.5v11.5H5z"/><path d="M12 2.5V6h3.5M7.5 10h5M7.5 13h5"/>', d)
+};
+function alertBox(kind, icon, title, body, actions){
+  return '<div class="alert alert-' + kind + '">' + ICON[icon](20) + '<div><strong>' + title + '</strong>' + body + (actions ? '<div class="alert-actions">' + actions + '</div>' : '') + '</div></div>';
+}
+function announce(msg){ const el = $("live"); if (!el) return; el.textContent = ""; setTimeout(() => { el.textContent = msg; }, 30); }
+function focusEl(el){ if (!el) return; if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1"); el.focus(); }
+
+// Menú de sesión: botón con aria-expanded, Escape cierra y devuelve el foco.
+(() => {
+  const btn = $("session-btn"), menu = $("session-menu");
+  if (!btn) return;
+  const items = () => Array.from(menu.querySelectorAll("a"));
+  function open(on, focusFirst){
+    btn.setAttribute("aria-expanded", String(on)); menu.hidden = !on;
+    if (on && focusFirst) items()[0].focus();
+  }
+  btn.addEventListener("click", () => open(menu.hidden, true));
+  btn.addEventListener("keydown", e => { if (e.key === "ArrowDown"){ e.preventDefault(); open(true, true); } });
+  menu.addEventListener("keydown", e => {
+    const list = items(), i = list.indexOf(document.activeElement);
+    if (e.key === "Escape"){ open(false); btn.focus(); }
+    else if (e.key === "ArrowDown"){ e.preventDefault(); list[(i + 1) % list.length].focus(); }
+    else if (e.key === "ArrowUp"){ e.preventDefault(); list[(i - 1 + list.length) % list.length].focus(); }
+    else if (e.key === "Tab"){ open(false); }
+  });
+  document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest(".session")) open(false); });
+})();
+
+// Botones de copiar identificadores
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-copy]"); if (!b) return;
+  const v = b.dataset.copy;
+  const done = () => { b.textContent = "Copiado"; announce("Copiado " + v); setTimeout(() => { b.textContent = "Copiar"; }, 1600); };
+  try { navigator.clipboard.writeText(v).then(done, done); } catch (_) { done(); }
+});
+const copyId = (v, label) => '<span class="copy"><span class="mono">' + v + '</span><button type="button" class="copy-btn" data-copy="' + v + '" aria-label="Copiar ' + (label || v) + '">Copiar</button></span>';
+
+(() => {
+  const LATENCY = 1000;
+  const DAY = "14 nov 2026, ";
+  // Lecturas del backend por estado (valores fijos).
+  const ACEPT = { cls: "done", icon: "ok", val: "Aceptada el 14 nov 2026, 13:24" };
+  const S = {
+    "exitosa-solicitado": { tone: "success", icon: "ok", kicker: "Contratación exitosa", title: "Contrato registrado",
+      text: "Tu crédito de S/ 5 000,00 a 12 meses quedó contratado. Ya pedimos el desembolso simulado.", idLine: "Contrato CTR-8842",
+      contr: ["done", "ok", "Exitosa · contrato CTR-8842"], des: ["wait", "pending", "Solicitado"],
+      reserva: ["success", "ok", "Convertida en consumo"], contrato: "CTR-8842", op: "DSB-6A90F1", desTag: ["warning", "pending", "Solicitado"], last: 31, next: "exitosa-procesando" },
+    "exitosa-procesando": { tone: "success", icon: "ok", kicker: "Contratación exitosa", title: "Contrato registrado",
+      text: "Tu crédito quedó contratado. El desembolso simulado se está procesando.", idLine: "Contrato CTR-8842",
+      contr: ["done", "ok", "Exitosa · contrato CTR-8842"], des: ["wait", "pending", "Procesando"],
+      reserva: ["success", "ok", "Convertida en consumo"], contrato: "CTR-8842", op: "DSB-6A90F1", desTag: ["warning", "pending", "Procesando"], last: 32, next: "exitosa-exitoso" },
+    "exitosa-exitoso": { tone: "success", icon: "ok", kicker: "Contratación y desembolso exitosos", title: "Contrato registrado y desembolso realizado",
+      text: "Tu crédito quedó contratado y el desembolso simulado de S/ 5 000,00 se confirmó el 14 nov 2026, 13:33. Tu primera cuota vence el 14 dic 2026.", idLine: "Contrato CTR-8842",
+      contr: ["done", "ok", "Exitosa · contrato CTR-8842"], des: ["done", "ok", "Exitoso · 14 nov 2026, 13:33"],
+      reserva: ["success", "ok", "Convertida en consumo"], contrato: "CTR-8842", op: "DSB-6A90F1", desTag: ["success", "ok", "Exitoso"], last: 33, terminal: true },
+    "exitosa-gestion": { tone: "success", icon: "ok", kicker: "Contratación exitosa", title: "Contrato registrado",
+      text: "Tu crédito quedó contratado. El desembolso simulado aún no tiene un resultado confirmado: consultamos la misma operación DSB-6A90F1, sin crear otra.", idLine: "Contrato CTR-8842",
+      contr: ["done", "ok", "Exitosa · contrato CTR-8842"], des: ["wait", "clock", "Pendiente de gestión"],
+      reserva: ["success", "ok", "Convertida en consumo"], contrato: "CTR-8842", op: "DSB-6A90F1", desTag: ["warning", "clock", "Pendiente de gestión"], last: 36, next: "exitosa-exitoso",
+      extra: ["info", "info", "Tu contrato no cambia", "<p>Aunque el desembolso esté pendiente, el contrato CTR-8842 sigue registrado. No necesitas hacer nada.</p>"] },
+    pendiente: { tone: "warning", icon: "pending", kicker: "Sin resultado todavía", title: "Resultado pendiente",
+      text: "No recibimos una confirmación definitiva del registro. Seguimos consultando cada 30 segundos. Si a las 13:40 aún no hay evidencia, un equipo lo revisará; eso no significa que haya fallado.", idLine: "Intento CTR-ATT-5C21",
+      contr: ["wait", "pending", "Pendiente desde las 13:25"], des: ["todo", "todo", "Aún no iniciado"],
+      reserva: ["warning", "lock", "Retenida"], contrato: null, op: null, desTag: null, last: 31, next: "exitosa-solicitado", noDup: true },
+    revision: { tone: "info", icon: "review", kicker: "En revisión", title: "En revisión manual",
+      text: "Pasaron 15 minutos sin evidencia concluyente, así que un equipo revisa tu contratación. Nuestro objetivo es resolverla antes del 14 nov 2026, 17:40, pero no podemos anticipar el resultado.", idLine: "Intento CTR-ATT-5C21",
+      contr: ["rev", "review", "En revisión manual desde las 13:40"], des: ["todo", "todo", "Aún no iniciado"],
+      reserva: ["warning", "lock", "Retenida"], contrato: null, op: null, desTag: null, last: 41, next: "exitosa-solicitado", noDup: true },
+    recuperable: { tone: "warning", icon: "warn", kicker: "Problema temporal", title: "No pudimos completar el registro",
+      text: "Un problema técnico temporal impidió registrar el contrato. No se registró ningún contrato y tu reserva se mantiene. Puedes reintentar este mismo intento.", idLine: "Intento CTR-ATT-5C21",
+      contr: ["fail", "warn", "Falló · se puede reintentar"], des: ["todo", "todo", "Aún no iniciado"],
+      reserva: ["warning", "lock", "Retenida"], contrato: null, op: null, desTag: null, last: 27, retry: true, noDup: true },
+    definitivo: { tone: "danger", icon: "x", kicker: "Sin contrato", title: "No se pudo contratar el crédito",
+      text: "Un error técnico impidió registrar el contrato y no es posible completarlo. No se registró ningún contrato y liberamos tu reserva de S/ 5 000,00.", idLine: "Intento CTR-ATT-5C21",
+      contr: ["fail", "x", "Fallo definitivo"], des: ["todo", "ban", "No aplica"],
+      reserva: ["neutral", "ok", "Liberada"], contrato: false, op: false, desTag: null, last: 28, terminal: true, toOp: true },
+    rechazada: { tone: "danger", icon: "ban", kicker: "Sin contrato", title: "Contratación rechazada",
+      text: "En la revisión final, la oferta OFR-7F3A2C ya no estaba disponible para contratar. No se registró ningún contrato y liberamos tu reserva de S/ 5 000,00.", idLine: "Intento CTR-ATT-5C21",
+      contr: ["fail", "ban", "Rechazada"], des: ["todo", "ban", "No aplica"],
+      reserva: ["neutral", "ok", "Liberada"], contrato: false, op: false, desTag: null, last: 26, terminal: true, toOp: true }
+  };
+  let cur = "exitosa-solicitado", lastMin = 31, busy = false, pending = null, stale = false;
+
+  function views(which){ ["loading", "empty", "main"].forEach(v => { $("v-" + v).hidden = v !== which; }); }
+  const tag = t => '<span class="tag tag-' + t[0] + '">' + ICON[t[1]](14) + t[2] + '</span>';
+  const step = (n, name, s) => '<li class="' + s[0] + '">' + ICON[s[1]](20) + '<div><span class="st-n">Paso ' + n + ' de 3</span><span class="st-name">' + name + '</span><span class="st-val">' + s[2] + '</span></div></li>';
+  const fact = (k, v) => '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>';
+  const t2 = m => DAY + "13:" + String(m).padStart(2, "0");
+
+  function render(key, focus){
+    const s = S[key]; cur = key;
+    views("main");
+    const panel = $("panel");
+    panel.className = "card panel tone-" + s.tone;
+    panel.innerHTML = '<span class="p-ico">' + ICON[s.icon](28) + '</span><div class="p-body"><span class="p-kicker">' + s.kicker + '</span><h2 id="p-title">' + s.title + '</h2><p>' + s.text + '</p><span class="p-id mono">' + s.idLine + '</span></div>';
+    $("progress").innerHTML = step(1, "Aceptación", [ACEPT.cls, ACEPT.icon, ACEPT.val]) + step(2, "Contratación", s.contr) + step(3, "Desembolso simulado", s.des);
+    const na = t => '<span class="na">' + t + '</span>';
+    $("facts").innerHTML =
+      fact("Intento de contratación", copyId("CTR-ATT-5C21", "identificador del intento")) +
+      fact("Reserva", '<span class="money">S/ 5 000,00</span>' + tag(s.reserva)) +
+      fact("Contrato", s.contrato ? copyId(s.contrato, "número de contrato") : na(s.contrato === false ? "No se registró" : "Aún no registrado")) +
+      fact("Operación de desembolso", s.op ? copyId(s.op, "identificador de la operación") : na(s.op === false ? "No aplica" : "Se crea al registrar el contrato")) +
+      (s.desTag ? fact("Estado del desembolso", tag(s.desTag)) : "") +
+      fact("Correlación para soporte", copyId("corr-7d1e-44a0", "código de correlación")) +
+      fact("Última lectura confirmada", '<span id="last">' + t2(lastMin) + '</span>' + (stale ? tag(["warning", "warn", "No actualizada"]) : (s.terminal ? tag(["neutral", "lock", "Resultado final"]) : "")));
+    const extra = s.noDup
+      ? alertBox("warning", "lock", "No inicies otra contratación mientras este intento esté " + (s.retry ? "sin resolver" : "pendiente"), "<p>Hacerlo no acelera el resultado. Este intento conserva tu reserva y se resolverá con su misma identidad.</p>")
+      : (s.extra ? alertBox.apply(null, s.extra) : "");
+    $("nodup").innerHTML = extra; $("nodup").hidden = !extra;
+    $("refresh").hidden = !!s.terminal || !!s.retry;
+    $("retry").hidden = !s.retry;
+    $("to-op").hidden = !s.toOp;
+    if (focus) focusEl(panel);
+  }
+
+  function setBusy(on, msg){
+    busy = on; $("refresh").disabled = on; $("retry").disabled = on;
+    $("refresh").textContent = on && msg.startsWith("Consult") ? "Actualizando…" : "Actualizar estado";
+    $("retry").textContent = on && msg.startsWith("Reintent") ? "Reintentando…" : "Reintentar contratación";
+    $("busy").innerHTML = on ? '<span class="spinner" aria-hidden="true"></span><span>' + msg + '</span>' : "";
+  }
+  function readFailed(focus){
+    stale = true; render(cur, false);
+    const a = $("read-alert");
+    a.innerHTML = alertBox("warning", "warn", "No pudimos actualizar el estado", "<p>Mostramos la última lectura confirmada, del " + t2(lastMin) + ". No significa que la contratación haya cambiado. Intenta actualizar de nuevo en unos segundos.</p>");
+    a.hidden = false; if (focus) focusEl(a);
+  }
+  function clearRead(){ stale = false; $("read-alert").hidden = true; $("read-alert").innerHTML = ""; }
+
+  $("refresh").addEventListener("click", () => {
+    if (busy) return;
+    setBusy(true, "Consultando el estado actual");
+    pending = setTimeout(() => {
+      setBusy(false, "");
+      const n = $("next").value, s = S[cur];
+      if (n === "falla") return readFailed(true);
+      clearRead();
+      if (n === "avanza" && s.next){ lastMin = Math.max(lastMin + 1, S[s.next].last); render(s.next, true); announce("Estado actualizado: " + S[s.next].title + "."); }
+      else { lastMin = Math.min(lastMin + 1, 59); render(cur, false); announce("Estado actualizado. Sin cambios desde la última lectura."); }
+    }, LATENCY);
+  });
+  $("retry").addEventListener("click", () => {
+    if (busy) return;
+    setBusy(true, "Reintentando el mismo intento CTR-ATT-5C21");
+    pending = setTimeout(() => {
+      setBusy(false, ""); clearRead(); lastMin = 31; render("pendiente", true);
+      announce("Reintento registrado. El resultado está pendiente.");
+    }, LATENCY);
+  });
+
+  function show(key){
+    clearTimeout(pending); setBusy(false, ""); clearRead();
+    if (key === "cargando"){ views("loading"); return; }
+    if (key === "vacio"){ views("empty"); return; }
+    if (key === "sin-lectura"){ lastMin = S.pendiente.last; cur = "pendiente"; readFailed(false); return; }
+    lastMin = S[key].last; render(key, false);
+  }
+  const sel = $("scenario");
+  sel.addEventListener("change", () => show(sel.value));
+
+  // Entrada desde P-006: primero se muestra la lectura en curso y luego el estado durable.
+  const q = new URLSearchParams(location.search).get("estado");
+  if (q && (S[q] || q === "sin-lectura" || q === "vacio" || q === "cargando")){
+    sel.value = q; views("loading");
+    pending = setTimeout(() => { show(q); announce(S[q] ? S[q].title : ""); }, LATENCY);
+  } else show(sel.value);
+})();
+</script>

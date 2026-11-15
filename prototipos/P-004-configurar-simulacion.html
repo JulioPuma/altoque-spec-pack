@@ -1,0 +1,643 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altoque P-004 Configurar simulación</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: banda de controles del prototipo arriba, pantalla real en el centro, notas de validación debajo. Tokens = 09-ui-spec.md §4. */
+:root{
+  --color-primary-700:#174EA6; --color-primary-800:#123B7A;
+  --color-secondary-700:#0B6B5B; --color-accent-500:#F5A623;
+  --color-bg-page:#F7F9FC; --color-bg-surface:#FFFFFF;
+  --color-text-primary:#172033; --color-text-secondary:#4B5565;
+  --color-border:#C9D2E3; --color-success-700:#18794E;
+  --color-warning-800:#8A4B08; --color-danger-700:#B42318;
+  --color-info-700:#175CD3; --color-focus:#7C3AED;
+  --on-primary:#FFFFFF;
+  --tint-info:#EAF1FD; --tint-danger:#FDECEA; --tint-warning:#FDF3E4; --tint-success:#E7F5EE;
+  --proto-bg:#EEF1F7; --proto-ink:#4B5565;
+  --font:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --r-control:8px;--r-card:12px;--r-dialog:16px;
+  --shadow-card:0 1px 3px rgba(23,32,51,.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg-page);color:var(--color-text-primary);font:400 16px/1.5 var(--font)}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:var(--color-primary-700)}
+button{font:inherit}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+p{margin:0}
+
+/* ---------- Banda del prototipo ---------- */
+.proto{background:var(--proto-bg);border-bottom:2px dashed var(--color-border);color:var(--proto-ink);font-size:14px;line-height:20px}
+.proto-in{max-width:1200px;margin:0 auto;padding-block:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.proto-tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.proto label{min-width:0;max-width:100%;display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.proto select{min-width:0;font:inherit;min-height:36px;max-width:100%;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary)}
+.proto code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--color-bg-surface);padding:1px 6px;border-radius:4px;border:1px solid var(--color-border);color:var(--color-text-primary)}
+
+/* ---------- Shell cliente ---------- */
+.skip{position:fixed;left:16px;top:8px;transform:translateY(-300%);background:var(--color-primary-700);color:var(--on-primary);padding:var(--s3) var(--s4);border-radius:var(--r-control);z-index:30;text-decoration:none;font-weight:600}
+.skip:focus{transform:none}
+.screen{position:relative}
+.app-head{border-bottom:1px solid var(--color-border);background:var(--color-bg-surface)}
+.app-head-in{max-width:1200px;margin:0 auto;min-height:64px;display:flex;flex-wrap:wrap;align-items:center;gap:0 var(--s6);padding-block:var(--s2)}
+.logo{display:flex;align-items:center;gap:var(--s2);font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--color-text-primary);text-decoration:none;min-height:44px}
+.logo svg{flex:none}
+.shell-nav{display:flex;gap:var(--s5);align-items:center;flex:1}
+.shell-nav a{text-decoration:none;font-weight:600;color:var(--color-text-secondary);min-height:44px;display:inline-flex;align-items:center;border-bottom:2px solid transparent}
+.shell-nav a:hover{color:var(--color-text-primary)}
+.shell-nav a[aria-current]{color:var(--color-primary-700);border-color:var(--color-primary-700)}
+.menu{position:relative;margin-left:auto}
+.menu-btn{min-height:44px;display:inline-flex;align-items:center;gap:var(--s2);background:none;border:1px solid transparent;border-radius:var(--r-control);padding:0 var(--s2);color:var(--color-text-primary);cursor:pointer;font-weight:600}
+.menu-btn:hover{border-color:var(--color-border)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--tint-info);color:var(--color-primary-700);display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
+.menu-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:20;width:min(280px,calc(100vw - 32px));background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(23,32,51,.18);padding:var(--s2)}
+.menu-who{padding:var(--s3);border-bottom:1px solid var(--color-border);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.menu-who b{display:block;color:var(--color-text-primary);font-size:16px;line-height:24px}
+.menu-pop a{display:flex;align-items:center;gap:var(--s2);min-height:44px;padding:0 var(--s3);margin-top:var(--s2);border-radius:var(--r-control);text-decoration:none;color:var(--color-text-primary);font-weight:600}
+.menu-pop a:hover{background:var(--color-bg-page)}
+@media (max-width:599px){.shell-nav{order:3;flex-basis:100%;gap:var(--s4)} .menu-name{display:none}}
+
+/* ---------- Contenido ---------- */
+main.page{max-width:1200px;margin:0 auto;padding-block:var(--s5) var(--s7);display:flex;flex-direction:column;gap:var(--s5)}
+main.page:focus{outline:none}
+.view{display:flex;flex-direction:column;gap:var(--s5)}
+.crumbs ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.crumbs li+li::before{content:"/";margin-right:var(--s2)}
+.crumbs a{display:inline-flex;min-height:24px;align-items:center}
+.title{font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.015em}
+.title:focus{outline:none}
+@media (max-width:599px){.title{font-size:28px;line-height:36px}}
+.h2{font-size:24px;line-height:32px;font-weight:700}
+.h3{font-size:20px;line-height:28px;font-weight:600}
+.muted{color:var(--color-text-secondary)}
+.small{font-size:14px;line-height:20px}
+.mono{font-variant-numeric:tabular-nums}
+.id{font-family:ui-monospace,Consolas,monospace;font-size:15px;letter-spacing:.01em}
+.card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4);min-width:0}
+@media (max-width:599px){.card{padding:var(--s4)}}
+
+.alert{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid currentColor;border-radius:var(--r-control);padding:var(--s3) var(--s4);font-size:14px;line-height:20px}
+.alert>svg{flex:none;margin-top:2px}
+.alert>div{min-width:0;flex:1}
+.alert strong{display:block;font-size:16px;line-height:24px;color:var(--color-text-primary)}
+.alert p{margin:0;color:var(--color-text-primary)}
+.alert p+p{margin-top:var(--s1)}
+.alert ul{margin:var(--s1) 0 0;padding-left:20px;color:var(--color-text-primary)}
+.alert .actions{margin-top:var(--s3)}
+.alert:focus{outline:none}
+.alert:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}
+.alert-info{color:var(--color-info-700);background:var(--tint-info)}
+.alert-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.alert-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.alert-success{color:var(--color-success-700);background:var(--tint-success)}
+
+.btn{min-height:44px;border-radius:var(--r-control);padding:0 var(--s4);font-weight:600;font-size:16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);border:1px solid transparent;text-decoration:none;line-height:20px;text-align:center}
+.btn-primary{background:var(--color-primary-700);color:var(--on-primary);min-height:48px}
+.btn-primary:hover:not(:disabled){background:var(--color-primary-800)}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-primary-700);border-color:var(--color-border)}
+.btn-secondary:hover:not(:disabled){border-color:var(--color-primary-700)}
+.btn-danger{background:var(--color-danger-700);color:var(--on-primary)}
+.btn-danger-outline{background:var(--color-bg-surface);color:var(--color-danger-700);border-color:currentColor}
+.btn-ghost{background:none;color:var(--color-primary-700);text-decoration:underline;padding:0 var(--s2)}
+.btn:disabled{cursor:not-allowed;opacity:.7}
+.btn-block{width:100%}
+.btn svg{flex:none}
+.actions{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center}
+@media (max-width:599px){.actions.stack-sm{flex-direction:column;align-items:stretch}}
+
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:600;border:1px solid currentColor;border-radius:999px;padding:2px 10px;white-space:nowrap}
+.pill svg{flex:none}
+.pill-success{color:var(--color-success-700);background:var(--tint-success)}
+.pill-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.pill-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.pill-info{color:var(--color-info-700);background:var(--tint-info)}
+.pill-neutral{color:var(--color-text-secondary);background:var(--color-bg-page)}
+
+.status{display:flex;align-items:center;gap:var(--s2);min-height:24px;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.spinner{display:inline-block;width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skel{display:block;height:16px;background:var(--color-border);opacity:.6;border-radius:6px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+
+dl.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:var(--s4);margin:0}
+dl.facts>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+dl.facts dt{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+dl.facts dd{margin:0;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.copy{display:inline-flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.copy button{min-height:32px;min-width:44px;font:600 14px/20px var(--font);color:var(--color-primary-700);background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-control);padding:0 var(--s2);cursor:pointer}
+
+.field{display:flex;flex-direction:column;gap:var(--s2)}
+.field>label,.legend{font-weight:600}
+.hint{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.input{width:100%;min-height:48px;padding:0 var(--s4);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary);font:400 16px/24px var(--font);font-variant-numeric:tabular-nums}
+.input:hover{border-color:var(--color-text-secondary)}
+.input[aria-invalid="true"]{border:2px solid var(--color-danger-700)}
+.field-error{display:flex;gap:6px;align-items:flex-start;color:var(--color-danger-700);font-size:14px;line-height:20px;font-weight:500}
+.field-error svg{flex:none;margin-top:2px}
+
+/* ---------- Diálogo ---------- */
+.backdrop{position:fixed;inset:0;z-index:50;background:rgba(15,21,34,.6);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.dialog{background:var(--color-bg-surface);color:var(--color-text-primary);border-radius:var(--r-dialog);width:100%;max-width:560px;max-height:100%;overflow:auto;padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4);box-shadow:0 16px 48px rgba(0,0,0,.3)}
+.dialog ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2)}
+.dialog .actions{justify-content:flex-end}
+
+/* ---------- Notas ---------- */
+.notes{border-top:2px dashed var(--color-border);background:var(--proto-bg)}
+.notes-in{max-width:1200px;margin:0 auto;padding-block:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s5)}
+.notes h2{font-size:20px;line-height:28px;font-weight:600;margin-bottom:var(--s3)}
+.notes ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.notes b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- P-004 ---------- */
+.wrap{max-width:640px;width:100%}
+.sum-head{display:flex;flex-wrap:wrap;gap:var(--s2);justify-content:space-between;align-items:center}
+form.card{gap:var(--s5)}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:flex;flex-direction:column;gap:var(--s2)}
+legend{font-weight:600;padding:0;margin-bottom:var(--s2)}
+.amount-row{display:flex;gap:var(--s2);align-items:stretch}
+.prefix{position:relative;flex:1;min-width:0}
+.prefix span{position:absolute;left:var(--s4);top:50%;transform:translateY(-50%);font-weight:600;color:var(--color-text-secondary);pointer-events:none}
+.prefix .input{padding-left:48px;font-size:20px;font-weight:600}
+.step{min-width:48px;min-height:48px;padding:0;font-size:22px}
+.terms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s2)}
+@media (max-width:479px){.terms{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.term{display:flex;align-items:center;gap:var(--s2);min-height:48px;padding:0 var(--s2) 0 var(--s3);white-space:nowrap;border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);cursor:pointer;font-weight:600}
+.term input{width:20px;height:20px;margin:0;accent-color:var(--color-primary-700);flex:none}
+.term:hover{border-color:var(--color-text-secondary)}
+.term:has(input:checked){border:2px solid var(--color-primary-700);background:var(--tint-info)}
+.term:has(input:focus-visible){outline:3px solid var(--color-focus);outline-offset:2px}
+.term input:focus-visible{outline:none}
+fieldset[aria-invalid="true"] .term{border-color:var(--color-danger-700)}
+fieldset:disabled .term{cursor:not-allowed;opacity:.7}
+.form-actions{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center}
+.form-actions .btn-primary{flex:1 1 220px}
+@media (max-width:599px){.form-actions{flex-direction:column;align-items:stretch}.form-actions .btn-primary{flex:none}}
+.locked-note{display:flex;gap:var(--s2);align-items:flex-start;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.locked-note svg{flex:none;margin-top:2px}
+#top-alert:empty,#backend-alert:empty{display:none}
+</style>
+
+<!-- Banda de control: no forma parte de la pantalla -->
+<div class="proto gutter" role="region" aria-label="Controles del prototipo">
+  <div class="proto-in">
+    <span class="proto-tag">Prototipo · no es parte de la pantalla</span>
+    <label for="scenario">Ver estado
+      <select id="scenario">
+        <option value="vacio">Editable (vacío)</option>
+        <option value="cargando">Cargando</option>
+        <option value="datos">Con datos (S/ 5 000 · 12 meses)</option>
+        <option value="error_local">Error local de validación</option>
+        <option value="calculando">Calculando</option>
+        <option value="exitosa">Simulación exitosa (redirige a P-005)</option>
+        <option value="rechazados">Parámetros rechazados</option>
+        <option value="ausentes">Datos obligatorios ausentes</option>
+        <option value="vencida">Oportunidad vencida o reemplazada</option>
+        <option value="saldo">Saldo disponible cambiado</option>
+        <option value="fallo_rec">Fallo recuperable</option>
+        <option value="fallo_def">Fallo definitivo</option>
+        <option value="error_lectura">Error de lectura</option>
+        <option value="no_encontrada">Oportunidad no encontrada</option>
+        <option value="sesion">Sesión vencida</option>
+      </select>
+    </label>
+    <label for="opp">Oportunidad
+      <select id="opp">
+        <option value="OFR-7F3A2C">OFR-7F3A2C · preferencial S/ 8 000</option>
+        <option value="OFR-91B4E0">OFR-91B4E0 · preferencial S/ 5 000</option>
+        <option value="SOL-4E8B19">SOL-4E8B19 · regular S/ 6 000</option>
+        <option value="OFR-3C1D77">OFR-3C1D77 · vencida</option>
+      </select>
+    </label>
+    <label for="next">Respuesta al calcular
+      <select id="next">
+        <option value="exitosa">Exitosa</option>
+        <option value="rechazados">Parámetros rechazados</option>
+        <option value="ausentes">Datos obligatorios ausentes</option>
+        <option value="vencida">Oportunidad vencida o reemplazada</option>
+        <option value="saldo">Saldo cambiado (S/ 4 000)</option>
+        <option value="fallo_rec">Fallo recuperable</option>
+        <option value="fallo_def">Fallo definitivo</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="screen">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="app-head gutter">
+    <div class="app-head-in">
+      <a class="logo" href="P-002-oportunidades.html" aria-label="Altoque, ir a Oportunidades">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span aria-hidden="true">Altoque</span>
+      </a>
+      <nav class="shell-nav" aria-label="Principal">
+        <a href="P-002-oportunidades.html" aria-current="true">Oportunidades</a>
+        <a href="P-008-mis-operaciones.html">Mis operaciones</a>
+      </nav>
+      <div class="menu">
+        <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="menu-pop" aria-label="Menú de sesión de Lucía Ramos">
+          <span class="avatar" aria-hidden="true">LR</span><span class="menu-name" aria-hidden="true">Lucía Ramos</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="menu-pop" id="menu-pop" hidden>
+          <p class="menu-who"><b>Lucía Ramos Huamán</b>DNI sintético <span class="mono">···1238</span> · cuenta de evaluación</p>
+          <a href="P-001-inicio-de-sesion.html" id="logout">
+            <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M12 6.5 15.5 10 12 13.5M15.5 10H8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Cerrar sesión
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page gutter" id="contenido" tabindex="-1">
+    <nav class="crumbs" aria-label="Ruta de navegación"><ol id="crumbs"></ol></nav>
+    <div id="live" class="sr-only" aria-live="polite"></div>
+    <div class="view wrap">
+      <h1 class="title" id="h1" tabindex="-1">Simula tu crédito</h1>
+      <div id="top-alert"></div>
+
+      <div id="loading" role="status" hidden>
+        <span class="sr-only">Cargando los datos de la oportunidad…</span>
+        <div class="card" aria-hidden="true"><span class="skel" style="width:45%;height:24px"></span><span class="skel" style="width:100%"></span><span class="skel" style="width:70%"></span></div>
+        <div class="card" aria-hidden="true" style="margin-top:var(--s5)"><span class="skel" style="width:30%"></span><span class="skel" style="height:48px"></span><span class="skel" style="width:30%"></span><span class="skel" style="height:48px"></span></div>
+      </div>
+
+      <section class="card" id="summary" aria-labelledby="h-sum">
+        <div class="sum-head"><h2 class="h3" id="h-sum">Oportunidad seleccionada</h2><span id="sum-pill"></span></div>
+        <dl class="facts">
+          <div><dt>Tipo</dt><dd id="sum-tipo"></dd></div>
+          <div><dt>Identificador</dt><dd class="id" id="sum-id"></dd></div>
+          <div><dt>Monto máximo</dt><dd id="sum-max"></dd></div>
+          <div><dt>Vigencia</dt><dd id="sum-vig"></dd></div>
+          <div><dt>Saldo disponible de tu línea</dt><dd id="sum-saldo"></dd></div>
+          <div><dt>Moneda</dt><dd>Soles (PEN)</dd></div>
+        </dl>
+        <p class="hint">Importes informados por el sistema. El saldo es referencial: se vuelve a validar al contratar.</p>
+      </section>
+
+      <form class="card" id="sim-form" novalidate aria-labelledby="h-form">
+        <h2 class="h3" id="h-form">Elige monto y plazo</h2>
+        <div id="error-summary" class="alert alert-danger" role="alert" tabindex="-1" hidden></div>
+
+        <div class="field">
+          <label for="monto">Monto en soles</label>
+          <span class="hint" id="monto-hint"></span>
+          <div class="amount-row">
+            <button type="button" class="btn btn-secondary step" id="minus" aria-label="Restar S/ 100" aria-controls="monto">−</button>
+            <div class="prefix"><span aria-hidden="true">S/</span><input class="input" id="monto" name="monto" type="text" inputmode="numeric" autocomplete="off" maxlength="5" aria-describedby="monto-hint monto-error"></div>
+            <button type="button" class="btn btn-secondary step" id="plus" aria-label="Sumar S/ 100" aria-controls="monto">+</button>
+          </div>
+          <span class="field-error" id="monto-error" hidden></span>
+        </div>
+
+        <fieldset id="plazo" aria-describedby="plazo-error">
+          <legend>Plazo</legend>
+          <div class="terms">
+            <label class="term"><input type="radio" name="plazo" value="6">6 meses</label>
+            <label class="term"><input type="radio" name="plazo" value="12">12 meses</label>
+            <label class="term"><input type="radio" name="plazo" value="18">18 meses</label>
+            <label class="term"><input type="radio" name="plazo" value="24">24 meses</label>
+          </div>
+          <span class="field-error" id="plazo-error" hidden></span>
+        </fieldset>
+
+        <div class="alert alert-info" role="note">
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <p>El sistema calcula la cuota, los intereses, el seguro, la TCEA y el cronograma. Verás el resultado completo antes de aceptar; simular no te compromete.</p>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit">Calcular simulación</button>
+          <a class="btn btn-secondary" id="back" href="P-002-oportunidades.html"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12 4.5 6.5 10l5.5 5.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Volver</a>
+        </div>
+        <p class="locked-note" id="locked-note" hidden></p>
+        <div class="status" id="status" aria-live="polite"></div>
+      </form>
+
+      <div id="backend-alert"></div>
+    </div>
+  </main>
+</div>
+
+<section class="notes gutter" aria-label="Notas para validación">
+  <div class="notes-in">
+    <div>
+      <h2>Comportamiento a validar</h2>
+      <ul>
+        <li>La validación local solo revisa rango (S/ 500 a S/ 10 000 y hasta el máximo de la oportunidad), incrementos de S/ 100 y plazo elegido. El sistema vuelve a validar todo.</li>
+        <li>La pantalla no calcula cuota, intereses ni TCEA: solo envía monto y plazo y espera la respuesta.</li>
+        <li>«Calcular simulación» se deshabilita mientras calcula para evitar un doble envío.</li>
+        <li>«Reintentar cálculo» aparece solo en fallo recuperable y usa la misma simulación <b>SIM-A1C9F2</b>; si cambias los datos, se calcula una simulación nueva.</li>
+        <li>Si falta configuración obligatoria o la oportunidad venció, el formulario queda bloqueado con la explicación visible.</li>
+        <li>Con saldo cambiado, el máximo se actualiza al valor informado (<b>S/ 4 000</b>) y el monto se revalida.</li>
+        <li>En el prototipo cualquier simulación exitosa abre <b>SIM-A1C9F2</b> (S/ 5 000, 12 meses) en P-005.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Reglas aplicadas</h2>
+      <ul>
+        <li><b>RN-195</b> Montos de S/ 500 a S/ 10 000, en incrementos de S/ 100.</li>
+        <li><b>RN-196</b> Plazos de 6, 12, 18 o 24 meses.</li>
+        <li><b>RN-097 / RN-086 / RN-088</b> Sin superar el máximo de la oportunidad ni el saldo de la línea compartida.</li>
+        <li><b>RN-005 / RN-006</b> Cálculo financiero solo en el backend.</li>
+        <li><b>RN-168 / RN-216</b> Sin simulación para ofertas vencidas o reemplazadas, ni para solicitudes no habilitadas.</li>
+        <li><b>RN-200</b> Dato obligatorio ausente bloquea la simulación; no se completa por defecto.</li>
+        <li><b>RN-063 / RN-083 / RN-218 / RN-228</b> Fallo definitivo sin reintento automático.</li>
+        <li><b>RN-222 / RN-031</b> Reintento controlado con el mismo <b>simulacionId</b>.</li>
+        <li><b>RN-057</b> La simulación exitosa vale 30 minutos (se muestra en P-005).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const SVG = {
+    info:'<circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    ok:'<circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m6.5 10.2 2.3 2.3 4.7-4.8" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    warn:'<path d="M10 2.8 18 16.5H2z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M10 8v4M10 14.2v.3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    err:'<circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5v5.5M10 13.8v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    clock:'<circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5V10l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/>',
+    lock:'<rect x="4" y="9" width="12" height="8.5" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.6" fill="none"/>',
+    ban:'<circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m4.5 15.5 11-11" stroke="currentColor" stroke-width="1.6"/>',
+    refresh:'<path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+    back:'<path d="M12 4.5 6.5 10l5.5 5.5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>'
+  };
+  const ico = (n, s = 20) => '<svg width="' + s + '" height="' + s + '" viewBox="0 0 20 20" aria-hidden="true">' + SVG[n] + '</svg>';
+  const SPIN = '<span class="spinner" aria-hidden="true"></span>';
+  const pill = (kind, icon, text) => '<span class="pill pill-' + kind + '">' + (icon === "spin" ? SPIN : ico(icon, 16)) + text + '</span>';
+  function alertBox(kind, icon, title, body, opts = {}){
+    const role = opts.role ? ' role="' + opts.role + '"' : '';
+    const id = opts.id ? ' id="' + opts.id + '"' : '';
+    return '<div class="alert alert-' + kind + '"' + role + id + ' tabindex="-1">' + ico(icon) + '<div><strong>' + title + '</strong>' + body + (opts.actions ? '<div class="actions">' + opts.actions + '</div>' : '') + '</div></div>';
+  }
+  const live = msg => { const l = $("live"); l.textContent = ""; setTimeout(() => { l.textContent = msg; }, 30); };
+  function focusEl(el){ if (el){ if (!el.hasAttribute("tabindex") && !/^(A|BUTTON|INPUT|SELECT)$/.test(el.tagName)) el.setAttribute("tabindex","-1"); el.focus(); } }
+  function sessionExpiredHTML(){
+    return alertBox("warning","lock","Tu sesión venció",
+      "<p>Por seguridad, cerramos tu sesión tras un tiempo sin actividad. Vuelve a ingresar para continuar; tus operaciones confirmadas no cambian.</p>",
+      { role:"alert", id:"session-alert", actions:'<a class="btn btn-primary" href="P-001-inicio-de-sesion.html?motivo=sesion-vencida">Iniciar sesión de nuevo</a>' });
+  }
+
+  // ---- Menú de sesión ----
+  (() => {
+    const btn = $("menu-btn"), pop = $("menu-pop");
+    const close = (refocus) => { pop.hidden = true; btn.setAttribute("aria-expanded","false"); if (refocus) btn.focus(); };
+    btn.addEventListener("click", () => {
+      const open = pop.hidden; pop.hidden = !open; btn.setAttribute("aria-expanded", String(open));
+      if (open) pop.querySelector("a").focus();
+    });
+    pop.addEventListener("keydown", e => { if (e.key === "Escape"){ e.stopPropagation(); close(true); } });
+    document.addEventListener("click", e => { if (!pop.hidden && !e.target.closest(".menu")) close(false); });
+    pop.addEventListener("focusout", e => { if (!pop.contains(e.relatedTarget) && e.relatedTarget !== btn) close(false); });
+  })();
+
+  // ---- Datos sintéticos "respuesta del backend" ----
+  const OPS = {
+    "OFR-7F3A2C":{ tipo:"Oferta preferencial", max:8000, vig:"Vence el 2 dic 2026, 09:00 (hora de Lima)", expired:false },
+    "OFR-91B4E0":{ tipo:"Oferta preferencial", max:5000, vig:"Vence el 20 nov 2026, 18:30 (hora de Lima)", expired:false },
+    "SOL-4E8B19":{ tipo:"Solicitud regular", max:6000, vig:"Vence el 15 nov 2026, 10:15 (hora de Lima)", expired:false },
+    "OFR-3C1D77":{ tipo:"Oferta preferencial", max:4000, vig:"Venció el 10 nov 2026, 11:00 (hora de Lima)", expired:true }
+  };
+  const SIM_ID = "SIM-A1C9F2", P005 = "P-005-detalle-y-aceptacion-de-simulacion.html?simulacion=" + SIM_ID;
+  const MIN = 500, ABS_MAX = 10000, STEP = 100;
+  const money = n => "S/ " + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+
+  const form = $("sim-form"), monto = $("monto"), plazo = $("plazo"), submit = $("submit"), status = $("status");
+  const summary = $("error-summary"), backend = $("backend-alert"), top = $("top-alert");
+  const ICON_ERR16 = ico("err",16);
+  let oppId = "OFR-7F3A2C", opp = OPS[oppId], saldo = 12000, allowed = 8000;
+  let busy = false, locked = false, timer = null, redirect = null;
+
+  // ---- Oportunidad ----
+  function setOpp(id){
+    oppId = id; opp = OPS[id]; saldo = 12000; allowed = Math.min(opp.max, ABS_MAX, saldo); // tope informado por el backend
+    const regular = id.startsWith("SOL");
+    $("crumbs").innerHTML = '<li><a href="P-002-oportunidades.html">Oportunidades</a></li>' +
+      (regular ? '<li><a href="P-003-estado-de-solicitud-regular.html?solicitud=SOL-4E8B19&estado=habilitada">Solicitud regular</a></li>' : '') +
+      '<li aria-current="page">Simular</li>';
+    $("back").href = regular ? "P-003-estado-de-solicitud-regular.html?solicitud=SOL-4E8B19&estado=habilitada" : "P-002-oportunidades.html";
+    $("back").lastChild.textContent = regular ? "Volver a la solicitud" : "Volver a Oportunidades";
+    paintSummary();
+  }
+  function paintSummary(unavailable){
+    $("sum-tipo").textContent = opp.tipo; $("sum-id").textContent = oppId;
+    $("sum-max").textContent = money(opp.max); $("sum-vig").textContent = opp.vig; $("sum-saldo").textContent = money(saldo);
+    $("sum-pill").innerHTML = opp.expired || unavailable ? pill("neutral","ban", opp.expired ? "Vencida" : "No disponible") : pill("success","ok","Habilitada");
+    $("monto-hint").textContent = "Entre " + money(MIN) + " y " + money(allowed) + ", en incrementos de S/ 100.";
+  }
+
+  // ---- Errores de campo ----
+  function fieldError(el, errId, msg){
+    const e = $(errId);
+    if (msg){ e.innerHTML = ICON_ERR16 + "<span>" + msg + "</span>"; e.hidden = false; el.setAttribute("aria-invalid","true"); }
+    else { e.hidden = true; e.textContent = ""; el.removeAttribute("aria-invalid"); }
+  }
+  function clearErrors(){ summary.hidden = true; summary.innerHTML = ""; fieldError(monto,"monto-error"); fieldError(plazo,"plazo-error"); }
+  const plazoValue = () => (form.querySelector('input[name="plazo"]:checked') || {}).value;
+  function montoMsg(){
+    const raw = monto.value.trim();
+    if (!raw) return "Ingresa el monto que necesitas.";
+    const v = Number(raw);
+    if (v < MIN) return "El monto mínimo es " + money(MIN) + ".";
+    if (v > allowed) return saldo < opp.max ? "Tu saldo disponible permite pedir hasta " + money(allowed) + "." : "Para esta oportunidad puedes pedir hasta " + money(allowed) + ".";
+    if (v % STEP){ const lo = Math.floor(v / STEP) * STEP; return "Usa incrementos de S/ 100: por ejemplo, " + money(Math.max(lo, MIN)) + " o " + money(Math.min(lo + STEP, allowed)) + "."; }
+    return "";
+  }
+  function validate(){
+    clearErrors();
+    const errs = [];
+    const m = montoMsg(); if (m){ fieldError(monto,"monto-error",m); errs.push(["monto",m]); }
+    if (!plazoValue()){ const p = "Elige un plazo."; fieldError(plazo,"plazo-error",p); errs.push(["plazo-6",p]); }
+    if (errs.length){
+      summary.innerHTML = ico("err") + "<div><strong>Revisa " + (errs.length > 1 ? "2 campos" : "1 campo") + " antes de calcular</strong><ul>" +
+        errs.map(([id, msg]) => '<li><a href="#' + id + '" data-focus="' + id + '">' + msg + "</a></li>").join("") + "</ul></div>";
+      summary.hidden = false; summary.focus();
+    }
+    return !errs.length;
+  }
+  summary.addEventListener("click", e => {
+    const t = e.target.closest("[data-focus]"); if (!t) return; e.preventDefault();
+    if (t.dataset.focus === "monto") monto.focus(); else (form.querySelector('input[name="plazo"]:checked') || form.querySelector('input[name="plazo"]')).focus();
+  });
+  monto.addEventListener("input", () => { monto.value = monto.value.replace(/\D/g, "").slice(0, 5); if (monto.getAttribute("aria-invalid")) fieldError(monto,"monto-error"); });
+  plazo.addEventListener("change", () => fieldError(plazo,"plazo-error"));
+  function step(dir){
+    if (busy || locked) return;
+    let v = Number(monto.value) || 0;
+    v = dir > 0 ? (v ? Math.floor(v / STEP) * STEP + STEP : MIN) : (v ? Math.ceil(v / STEP) * STEP - STEP : allowed);
+    v = Math.min(Math.max(v, MIN), allowed);
+    monto.value = String(v); fieldError(monto,"monto-error"); live("Monto: " + money(v));
+  }
+  $("minus").addEventListener("click", () => step(-1));
+  $("plus").addEventListener("click", () => step(1));
+
+  // ---- Estados del formulario ----
+  function setLocked(on, note){
+    locked = on; monto.readOnly = on; plazo.disabled = on; submit.disabled = on || busy;
+    $("minus").disabled = on; $("plus").disabled = on;
+    $("locked-note").hidden = !note; $("locked-note").innerHTML = note ? ico("lock",16) + "<span>" + note + "</span>" : "";
+  }
+  function setBusy(on){
+    busy = on; submit.disabled = on || locked; monto.readOnly = on || locked; plazo.disabled = on || locked;
+    $("minus").disabled = on || locked; $("plus").disabled = on || locked;
+    submit.innerHTML = on ? SPIN + "Calculando…" : "Calcular simulación";
+    status.innerHTML = on ? SPIN + "<span>Calculando tu simulación con el sistema</span>" : "";
+  }
+  function showBackend(html, focus = true){ backend.innerHTML = html; if (focus) focusEl(backend.firstElementChild); }
+  const requested = () => money(Number(monto.value) || 5000) + " a " + (plazoValue() || "12") + " meses";
+
+  function result(r, redirectOk){
+    switch (r){
+      case "exitosa":
+        setLocked(true);
+        showBackend(alertBox("success","ok","Simulación lista",
+          "<p>Creamos la simulación <span class=\"id\">" + SIM_ID + "</span> por " + requested() + ". Te llevamos al detalle para revisar costos y cronograma.</p>",
+          { role:"status", actions:'<a class="btn btn-primary" href="' + P005 + '">Ir al detalle ahora</a>' }));
+        live("Simulación lista. Abriendo el detalle.");
+        if (redirectOk) redirect = setTimeout(() => { location.href = P005; }, 1500);
+        break;
+      case "rechazados": {
+        const msg = "El sistema rechazó este monto: no cumple las reglas vigentes de la oportunidad (entre " + money(MIN) + " y " + money(allowed) + ", en incrementos de S/ 100).";
+        fieldError(monto,"monto-error",msg);
+        showBackend(alertBox("danger","err","El sistema rechazó los datos","<p>" + msg + " Corrígelo y vuelve a calcular.</p>", { role:"alert" }));
+        break;
+      }
+      case "ausentes":
+        setLocked(true, "No puedes calcular mientras falte la configuración de esta oportunidad.");
+        showBackend(alertBox("danger","err","No podemos simular esta oportunidad por ahora",
+          "<p>Falta un dato obligatorio de configuración (tasa o seguro) y no lo completamos con valores por defecto. Intenta más tarde.</p>",
+          { role:"alert", actions:'<a class="btn btn-secondary" href="' + $("back").getAttribute("href") + '">' + $("back").lastChild.textContent + '</a>' }));
+        break;
+      case "vencida":
+        paintSummary(true);
+        setLocked(true, "Esta oportunidad ya no admite simulaciones.");
+        showBackend(alertBox("warning","clock", opp.expired ? "Esta oferta venció" : "Esta oportunidad ya no está disponible",
+          opp.expired ? "<p>La oferta <span class=\"id\">" + oppId + "</span> venció el 10 nov 2026, 11:00. Ya no puedes simular con ella.</p>"
+                      : "<p>La oportunidad <span class=\"id\">" + oppId + "</span> venció o fue reemplazada mientras configurabas. No se creó ninguna simulación.</p>",
+          { role:"alert", actions:'<a class="btn btn-secondary" href="P-002-oportunidades.html">Ver tus oportunidades</a>' }));
+        break;
+      case "saldo":
+        saldo = 4000; allowed = Math.min(opp.max, saldo); paintSummary();
+        showBackend(alertBox("warning","warn","Tu saldo disponible cambió",
+          "<p>Otra operación reservó parte de tu línea. Ahora puedes pedir hasta <b class=\"mono\">" + money(allowed) + "</b>. Ajusta el monto y vuelve a calcular.</p>", { role:"alert" }));
+        { const m = montoMsg(); if (m && monto.value) fieldError(monto,"monto-error",m); }
+        break;
+      case "fallo_rec":
+        setLocked(true);
+        showBackend(alertBox("warning","warn","No pudimos calcular tu simulación",
+          "<p>Fue un problema técnico temporal. «Reintentar cálculo» usa la misma simulación <span class=\"id\">" + SIM_ID + "</span> con los mismos datos (" + requested() + ").</p>",
+          { role:"alert", actions:'<button type="button" class="btn btn-primary" data-act="retry">' + ico("refresh") + 'Reintentar cálculo</button><button type="button" class="btn btn-secondary" data-act="edit">Cambiar datos</button>' }));
+        break;
+      case "fallo_def":
+        showBackend(alertBox("danger","err","No pudimos completar la simulación",
+          "<p>El cálculo no produjo un resultado válido y no se reintentará. Puedes calcular otra vez con estos u otros datos; será una simulación nueva.</p>", { role:"alert" }));
+        break;
+    }
+  }
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    if (busy || locked) return;
+    backend.innerHTML = "";
+    if (!validate()) return;
+    setBusy(true); live("Calculando tu simulación");
+    const r = $("next").value;
+    timer = setTimeout(() => { setBusy(false); result(r, true); }, 1000);
+  });
+
+  backend.addEventListener("click", e => {
+    const b = e.target.closest("[data-act]"); if (!b || busy) return;
+    if (b.dataset.act === "edit"){ backend.innerHTML = ""; setLocked(false); monto.focus(); live("Puedes cambiar los datos. Se calculará una simulación nueva."); }
+    if (b.dataset.act === "retry"){
+      busy = true; b.disabled = true; b.innerHTML = SPIN + "Reintentando…"; b.nextElementSibling.disabled = true;
+      status.innerHTML = SPIN + "<span>Reintentando el cálculo de " + SIM_ID + "</span>";
+      timer = setTimeout(() => { busy = false; status.innerHTML = ""; result($("next").value === "fallo_def" ? "fallo_def" : "exitosa", true); }, 1000);
+    }
+  });
+
+  // ---- Vistas de página ----
+  function showPage(mode){ // "form" | "loading" | "none"
+    $("loading").hidden = mode !== "loading";
+    $("summary").hidden = mode !== "form"; form.hidden = mode !== "form";
+  }
+  top.addEventListener("click", e => {
+    const b = e.target.closest('[data-act="reload"]'); if (!b) return;
+    top.innerHTML = ""; showPage("loading"); live("Cargando los datos de la oportunidad");
+    timer = setTimeout(() => { showPage("form"); setScenario("vacio"); live("Datos de la oportunidad cargados"); focusEl($("h1")); }, 1000);
+  });
+
+  function reset(){
+    clearTimeout(timer); clearTimeout(redirect); busy = false;
+    setBusy(false); setLocked(false); clearErrors(); backend.innerHTML = ""; top.innerHTML = "";
+    monto.value = ""; form.querySelectorAll('input[name="plazo"]').forEach(r => { r.checked = false; });
+    setOpp($("opp").value); showPage("form");
+  }
+  function fill(){ monto.value = "5000"; form.querySelector('input[value="12"]').checked = true; }
+  function setScenario(v){
+    reset();
+    if (opp.expired && !["cargando","error_lectura","no_encontrada","sesion"].includes(v)){ result("vencida"); return; }
+    switch (v){
+      case "cargando": showPage("loading"); break;
+      case "datos": fill(); break;
+      case "error_local": monto.value = "4550"; validate(); break;
+      case "calculando": fill(); setBusy(true); break;
+      case "exitosa": case "rechazados": case "ausentes": case "vencida": case "saldo": case "fallo_rec": case "fallo_def":
+        fill(); result(v); break;
+      case "error_lectura": showPage("none");
+        top.innerHTML = alertBox("danger","err","No pudimos cargar los datos de la oportunidad",
+          "<p>Revisa tu conexión e inténtalo de nuevo. No se creó ninguna simulación.</p>",
+          { role:"alert", actions:'<button type="button" class="btn btn-secondary" data-act="reload">' + ico("refresh") + 'Reintentar</button>' });
+        break;
+      case "no_encontrada": showPage("none"); $("crumbs").innerHTML = '<li><a href="P-002-oportunidades.html">Oportunidades</a></li><li aria-current="page">Simular</li>';
+        top.innerHTML = alertBox("info","info","No encontramos esta oportunidad",
+          "<p>Puede que el enlace esté incompleto o que la oportunidad no esté asociada a tu cuenta. Elige una desde tus oportunidades.</p>",
+          { actions:'<a class="btn btn-secondary" href="P-002-oportunidades.html">Ver tus oportunidades</a>' });
+        break;
+      case "sesion": showPage("none"); top.innerHTML = sessionExpiredHTML(); break;
+    }
+  }
+  $("scenario").addEventListener("change", e => setScenario(e.target.value));
+  $("opp").addEventListener("change", () => setScenario($("scenario").value));
+
+  // ---- Entrada desde P-002 / P-003 (?oportunidad=…) ----
+  const qId = new URLSearchParams(location.search).get("oportunidad");
+  if (qId && !OPS[qId]){ setOpp("OFR-7F3A2C"); setScenario("no_encontrada"); }
+  else {
+    if (qId) $("opp").value = qId;
+    setScenario("cargando");
+    timer = setTimeout(() => { setScenario("vacio"); live("Datos de la oportunidad cargados"); }, 1000);
+  }
+})();
+</script>

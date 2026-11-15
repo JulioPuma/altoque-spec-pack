@@ -1,0 +1,563 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altoque P-010 Revisión contractual bandeja</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: banda de controles del prototipo arriba, pantalla interna P-010 al centro, notas de validación debajo. Tokens = 09-ui-spec.md §4. */
+:root{
+  --color-primary-700:#174EA6; --color-primary-800:#123B7A;
+  --color-secondary-700:#0B6B5B; --color-accent-500:#F5A623;
+  --color-bg-page:#F7F9FC; --color-bg-surface:#FFFFFF;
+  --color-text-primary:#172033; --color-text-secondary:#4B5565;
+  --color-border:#C9D2E3; --color-success-700:#18794E;
+  --color-warning-800:#8A4B08; --color-danger-700:#B42318;
+  --color-info-700:#175CD3; --color-focus:#7C3AED;
+  --on-primary:#FFFFFF;
+  --tint-info:#EAF1FD; --tint-danger:#FDECEA; --tint-warning:#FDF3E4; --tint-success:#E7F5EE;
+  --proto-bg:#EEF1F7; --proto-ink:#4B5565; --skel:#E4E9F2;
+  --font:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --r-control:8px;--r-card:12px;--r-dialog:16px;
+  --shadow-card:0 1px 3px rgba(23,32,51,.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --skel:#243049; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --skel:#243049; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg-page);color:var(--color-text-primary);font:400 16px/1.5 var(--font)}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:var(--color-primary-700)}
+button{font:inherit}
+p{margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mono{font-variant-numeric:tabular-nums}
+.code{font-family:ui-monospace,Consolas,monospace;font-size:14px;letter-spacing:.01em}
+.muted{color:var(--color-text-secondary)}
+
+/* ---------- Banda del prototipo ---------- */
+.proto{background:var(--proto-bg);border-bottom:2px dashed var(--color-border);color:var(--proto-ink);font-size:14px;line-height:20px}
+.proto-in{max-width:1200px;margin:0 auto;padding-block:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.proto-tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.proto label{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.proto select{font:inherit;min-height:36px;max-width:100%;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary)}
+
+/* ---------- Shell interno ---------- */
+.skip{position:absolute;left:16px;top:-60px;background:var(--color-primary-700);color:var(--on-primary);padding:var(--s3) var(--s4);border-radius:var(--r-control);z-index:5;text-decoration:none;font-weight:600}
+.skip:focus{top:8px}
+.screen{position:relative}
+.app-head{border-bottom:1px solid var(--color-border);background:var(--color-bg-surface)}
+.app-head-in{max-width:1200px;margin:0 auto;min-height:64px;padding-block:var(--s2);display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2) var(--s5)}
+.logo{display:flex;align-items:center;gap:var(--s2);font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--color-text-primary)}
+.logo svg{flex:none}
+.logo small{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);border-left:1px solid var(--color-border);padding-left:var(--s2);margin-left:var(--s1)}
+.shell-nav{display:flex;gap:var(--s5);align-items:center;flex-wrap:wrap}
+.shell-nav a{text-decoration:none;font-weight:600;color:var(--color-text-secondary);min-height:44px;display:inline-flex;align-items:center;border-bottom:2px solid transparent}
+.shell-nav a:hover{color:var(--color-primary-700)}
+.shell-nav a[aria-current="page"]{color:var(--color-primary-700);border-color:var(--color-primary-700)}
+.ident{margin-left:auto;display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;font-size:14px;line-height:20px}
+.ident .who{display:flex;flex-direction:column;text-align:right}
+.ident .who b{font-weight:600}
+.ident a{min-height:44px;display:inline-flex;align-items:center;font-weight:600}
+@media (max-width:599px){.ident{margin-left:0;width:100%;justify-content:space-between}.ident .who{text-align:left}}
+
+/* ---------- Contenido ---------- */
+main.wrap{max-width:1200px;margin:0 auto;padding-block:var(--s6) var(--s7);display:flex;flex-direction:column;gap:var(--s5)}
+main.wrap:focus{outline:none}
+.page-head{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s4);align-items:flex-end;justify-content:space-between}
+.page-head h1{font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.015em}
+@media (max-width:599px){.page-head h1{font-size:28px;line-height:36px}}
+.page-head .lead{margin-top:var(--s1);color:var(--color-text-secondary);max-width:70ch}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:600;border:1px solid currentColor;border-radius:999px;padding:1px 10px;white-space:nowrap}
+.chip svg{flex:none}
+.chip-info{color:var(--color-info-700);background:var(--tint-info)}
+.chip-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.chip-success{color:var(--color-success-700);background:var(--tint-success)}
+.chip-neutral{color:var(--color-text-secondary);background:var(--color-bg-page)}
+.card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card)}
+.alert{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid currentColor;border-radius:var(--r-control);padding:var(--s3) var(--s4);font-size:14px;line-height:20px}
+.alert svg{flex:none;margin-top:1px}
+.alert strong{display:block;font-size:16px;line-height:24px;color:var(--color-text-primary)}
+.alert p{color:var(--color-text-primary)}
+.alert .actions{margin-top:var(--s2);display:flex;gap:var(--s2);flex-wrap:wrap}
+.alert-info{color:var(--color-info-700);background:var(--tint-info)}
+.alert-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.alert-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.alert-success{color:var(--color-success-700);background:var(--tint-success)}
+.alert:focus-visible{outline-offset:3px}
+.btn{min-height:44px;border-radius:var(--r-control);padding:0 var(--s4);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);border:1px solid transparent;text-decoration:none;font-size:16px;white-space:nowrap}
+.btn-primary{background:var(--color-primary-700);color:var(--on-primary)}
+.btn-primary:hover:not(:disabled){background:var(--color-primary-800)}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-primary-700);border-color:var(--color-border)}
+.btn-secondary:hover:not(:disabled){border-color:var(--color-primary-700)}
+.btn:disabled{cursor:not-allowed;opacity:.7}
+.btn-sm{min-height:44px;font-size:14px;padding:0 var(--s3)}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Filtros */
+.filters{padding:var(--s4) var(--s5);display:flex;flex-wrap:wrap;gap:var(--s4);align-items:flex-end}
+.filters .field{display:flex;flex-direction:column;gap:var(--s1);flex:1 1 220px;min-width:0}
+.filters label{font-weight:600;font-size:14px;line-height:20px}
+.filters .hint{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.select{width:100%;min-height:48px;padding:0 var(--s3);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary);font:400 16px/24px var(--font)}
+.select:hover{border-color:var(--color-text-secondary)}
+.filters .btns{display:flex;gap:var(--s2);flex-wrap:wrap}
+@media (max-width:599px){.filters{padding:var(--s4)}}
+
+.meta-row{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);align-items:center;justify-content:space-between;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.live{display:flex;align-items:center;gap:var(--s2);min-height:24px}
+
+/* Tabla → tarjetas */
+.table-wrap{overflow:hidden}
+table{width:100%;border-collapse:collapse}
+caption{text-align:left;padding:var(--s4) var(--s5) var(--s2);font-weight:600;font-size:16px}
+caption span{display:block;font-weight:400;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+th,td{text-align:left;vertical-align:top;padding:var(--s3) var(--s4);border-top:1px solid var(--color-border);font-size:14px;line-height:20px}
+thead th{font-weight:600;color:var(--color-text-secondary);background:var(--color-bg-page);white-space:nowrap}
+tbody tr{min-height:48px}
+tbody tr:hover{background:var(--color-bg-page)}
+tbody th{font-weight:600}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.cell-main{font-size:16px;line-height:24px;color:var(--color-text-primary);font-weight:600}
+.cell-sub{color:var(--color-text-secondary);display:block}
+.chips{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s2);margin-top:var(--s1)}
+tr.changed{background:var(--tint-info)}
+@media (max-width:759px){
+  caption{padding:0 0 var(--s3)}
+  .table-wrap{background:none;border:0;box-shadow:none}
+  table,tbody,tr,th,td{display:block}
+  thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  tbody{display:flex;flex-direction:column;gap:var(--s3)}
+  tbody tr{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:var(--s3) var(--s4)}
+  tbody tr:hover{background:var(--color-bg-surface)}
+  tr.changed,tr.changed:hover{background:var(--tint-info)}
+  th,td{border:0;padding:var(--s2) 0;display:grid;grid-template-columns:minmax(96px,38%) 1fr;gap:var(--s3)}
+  th::before,td::before{content:attr(data-label);font-weight:600;color:var(--color-text-secondary)}
+  td.act{grid-template-columns:1fr;padding-top:var(--s3)}
+  td.act::before{content:none}
+  td.act .btn{width:100%}
+}
+.pager{display:flex;flex-direction:column;align-items:center;gap:var(--s2);padding:var(--s4) var(--s5) var(--s5);border-top:1px solid var(--color-border);text-align:center;font-size:14px;line-height:20px}
+@media (max-width:759px){.pager{border:0;padding:var(--s2) 0 0}}
+
+/* Skeleton / vacío / denegado */
+.skel{padding:var(--s5);display:flex;flex-direction:column;gap:var(--s3)}
+.skel i{display:block;height:20px;border-radius:6px;background:var(--skel);animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.5}}
+.empty{padding:var(--s7) var(--s5);display:flex;flex-direction:column;align-items:center;gap:var(--s3);text-align:center}
+.empty h2{font-size:20px;line-height:28px;font-weight:600}
+.empty p{max-width:52ch;color:var(--color-text-secondary)}
+.denied{max-width:640px;margin:0 auto;padding:var(--s6);display:flex;flex-direction:column;gap:var(--s4);align-items:flex-start}
+.denied h1{font-size:32px;line-height:40px}
+@media (max-width:599px){.denied{padding:var(--s5)}.denied h1{font-size:28px;line-height:36px}}
+.ro-note{font-size:14px;line-height:20px}
+
+.app-foot{border-top:1px solid var(--color-border)}
+.app-foot-in{max-width:1200px;margin:0 auto;padding-block:var(--s4);font-size:14px;color:var(--color-text-secondary)}
+
+/* ---------- Notas ---------- */
+.notes{border-top:2px dashed var(--color-border);background:var(--proto-bg)}
+.notes-in{max-width:1200px;margin:0 auto;padding-block:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s5)}
+.notes h2{font-size:20px;line-height:28px;font-weight:600;margin-bottom:var(--s3)}
+.notes ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.notes b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+</style>
+
+<!-- Banda de control: no forma parte de la pantalla -->
+<div class="proto gutter" role="region" aria-label="Controles del prototipo">
+  <div class="proto-in">
+    <span class="proto-tag">Prototipo · no es parte de la pantalla</span>
+    <label for="scenario">Ver estado
+      <select id="scenario">
+        <option value="lista">Lista con datos</option>
+        <option value="cargando">Cargando</option>
+        <option value="vacio">Vacío (sin casos asignados)</option>
+        <option value="sinresultados">Filtros sin resultados</option>
+        <option value="error">Error de lectura (última lectura confirmada)</option>
+        <option value="actualizada">Lista actualizada (nueva versión)</option>
+        <option value="fin">Todo cargado (fin de la paginación)</option>
+        <option value="denegado">Acceso denegado (403)</option>
+      </select>
+    </label>
+    <label for="role">Rol
+      <select id="role">
+        <option value="operador">Operador de revisión contractual · Marco Salas</option>
+        <option value="auditor">Auditor · Jorge Lima (solo lectura)</option>
+        <option value="desembolso">Operadora de desembolso · Ana Torres</option>
+      </select>
+    </label>
+    <label for="server">Respuesta del servidor
+      <select id="server">
+        <option value="ok">Normal</option>
+        <option value="down">Falla de lectura</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="screen">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="app-head gutter">
+    <div class="app-head-in">
+      <span class="logo" aria-label="Altoque, área interna">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span aria-hidden="true">Altoque</span><small aria-hidden="true">Interno</small>
+      </span>
+      <nav class="shell-nav" aria-label="Módulos internos" id="shell-nav"></nav>
+      <div class="ident">
+        <span class="who"><b id="who-name">Marco Salas</b><span class="muted" id="who-role">Operador de revisión contractual</span></span>
+        <a href="P-001-inicio-de-sesion.html">Cerrar sesión</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap gutter" id="contenido" tabindex="-1"></main>
+
+  <footer class="app-foot gutter">
+    <div class="app-foot-in">Entorno de evaluación con datos sintéticos. Hora mostrada: Lima (UTC−5).</div>
+  </footer>
+</div>
+
+<div id="live-global" class="sr-only" role="status" aria-live="polite"></div>
+
+<section class="notes gutter" aria-label="Notas para validación">
+  <div class="notes-in">
+    <div>
+      <h2>Comportamiento a validar</h2>
+      <ul>
+        <li>La bandeja lista <b>solo</b> intentos en <b>CONTRATACION_EN_REVISION_MANUAL</b>. El filtro de estado no ofrece otros estados de la máquina de Contratación.</li>
+        <li>Orden por antigüedad: primero el caso que lleva más tiempo en revisión. Paginación por cursor de <b>5</b> casos; «Cargar más» conserva los ya cargados.</li>
+        <li>Abrir un caso solo navega a P-011: no cambia estado, versión ni reserva.</li>
+        <li>Pasadas <b>4 h</b> sin evidencia concluyente, el caso sigue en revisión con incidente escalado. La bandeja no sugiere ningún resultado por el tiempo transcurrido.</li>
+        <li>Si falla la lectura, se mantienen los datos de la última lectura confirmada, con su hora, y se ofrece reintentar.</li>
+        <li>El auditor ve la misma bandeja en modo lectura. La operadora de desembolso recibe un 403 sin detalles: no se revela cuántos casos hay ni sus identificadores.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Reglas aplicadas</h2>
+      <ul>
+        <li><b>RN-259</b> Solo <b>OPERADOR_REVISION_CONTRACTUAL</b> opera casos en revisión manual.</li>
+        <li><b>RN-239</b> El auditor consulta sin producir transiciones.</li>
+        <li><b>RN-243</b> Recurso no autorizado: no se revela su existencia ni contenido.</li>
+        <li><b>RN-182</b> Tras 15 min en pendiente, el caso pasa a revisión manual y conserva la reserva.</li>
+        <li><b>RN-183 / RN-185</b> Incidente con objetivo de 4 h. Si se incumple, se escala sin inferir resultado.</li>
+        <li><b>RN-069</b> Estados con su nombre canónico (<b>CONTRATACION_…</b>).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const main = $("contenido");
+  const LATENCY = 1000, PAGE = 5;
+  const NOW = Date.parse("2026-11-14T19:05:00Z");           // 14 nov 2026, 14:05 Lima
+  const CACHED_AT = Date.parse("2026-11-14T18:48:00Z");     // 13:48 Lima
+  const OBJ = 4 * 3600e3;
+
+  const ICON = {
+    info:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    error:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5v5.5M10 13.8v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    warn:'<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 18.5 17h-17L10 2.5Z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M10 8v4.2M10 14.6v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    review:'<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    lock:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="8.5" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>',
+    eye:'<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>',
+    refresh:'<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    check:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m6.5 10.2 2.4 2.4 4.6-4.9" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    inbox:'<svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="8" width="30" height="24" rx="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5 22h9l2 4h8l2-4h9" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/></svg>'
+  };
+
+  // ---- Dataset sintético: solo CONTRATACION_EN_REVISION_MANUAL ----
+  const BASE = [
+    { id:"CTR-ATT-4F02", since:"2026-11-08T21:40:05Z", reserva:3000, opp:"OFR-3E91B0", v:7,
+      ev:{ src:"Registro contractual", res:"Conjunto incompleto · no concluyente", at:"2026-11-14T18:50:22Z" } },
+    { id:"CTR-ATT-8E33", since:"2026-11-13T23:15:40Z", reserva:10000, opp:"OFR-C6E812", v:9,
+      ev:{ src:"Gestor transaccional", res:"Lectura no disponible · no concluyente", at:"2026-11-14T17:20:03Z" } },
+    { id:"CTR-ATT-7B90", since:"2026-11-14T14:02:18Z", reserva:8500, opp:"OFR-A2D5F1", v:6,
+      ev:{ src:"Registro contractual", res:"Sin filas del conjunto · no concluyente", at:"2026-11-14T18:12:44Z" } },
+    { id:"CTR-ATT-6A17", since:"2026-11-14T15:12:09Z", reserva:1200, opp:"SOL-48C1E9", v:3,
+      ev:{ src:"Gestor transaccional", res:"Timeout de consulta · no concluyente", at:"2026-11-14T15:12:09Z" } },
+    { id:"CTR-ATT-2F76", since:"2026-11-14T16:48:31Z", reserva:2400, opp:"SOL-5D2A6E", v:3,
+      ev:{ src:"Registro contractual", res:"Orden única sin contrato · no concluyente", at:"2026-11-14T17:40:15Z" } },
+    { id:"CTR-ATT-3D58", since:"2026-11-14T17:20:52Z", reserva:600, opp:"SOL-91B07C", v:2,
+      ev:{ src:"Gestor transaccional", res:"Lectura no disponible · no concluyente", at:"2026-11-14T17:20:52Z" } },
+    { id:"CTR-ATT-5C21", since:"2026-11-14T18:41:10Z", reserva:5000, opp:"OFR-7F3A2C", v:4,
+      ev:{ src:"Gestor transaccional", res:"Lectura no disponible (503) · no concluyente", at:"2026-11-14T18:40:41Z" } }
+  ];
+  // Cambio que aparece al actualizar la bandeja (lectura más reciente del backend)
+  const UPDATE = { id:"CTR-ATT-7B90", v:7, ev:{ src:"Gestor transaccional", res:"Sin resultado autoritativo · no concluyente", at:"2026-11-14T19:03:58Z" } };
+
+  const ROLES = {
+    operador:{ name:"Marco Salas", label:"Operador de revisión contractual", contractual:true, desembolso:false, ro:false },
+    auditor:{ name:"Jorge Lima", label:"Auditor · solo lectura", contractual:true, desembolso:true, ro:true },
+    desembolso:{ name:"Ana Torres", label:"Operadora de revisión de desembolso", contractual:false, desembolso:true, ro:false }
+  };
+
+  // ---- Formato ----
+  const MES = ["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"];
+  function lima(iso){ const d = new Date((typeof iso === "number" ? iso : Date.parse(iso)) - 5*3600e3);
+    return d.getUTCDate() + " " + MES[d.getUTCMonth()] + " " + d.getUTCFullYear() + ", " + String(d.getUTCHours()).padStart(2,"0") + ":" + String(d.getUTCMinutes()).padStart(2,"0"); }
+  function hhmm(ms){ const d = new Date(ms - 5*3600e3); return String(d.getUTCHours()).padStart(2,"0") + ":" + String(d.getUTCMinutes()).padStart(2,"0"); }
+  function dur(ms){ const m = Math.floor(ms/60000), d = Math.floor(m/1440), h = Math.floor((m%1440)/60), mm = m%60;
+    return (d ? d + " d " : "") + (d || h ? h + " h " : "") + (d ? "" : mm + " min"); }
+  function money(n){ return "S/ " + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+  // ---- Estado ----
+  const params = new URLSearchParams(location.search);
+  const st = { role: ROLES[params.get("rol")] ? params.get("rol") : "operador", scenario:"lista",
+    age:"todas", estado:"CONTRATACION_EN_REVISION_MANUAL", items:[], cursor:0, total:0,
+    updated:false, changedId:null, lastRead:NOW, busy:false, notice:null, error:false, empty:false };
+  let timer = null;
+  $("role").value = st.role;
+
+  function dataset(){
+    if (st.empty) return [];
+    const base = st.onlyLate ? BASE.filter(c => NOW - Date.parse(c.since) > OBJ) : BASE;
+    return base.map(c => (st.updated && c.id === UPDATE.id) ? Object.assign({}, c, { v:UPDATE.v, ev:UPDATE.ev }) : c);
+  }
+  function query(){
+    return dataset().filter(c => {
+      const late = NOW - Date.parse(c.since) > OBJ;
+      if (st.age === "incumplido" && !late) return false;
+      if (st.age === "dentro" && late) return false;
+      return st.estado === "CONTRATACION_EN_REVISION_MANUAL";
+    });
+  }
+  const down = () => $("server").value === "down";
+
+  // ---- Shell ----
+  function renderShell(){
+    const r = ROLES[st.role];
+    $("who-name").textContent = r.name; $("who-role").textContent = r.label;
+    const q = "?rol=" + st.role;
+    let html = "";
+    if (r.contractual) html += '<a href="P-010-revision-contractual-bandeja.html' + q + '" aria-current="page">Revisión contractual</a>';
+    if (r.desembolso) html += '<a href="P-012-revision-de-desembolso-bandeja.html' + q + '">Revisión desembolso</a>';
+    $("shell-nav").innerHTML = html;
+  }
+
+  // ---- Vistas ----
+  function viewDenied(){
+    const r = ROLES[st.role];
+    main.innerHTML =
+      '<div class="card denied">' +
+        '<span class="chip chip-neutral">' + ICON.lock.replace(/20/g,"16") + ' Error 403</span>' +
+        '<h1>No tienes acceso a esta sección</h1>' +
+        '<p class="muted">Tu rol no tiene permiso para ver este contenido. Si crees que deberías tenerlo, pide la asignación del rol al responsable del área interna.</p>' +
+        (r.desembolso ? '<a class="btn btn-primary" href="P-012-revision-de-desembolso-bandeja.html?rol=' + st.role + '">Ir a Revisión desembolso</a>' : '') +
+      '</div>';
+    main.focus();
+  }
+
+  function head(){
+    const r = ROLES[st.role];
+    return '<div class="page-head"><div>' +
+        '<h1>Revisión contractual</h1>' +
+        '<p class="lead">Intentos de contratación en revisión manual. Revisa la evidencia durable de cada caso antes de registrar una observación o resolverlo.</p>' +
+      '</div>' +
+      (r.ro ? '<span class="chip chip-neutral">' + ICON.eye + ' Modo lectura</span>' : '') +
+      '</div>' +
+      (r.ro ? '<div class="alert alert-info" role="note">' + ICON.info + '<p class="ro-note"><b>Consulta como auditor.</b> Puedes abrir los casos y ver su evidencia y auditoría, pero no registrar observaciones ni resolverlos.</p></div>' : '');
+  }
+
+  function filters(){
+    const dis = st.busy ? " disabled" : "";
+    return '<form class="card filters" id="filters" aria-label="Filtros de la bandeja">' +
+      '<div class="field"><label for="f-age">Antigüedad en revisión</label>' +
+        '<select class="select" id="f-age"' + dis + '>' +
+          '<option value="todas"' + (st.age==="todas"?" selected":"") + '>Todas</option>' +
+          '<option value="incumplido"' + (st.age==="incumplido"?" selected":"") + '>Más de 4 h (objetivo incumplido)</option>' +
+          '<option value="dentro"' + (st.age==="dentro"?" selected":"") + '>Hasta 4 h (dentro del objetivo)</option>' +
+        '</select></div>' +
+      '<div class="field"><label for="f-estado">Estado</label>' +
+        '<select class="select" id="f-estado" aria-describedby="f-estado-hint"' + dis + '>' +
+          '<option value="CONTRATACION_EN_REVISION_MANUAL">CONTRATACION_EN_REVISION_MANUAL</option>' +
+        '</select><span class="hint" id="f-estado-hint">Solo se listan los estados que tu rol puede revisar.</span></div>' +
+      '<div class="btns"><button type="submit" class="btn btn-primary"' + dis + '>Aplicar filtros</button>' +
+      '<button type="button" class="btn btn-secondary" id="refresh"' + dis + '>' + ICON.refresh + ' Actualizar bandeja</button></div>' +
+    '</form>';
+  }
+
+  function metaRow(){
+    const live = st.busy ? '<span class="spinner" aria-hidden="true"></span><span>' + esc(st.busy) + '</span>' : '';
+    return '<div class="meta-row"><span>Última lectura confirmada: <b class="mono">' + lima(st.lastRead) + '</b> (hora de Lima)</span>' +
+      '<span class="live" aria-hidden="true">' + live + '</span></div>';
+  }
+
+  function noticeHtml(){
+    if (!st.notice) return "";
+    const n = st.notice, icon = n.kind === "danger" ? ICON.error : n.kind === "success" ? ICON.check : ICON.info;
+    return '<div class="alert alert-' + n.kind + '" id="notice" tabindex="-1" role="' + (n.kind === "danger" ? "alert" : "status") + '">' + icon +
+      '<div><strong>' + n.title + '</strong><p>' + n.body + '</p>' + (n.retry ? '<div class="actions"><button type="button" class="btn btn-secondary btn-sm" id="retry">' + ICON.refresh + ' Reintentar</button></div>' : '') + '</div></div>';
+  }
+
+  function row(c){
+    const age = NOW - Date.parse(c.since), late = age > OBJ, changed = st.changedId === c.id;
+    const href = "P-011-revision-contractual-caso.html?intento=" + encodeURIComponent(c.id) + "&rol=" + st.role;
+    return '<tr' + (changed ? ' class="changed"' : '') + '>' +
+      '<th scope="row" data-label="Intento"><span><span class="cell-main code">' + c.id + '</span>' +
+        '<span class="cell-sub">Oportunidad <span class="code">' + c.opp + '</span></span>' +
+        '<span class="chips"><span class="chip chip-info">' + ICON.review + ' En revisión manual</span>' +
+        (late ? '<span class="chip chip-warning">' + ICON.warn + ' Incidente escalado</span>' : '') +
+        (changed ? '<span class="chip chip-info">' + ICON.refresh.replace(/18/g,"16") + ' Nueva versión</span>' : '') +
+        '</span></span></th>' +
+      '<td data-label="En revisión desde"><span><span class="mono">' + lima(c.since) + '</span>' +
+        '<span class="cell-sub">Hace ' + dur(age) + (late ? ' · objetivo de 4 h incumplido' : ' · objetivo de 4 h vence ' + hhmm(Date.parse(c.since) + OBJ)) + '</span></span></td>' +
+      '<td class="num" data-label="Reserva"><span><span class="cell-main mono">' + money(c.reserva) + '</span><span class="cell-sub">Retenida</span></span></td>' +
+      '<td data-label="Última evidencia"><span><span>' + esc(c.ev.src) + '</span><span class="cell-sub">' + esc(c.ev.res) + '</span><span class="cell-sub mono">' + lima(c.ev.at) + '</span></span></td>' +
+      '<td class="num" data-label="Versión"><span class="mono">v' + c.v + (changed ? ' <span class="sr-only">(antes v6)</span>' : '') + '</span></td>' +
+      '<td class="act"><a class="btn btn-secondary btn-sm" href="' + href + '" aria-label="Ver caso ' + c.id + '">Ver caso</a></td>' +
+    '</tr>';
+  }
+
+  function listHtml(){
+    if (st.scenario === "cargando-inicial") {
+      return '<div class="card skel" aria-hidden="true"><i style="width:40%"></i><i></i><i></i><i style="width:85%"></i><i></i><i style="width:70%"></i></div>';
+    }
+    if (!st.items.length && st.error) return "";
+    if (!st.items.length) {
+      const filtered = st.age !== "todas" && dataset().length;
+      return '<div class="card empty"><span class="muted">' + ICON.inbox + '</span>' +
+        (filtered
+          ? '<h2>No hay casos que coincidan con los filtros</h2><p>Hay casos en revisión manual, pero ninguno con la antigüedad elegida.</p><button type="button" class="btn btn-secondary" id="clear">Quitar filtros</button>'
+          : '<h2>No hay casos contractuales asignados</h2><p>Cuando un intento de contratación pase a revisión manual aparecerá aquí. Puedes actualizar la bandeja más tarde.</p>') +
+        '</div>';
+    }
+    const more = st.cursor < st.total;
+    return '<div class="card table-wrap"><table>' +
+      '<caption tabindex="-1">Casos en revisión manual<span>Mostrando ' + st.items.length + ' de ' + st.total + ', del más antiguo al más reciente.</span></caption>' +
+      '<thead><tr><th scope="col">Intento</th><th scope="col">En revisión desde</th><th scope="col">Reserva</th><th scope="col">Última evidencia</th><th scope="col">Versión</th><th scope="col">Ver caso</th></tr></thead>' +
+      '<tbody>' + st.items.map(row).join("") + '</tbody></table>' +
+      '<div class="pager">' + (more
+        ? '<button type="button" class="btn btn-secondary" id="more"' + (st.busy ? " disabled" : "") + '>Cargar más casos</button><span class="muted">Quedan ' + (st.total - st.cursor) + ' casos por cargar.</span>'
+        : '<span class="muted">' + ICON.check.replace(/20/g,"16") + ' No hay más casos en la bandeja.</span>') +
+      '</div></div>';
+  }
+
+  function render(focusSel){
+    renderShell();
+    if (!ROLES[st.role].contractual || st.scenario === "denegado") return viewDenied();
+    main.innerHTML = head() + noticeHtml() + filters() + metaRow() + listHtml();
+    bind();
+    if (focusSel){ const el = typeof focusSel === "string" ? main.querySelector(focusSel) : focusSel; if (el) el.focus(); }
+  }
+
+  function setLive(msg){ const l = $("live-global"); l.textContent = ""; setTimeout(() => { l.textContent = msg; }, 30); }
+
+  // ---- Operaciones simuladas ----
+  function fetchPage(reset, label, after){
+    clearTimeout(timer);
+    st.busy = label; st.notice = null; render(); setLive(label + "…");
+    timer = setTimeout(() => {
+      st.busy = false;
+      if (down()){
+        st.error = true;
+        st.notice = { kind:"danger", title:"No pudimos actualizar la bandeja", body:"Mostramos la última lectura confirmada (" + lima(st.lastRead) + "). No se infiere ningún cambio de los casos mientras no haya una lectura nueva.", retry:true };
+        render("#notice"); return;
+      }
+      st.error = false;
+      const all = query();
+      st.total = all.length;
+      const n = reset ? Math.max(PAGE, Math.min(st.cursor || PAGE, all.length)) : st.cursor + PAGE;
+      st.cursor = Math.min(n, all.length);
+      st.items = all.slice(0, st.cursor);
+      st.lastRead = NOW;
+      if (typeof after === "function") after();
+      render(after && after.focus);
+    }, LATENCY);
+  }
+
+  function bind(){
+    const f = $("filters");
+    if (f) f.addEventListener("submit", e => {
+      e.preventDefault();
+      st.age = $("f-age").value; st.estado = $("f-estado").value; st.cursor = 0; st.changedId = null;
+      fetchPage(true, "Aplicando filtros", Object.assign(() => setTimeout(() => setLive(st.total + " casos coinciden con los filtros."), 50), { focus:"caption" }));
+    });
+    const rf = $("refresh");
+    if (rf) rf.addEventListener("click", () => {
+      const was = st.updated;
+      fetchPage(true, "Actualizando bandeja", Object.assign(() => {
+        if (!was){ st.updated = true; st.changedId = UPDATE.id; const all = query(); st.items = all.slice(0, st.cursor); st.total = all.length;
+          st.notice = { kind:"info", title:"Bandeja actualizada a las " + hhmm(NOW), body:"1 caso tiene una versión nueva desde tu lectura anterior: <span class=\"code\">" + UPDATE.id + "</span> pasó de v6 a v7 por una actualización de su incidente; su estado no cambió." };
+        } else { st.changedId = null; st.notice = { kind:"success", title:"Bandeja actualizada a las " + hhmm(NOW), body:"No hay cambios desde tu lectura anterior." }; }
+      }, { focus:"#notice" }));
+    });
+    const mo = $("more");
+    if (mo) mo.addEventListener("click", () => {
+      const prev = st.items.length;
+      fetchPage(false, "Cargando más casos", Object.assign(() => {
+        setTimeout(() => { setLive("Se cargaron " + (st.items.length - prev) + " casos más."); }, 50);
+      }, { focus: null }));
+      // foco al primer caso nuevo tras cargar
+      setTimeout(() => { const rows = main.querySelectorAll("tbody tr"); const r = rows[prev]; if (r){ const a = r.querySelector("a"); if (a) a.focus(); } }, LATENCY + 30);
+    });
+    const rt = $("retry");
+    if (rt) rt.addEventListener("click", () => { $("server").value = "ok"; fetchPage(true, "Reintentando lectura", { focus:"caption" }); });
+    const cl = $("clear");
+    if (cl) cl.addEventListener("click", () => { st.age = "todas"; st.cursor = 0; fetchPage(true, "Quitando filtros", { focus:"caption" }); });
+  }
+
+  // ---- Selector de estados del prototipo ----
+  function loadInstant(){
+    const all = query(); st.total = all.length; st.cursor = Math.min(st.cursor || PAGE, all.length); st.items = all.slice(0, st.cursor);
+  }
+  function applyScenario(){
+    clearTimeout(timer);
+    Object.assign(st, { age:"todas", items:[], cursor:0, total:0, updated:false, changedId:null, lastRead:NOW, busy:false, notice:null, error:false, empty:false, onlyLate:false });
+    $("server").value = "ok";
+    const s = st.scenario = $("scenario").value;
+    switch (s){
+      case "lista": loadInstant(); break;
+      case "cargando":
+        st.scenario = "cargando-inicial"; st.busy = "Cargando casos"; render();
+        timer = setTimeout(() => { st.scenario = "lista"; st.busy = false; loadInstant(); render("caption"); }, LATENCY);
+        return;
+      case "vacio": st.empty = true; loadInstant(); break;
+      case "sinresultados": st.onlyLate = true; st.age = "dentro"; loadInstant(); break;
+      case "error":
+        st.lastRead = CACHED_AT; loadInstant(); st.error = true;
+        st.notice = { kind:"danger", title:"No pudimos actualizar la bandeja", body:"Mostramos la última lectura confirmada (" + lima(CACHED_AT) + "). No se infiere ningún cambio de los casos mientras no haya una lectura nueva.", retry:true };
+        $("server").value = "down"; break;
+      case "actualizada":
+        st.updated = true; st.changedId = UPDATE.id; loadInstant();
+        st.notice = { kind:"info", title:"Bandeja actualizada a las " + hhmm(NOW), body:"1 caso tiene una versión nueva desde tu lectura anterior: <span class=\"code\">" + UPDATE.id + "</span> pasó de v6 a v7 por una actualización de su incidente; su estado no cambió." };
+        break;
+      case "fin": st.cursor = 99; loadInstant(); break;
+      case "denegado": break;
+    }
+    if (st.scenario !== "denegado") st.scenario = "lista";
+    render();
+  }
+  $("scenario").addEventListener("change", applyScenario);
+  $("role").addEventListener("change", e => { st.role = e.target.value; applyScenario(); });
+  applyScenario();
+})();
+</script>

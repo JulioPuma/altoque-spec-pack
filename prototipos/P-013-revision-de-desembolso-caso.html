@@ -1,0 +1,913 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altoque P-013 Revisión de desembolso — caso</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: banda del prototipo arriba, pantalla interna P-013 en el centro, notas de validación debajo. Tokens = 09-ui-spec.md §4. */
+:root{
+  --color-primary-700:#174EA6; --color-primary-800:#123B7A;
+  --color-secondary-700:#0B6B5B; --color-accent-500:#F5A623;
+  --color-bg-page:#F7F9FC; --color-bg-surface:#FFFFFF;
+  --color-text-primary:#172033; --color-text-secondary:#4B5565;
+  --color-border:#C9D2E3; --color-success-700:#18794E;
+  --color-warning-800:#8A4B08; --color-danger-700:#B42318;
+  --color-info-700:#175CD3; --color-focus:#7C3AED;
+  --on-primary:#FFFFFF;
+  --tint-info:#EAF1FD; --tint-danger:#FDECEA; --tint-warning:#FDF3E4; --tint-success:#E7F5EE;
+  --proto-bg:#EEF1F7; --proto-ink:#4B5565;
+  --font:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --r-control:8px;--r-card:12px;--r-dialog:16px;
+  --shadow-card:0 1px 3px rgba(23,32,51,.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg-page);color:var(--color-text-primary);font:400 16px/1.5 var(--font)}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:var(--color-primary-700)}
+button{font:inherit}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.mono{font-variant-numeric:tabular-nums}
+.code{font-family:ui-monospace,Consolas,monospace;font-size:14px;overflow-wrap:anywhere}
+.muted{color:var(--color-text-secondary)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Banda del prototipo ---------- */
+.proto{background:var(--proto-bg);border-bottom:2px dashed var(--color-border);color:var(--proto-ink);font-size:14px;line-height:20px}
+.proto-in{max-width:1200px;margin:0 auto;padding-block:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.proto-tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.proto label{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.proto select{font:inherit;min-height:36px;max-width:100%;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary)}
+
+/* ---------- Shell interno ---------- */
+.skip{position:absolute;left:16px;top:-60px;background:var(--color-primary-700);color:var(--on-primary);padding:var(--s3) var(--s4);border-radius:var(--r-control);z-index:5;text-decoration:none;font-weight:600}
+.skip:focus{top:8px}
+.screen{position:relative}
+.app-head{border-bottom:1px solid var(--color-border);background:var(--color-bg-surface)}
+.app-head-in{max-width:1200px;margin:0 auto;min-height:64px;padding-block:var(--s2);display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2) var(--s5)}
+.logo{display:flex;align-items:center;gap:var(--s2);font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--color-text-primary)}
+.logo svg{flex:none}
+.logo small{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);border-left:1px solid var(--color-border);padding-left:var(--s2)}
+.shell-nav{display:flex;gap:var(--s5);align-items:center;flex-wrap:wrap;flex:1 1 auto}
+.shell-nav a{text-decoration:none;font-weight:600;color:var(--color-text-secondary);min-height:44px;display:inline-flex;align-items:center;border-bottom:2px solid transparent}
+.shell-nav a:hover{color:var(--color-primary-700)}
+.shell-nav a[aria-current="page"]{color:var(--color-primary-700);border-color:var(--color-primary-700)}
+.who{display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;font-size:14px;line-height:20px}
+.who .id{display:flex;flex-direction:column}
+.who .id b{font-weight:600}
+.who a{font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+@media (max-width:959px){.app-head-in{justify-content:space-between}.shell-nav{order:3;flex-basis:100%;gap:var(--s4)}}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:600;border:1px solid currentColor;border-radius:999px;padding:2px 10px}
+.badge svg{flex:none}
+.b-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.b-info{color:var(--color-info-700);background:var(--tint-info)}
+.b-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.b-success{color:var(--color-success-700);background:var(--tint-success)}
+.b-neutral{color:var(--color-text-secondary);background:var(--color-bg-page)}
+
+/* ---------- Contenido ---------- */
+main.case{max-width:1200px;margin:0 auto;padding-block:var(--s5) var(--s7);display:flex;flex-direction:column;gap:var(--s5)}
+.crumbs ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.crumbs li+li::before{content:"›";margin-right:var(--s2)}
+.crumbs a{display:inline-flex;min-height:24px;align-items:center}
+.title-row{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s4);align-items:center;justify-content:space-between}
+.title-row h1{font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.015em}
+.title-row h1 .code{font-size:inherit;font-weight:600;color:var(--color-text-secondary)}
+@media (max-width:599px){.title-row h1{font-size:28px;line-height:36px}}
+.card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card)}
+.sec{padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4)}
+@media (max-width:599px){.sec{padding:var(--s4)}}
+.sec h2{font-size:24px;line-height:32px;font-weight:700}
+.sec h3{font-size:20px;line-height:28px;font-weight:600}
+.sec-head{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);align-items:baseline;justify-content:space-between}
+.sec-head p{margin:0;font-size:14px;line-height:20px}
+
+.banner{padding:var(--s4) var(--s5);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s6);align-items:center;border-left:4px solid var(--color-warning-800)}
+.banner.t-success{border-left-color:var(--color-success-700)}
+.banner.t-danger{border-left-color:var(--color-danger-700)}
+.banner dl{margin:0;display:flex;flex-wrap:wrap;gap:var(--s3) var(--s6);flex:1 1 auto}
+.banner dt{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.banner dd{margin:0;font-weight:600}
+.banner dd .sub{display:block}
+.sub{font-size:14px;line-height:20px;color:var(--color-text-secondary);font-weight:400}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--s5);align-items:start}
+@media (min-width:960px){.grid{grid-template-columns:minmax(0,2fr) minmax(300px,1fr)}.side{position:sticky;top:var(--s4)}}
+.col{display:flex;flex-direction:column;gap:var(--s5);min-width:0}
+
+.facts{margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s4)}
+.facts div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts dt{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.facts dd{margin:0;font-weight:600;display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2)}
+.facts .amount{font-size:20px;line-height:28px;font-variant-numeric:tabular-nums}
+.lock-note{display:flex;gap:var(--s2);align-items:flex-start;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.lock-note svg{flex:none;margin-top:2px}
+
+.icon-btn{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-primary-700);cursor:pointer;font-size:14px;font-weight:600;padding:0 var(--s3)}
+.icon-btn:hover{border-color:var(--color-primary-700)}
+
+details.payload{border:1px solid var(--color-border);border-radius:var(--r-control)}
+details.payload summary{cursor:pointer;min-height:48px;display:flex;align-items:center;gap:var(--s2);padding:0 var(--s4);font-weight:600;list-style:none}
+details.payload summary::-webkit-details-marker{display:none}
+details.payload summary .chev{transition:transform .15s}
+details.payload[open] summary .chev{transform:rotate(90deg)}
+details.payload summary .badge{margin-left:auto}
+.payload-body{border-top:1px solid var(--color-border);padding:var(--s3) var(--s4) var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
+.pre-wrap{overflow-x:auto;background:var(--color-bg-page);border:1px solid var(--color-border);border-radius:var(--r-control)}
+.pre-wrap pre{margin:0;padding:var(--s3) var(--s4);font:400 14px/22px ui-monospace,Consolas,monospace;color:var(--color-text-primary);white-space:pre;user-select:text}
+
+ol.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+ol.timeline li{display:grid;grid-template-columns:minmax(150px,200px) minmax(0,1fr);gap:var(--s2) var(--s4);padding:var(--s3) 0;border-top:1px solid var(--color-border)}
+ol.timeline li:first-child{border-top:0}
+ol.timeline li.new{animation:flash 1.8s ease-out}
+@keyframes flash{from{background:var(--tint-info)}to{background:transparent}}
+ol.timeline li:target{background:var(--tint-info)}
+.t-when{display:flex;flex-direction:column;font-size:14px;line-height:20px}
+.t-when .code{font-size:13px}
+.t-what{display:flex;flex-direction:column;gap:var(--s1);align-items:flex-start;min-width:0}
+.t-what .src{font-weight:600}
+.t-what .meta{font-size:14px;line-height:20px;color:var(--color-text-secondary);display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3)}
+.t-what p{margin:0;font-size:14px;line-height:20px}
+@media (max-width:599px){ol.timeline li{grid-template-columns:1fr}}
+
+.obs-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s3)}
+.obs-list li{border:1px solid var(--color-border);border-radius:var(--r-control);padding:var(--s3) var(--s4);display:flex;flex-direction:column;gap:var(--s1)}
+.obs-list li.new{animation:flash 1.8s ease-out}
+.obs-list .meta{font-size:14px;line-height:20px;color:var(--color-text-secondary);display:flex;flex-wrap:wrap;gap:var(--s1) var(--s3)}
+.obs-list p{margin:0}
+.obs-empty{margin:0;font-size:14px;color:var(--color-text-secondary)}
+
+form{display:flex;flex-direction:column;gap:var(--s4)}
+.field{display:flex;flex-direction:column;gap:var(--s2)}
+.field label{font-weight:600}
+.hint{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.input,.select,textarea{width:100%;min-height:48px;padding:var(--s3);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary);font:400 16px/24px var(--font)}
+textarea{resize:vertical;min-height:96px}
+.input:hover,.select:hover,textarea:hover{border-color:var(--color-text-secondary)}
+[aria-invalid="true"]{border:2px solid var(--color-danger-700)!important}
+textarea:disabled,.select:disabled{opacity:.6}
+.field-error{display:flex;gap:6px;align-items:flex-start;color:var(--color-danger-700);font-size:14px;line-height:20px;font-weight:500}
+.field-error svg{flex:none;margin-top:2px}
+
+.btn{min-height:44px;border-radius:var(--r-control);padding:0 var(--s4);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);border:1px solid transparent;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--color-primary-700);color:var(--on-primary)}
+.btn-primary:hover:not(:disabled){background:var(--color-primary-800)}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-primary-700);border-color:var(--color-border)}
+.btn-secondary:hover:not(:disabled){border-color:var(--color-primary-700)}
+.btn:disabled{cursor:not-allowed;opacity:.65}
+.btn-row{display:flex;flex-wrap:wrap;gap:var(--s2)}
+@media (max-width:599px){.btn-row .btn{flex:1 1 100%}}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.status{display:flex;align-items:center;gap:var(--s2);min-height:24px;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+
+.alert{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid currentColor;border-radius:var(--r-control);padding:var(--s3) var(--s4);font-size:14px;line-height:20px}
+.alert svg{flex:none;margin-top:1px}
+.alert strong{display:block;font-size:16px;line-height:24px;color:var(--color-text-primary)}
+.alert p{margin:0;color:var(--color-text-primary)}
+.alert p+p{margin-top:var(--s1)}
+.alert .actions{margin-top:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s2)}
+.alert-info{color:var(--color-info-700);background:var(--tint-info)}
+.alert-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.alert-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.alert-success{color:var(--color-success-700);background:var(--tint-success)}
+
+.panel{border-top:4px solid var(--color-primary-700)}
+.panel .explain{margin:0;font-size:14px;line-height:20px}
+.panel .same-id{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2);background:var(--color-bg-page);border:1px dashed var(--color-border);border-radius:var(--r-control);padding:var(--s2) var(--s3);font-size:14px}
+
+.skeleton{display:flex;flex-direction:column;gap:var(--s4)}
+.sk{height:72px;border-radius:var(--r-card);background:linear-gradient(90deg,var(--color-bg-surface) 25%,var(--color-border) 50%,var(--color-bg-surface) 75%);background-size:200% 100%;animation:sh 1.4s linear infinite;opacity:.6}
+.sk.tall{height:240px}
+@keyframes sh{to{background-position:-200% 0}}
+
+.denied{max-width:640px;margin:0 auto;padding-block:var(--s8);display:flex;flex-direction:column;gap:var(--s4);align-items:flex-start}
+.denied h1{font-size:32px;line-height:40px}
+.denied p{margin:0}
+@media (max-width:599px){.denied{padding-block:var(--s6)}.denied h1{font-size:28px;line-height:36px}}
+
+/* ---------- Diálogo ---------- */
+.backdrop{position:fixed;inset:0;background:rgba(15,21,34,.55);display:flex;align-items:center;justify-content:center;padding:var(--s4);z-index:20}
+.dialog{background:var(--color-bg-surface);color:var(--color-text-primary);border-radius:var(--r-dialog);border:1px solid var(--color-border);box-shadow:0 12px 32px rgba(0,0,0,.3);width:min(100%,560px);min-width:min(100%,320px);max-height:calc(100dvh - 32px);overflow:auto;padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4)}
+.dialog h2{font-size:24px;line-height:32px}
+.dialog p{margin:0}
+.dialog dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s2) var(--s4);font-size:14px;line-height:20px}
+.dialog dt{color:var(--color-text-secondary)}
+.dialog dd{margin:0;font-weight:600;overflow-wrap:anywhere}
+.ro-id{display:flex;flex-direction:column;gap:var(--s1)}
+.ro-id output{display:flex;align-items:center;gap:var(--s2);min-height:48px;padding:0 var(--s3);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-page);font:600 16px/24px ui-monospace,Consolas,monospace}
+.dialog .quote{border-left:2px solid var(--color-border);padding-left:var(--s3);color:var(--color-text-secondary);font-size:14px;line-height:20px;overflow-wrap:anywhere}
+@media (max-width:599px){.dialog{padding:var(--s4)}.dialog dl{grid-template-columns:1fr}.dialog dt{margin-top:var(--s1)}}
+
+.app-foot{border-top:1px solid var(--color-border)}
+.app-foot-in{max-width:1200px;margin:0 auto;padding-block:var(--s4);font-size:14px;color:var(--color-text-secondary)}
+
+/* ---------- Notas ---------- */
+.notes{border-top:2px dashed var(--color-border);background:var(--proto-bg)}
+.notes-in{max-width:1200px;margin:0 auto;padding-block:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s5)}
+.notes h2{font-size:20px;line-height:28px;font-weight:600;margin-bottom:var(--s3)}
+.notes ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.notes b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+</style>
+
+<!-- Banda de control: no forma parte de la pantalla -->
+<div class="proto gutter" role="region" aria-label="Controles del prototipo" id="proto">
+  <div class="proto-in">
+    <span class="proto-tag">Prototipo · no es parte de la pantalla</span>
+    <label for="scenario">Ver estado
+      <select id="scenario">
+        <option value="lectura">Lectura (caso cargado)</option>
+        <option value="permitida">Consulta permitida (motivo listo)</option>
+        <option value="validacion">Motivo obligatorio (validación)</option>
+        <option value="dialogo">Diálogo: confirma mismo operacionId</option>
+        <option value="encurso">Consulta en curso</option>
+        <option value="inconclusa">Evidencia aún inconclusa (NO_ENCONTRADA)</option>
+        <option value="terminal">Terminal de solo lectura (EXITOSA)</option>
+        <option value="conflicto">Conflicto de versión (409)</option>
+        <option value="obsedit">Editando observación</option>
+        <option value="obsok">Observación registrada</option>
+        <option value="cargando">Cargando</option>
+        <option value="error">Error al cargar</option>
+        <option value="errorupd">No pudimos actualizar (última lectura)</option>
+        <option value="denegado">Acceso denegado (403)</option>
+      </select>
+    </label>
+    <label for="role">Rol
+      <select id="role">
+        <option value="desembolso">Operadora de revisión de desembolso · Ana Torres</option>
+        <option value="auditor">Auditor · Jorge Lima (solo lectura)</option>
+        <option value="operador">Operador contractual · Marco Salas</option>
+      </select>
+    </label>
+    <label for="case-sel">Caso
+      <select id="case-sel"></select>
+    </label>
+    <label for="core">Resultado de la próxima consulta al core
+      <select id="core">
+        <option value="NO_ENCONTRADA">NO_ENCONTRADA (inconclusa)</option>
+        <option value="PROCESANDO">PROCESANDO (inconclusa)</option>
+        <option value="RECIBIDA">RECIBIDA (inconclusa)</option>
+        <option value="TIMEOUT">Sin respuesta / timeout (inconclusa)</option>
+        <option value="EXITOSA">EXITOSA (concluyente)</option>
+        <option value="RECHAZADA">RECHAZADA (concluyente)</option>
+        <option value="FALLIDA_DEFINITIVA">FALLIDA_DEFINITIVA (concluyente)</option>
+      </select>
+    </label>
+    <label for="server">Próximo comando
+      <select id="server">
+        <option value="ok">Aceptado</option>
+        <option value="conflict">Conflicto de versión (409)</option>
+        <option value="down">Error de red</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="screen" id="screen">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="app-head gutter">
+    <div class="app-head-in">
+      <span class="logo" aria-label="Altoque, área interna">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span aria-hidden="true">Altoque</span><small aria-hidden="true">Interno</small>
+      </span>
+      <nav class="shell-nav" aria-label="Módulos internos" id="shell-nav"></nav>
+      <div class="who" id="who"></div>
+    </div>
+  </header>
+
+  <main class="case gutter" id="contenido" tabindex="-1"></main>
+  <div class="sr-only" id="live" aria-live="polite"></div>
+
+  <footer class="app-foot gutter">
+    <div class="app-foot-in">Entorno de evaluación con datos sintéticos. Cada acción queda auditada con identidad, instante, motivo, evidencia consultada, correlación, versión y resultado.</div>
+  </footer>
+</div>
+
+<!-- Diálogo de confirmación -->
+<div class="backdrop" id="dlg-back" hidden>
+  <div class="dialog" id="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc">
+    <h2 id="dlg-title">¿Solicitar otra consulta de la misma operación?</h2>
+    <p id="dlg-desc">Altoque consultará al core simulado la <b>operación original</b>. No se crea otra operación, no se cambia el identificador y no se modifica el payload.</p>
+    <div class="ro-id">
+      <span class="hint" id="dlg-id-l">Identificador de la operación (no editable)</span>
+      <output id="dlg-id" aria-labelledby="dlg-id-l"></output>
+    </div>
+    <dl id="dlg-facts"></dl>
+    <div><span class="hint">Motivo que quedará registrado</span><p class="quote" id="dlg-reason"></p></div>
+    <p class="hint">Si el resultado vuelve a ser inconcluso (RECIBIDA, PROCESANDO, NO_ENCONTRADA o sin respuesta), el caso sigue en revisión con el resultado pendiente.</p>
+    <div class="btn-row">
+      <button type="button" class="btn btn-primary" id="dlg-ok">Confirmar y consultar</button>
+      <button type="button" class="btn btn-secondary" id="dlg-cancel">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<section class="notes gutter" aria-label="Notas para validación" id="notes">
+  <div class="notes-in">
+    <div>
+      <h2>Comportamiento a validar</h2>
+      <ul>
+        <li>Abrir el caso solo lee evidencia registrada; <b>no</b> consulta al core. Solo «Solicitar otra consulta» lo hace, y siempre sobre el mismo <b>operacionId</b> y los mismos datos.</li>
+        <li>El diálogo muestra el identificador como texto de solo lectura: no hay campo para cambiarlo ni para editar el payload.</li>
+        <li>RECIBIDA, PROCESANDO, NO_ENCONTRADA o timeout dejan el caso en revisión con resultado pendiente. <b>NO_ENCONTRADA no es un fallo.</b></li>
+        <li>EXITOSA, RECHAZADA o FALLIDA_DEFINITIVA, una vez persistidas, cierran el caso: pasa a solo lectura y desaparecen los comandos.</li>
+        <li>Cada comando envía motivo, correlación, versión esperada y clave de idempotencia. Ante 409 se muestra «Recargar» y nunca se reenvía solo; tu motivo se conserva.</li>
+        <li>Un error de red permite reintentar con la <b>misma</b> clave de idempotencia, para no duplicar la consulta.</li>
+        <li>El auditor ve el caso completo sin formularios ni botones de comando. Un caso inexistente o ajeno muestra el mismo 403 que la falta de permiso.</li>
+        <li>Supuesto: registrar una observación incrementa la versión del caso pero no cambia el estado del desembolso.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Reglas aplicadas</h2>
+      <ul>
+        <li><b>RN-023 / RN-024 / RN-133</b> Recuperar consulta la operación original; nunca otro identificador ni otra operación lógica.</li>
+        <li><b>RN-135</b> Mismo identificador y mismos datos devuelven la operación original sin ejecutar otra.</li>
+        <li><b>RN-052 / RN-148</b> NO_ENCONTRADA es inconclusa: se mantiene pendiente.</li>
+        <li><b>RN-144 / RN-149</b> RECIBIDA, PROCESANDO, timeout o respuesta inválida son inconclusos.</li>
+        <li><b>RN-145–147 / RN-234</b> Resultado terminal solo con EXITOSA, RECHAZADA o FALLIDA_DEFINITIVA persistidos.</li>
+        <li><b>RN-072</b> Sin evidencia concluyente, el resultado sigue pendiente.</li>
+        <li><b>RN-151–153 / RN-236</b> Respuestas tardías solo con versión vigente; un terminal no se modifica.</li>
+        <li><b>RN-232 / RN-233 / RN-238</b> Facultades del operador de revisión de desembolso.</li>
+        <li><b>RN-235</b> Auditoría de identidad, instante, motivo, evidencia, correlación, versión y resultado.</li>
+        <li><b>RN-239</b> Auditor sin transiciones. <b>RN-243</b> 403 sin revelar existencia.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const MES = ["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"];
+  const NOW0 = Date.parse("2026-11-14T18:30:00Z"); // 14 nov 2026, 13:30 Lima
+  const LATENCY = 1000;
+  function lima(iso){
+    const d = new Date(Date.parse(iso) - 5*3600e3);
+    return d.getUTCDate() + " " + MES[d.getUTCMonth()] + " " + d.getUTCFullYear() + ", " + String(d.getUTCHours()).padStart(2,"0") + ":" + String(d.getUTCMinutes()).padStart(2,"0");
+  }
+  function ago(iso){
+    const m = Math.round((NOW0 - Date.parse(iso)) / 60000);
+    if (m < 60) return m + " min";
+    const h = Math.floor(m/60); if (h < 24) return h + " h " + (m % 60) + " min";
+    const d = Math.floor(h/24); return d + (d === 1 ? " día" : " días");
+  }
+  function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+  function money(a){ const [i,d] = Number(a).toFixed(2).split("."); return "S/ " + i.replace(/\B(?=(\d{3})+(?!\d))/g, " ") + "." + d; }
+
+  const I = {
+    hour:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7M4.5 14h7M5 2c0 3 6 3.5 6 6s-6 3-6 6M11 2c0 3-6 3.5-6 6s6 3 6 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>',
+    search:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="m10.5 10.5 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
+    clock:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 4.5V8l2.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/></svg>',
+    warn:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8 15 14H1z" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/><path d="M8 6.2v3.6M8 11.6v.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    dot:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 7.5v4M8 5v.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    check:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="m5.2 8.2 2 2 3.8-4.2" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    x:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="m5.7 5.7 4.6 4.6M10.3 5.7l-4.6 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    send:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 8h9M8 4.5 11.5 8 8 11.5M13.5 3v10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    eye:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8S4 3.5 8 3.5 14.5 8 14.5 8 12 12.5 8 12.5 1.5 8 1.5 8Z" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>',
+    lock16:'<svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="8.5" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>',
+    lock:'<svg width="40" height="40" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="8.5" rx="2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>',
+    copy:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M3 10.5V3.8C3 3.4 3.4 3 3.8 3h6.7" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>',
+    refresh:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8A5.5 5.5 0 1 1 11.8 4M13.5 2v3h-3" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    chev:'<svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3.5 4.5 4.5L6 12.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    aInfo:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    aErr:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5v5.5M10 13.8v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    aOk:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m6.5 10.2 2.4 2.4 4.6-5" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    aHour:'<svg width="20" height="20" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 2h7M4.5 14h7M5 2c0 3 6 3.5 6 6s-6 3-6 6M11 2c0 3-6 3.5-6 6s6 3 6 6" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg>'
+  };
+
+  // Resultados de evidencia
+  const RES = {
+    REG:{ t:"Orden registrada", tone:"info", i:I.dot },
+    ESC:{ t:"Escalado a revisión manual", tone:"info", i:I.dot },
+    SOL:{ t:"Consulta solicitada", tone:"info", i:I.send },
+    TIMEOUT:{ t:"Sin respuesta (timeout) · inconclusa", tone:"warning", i:I.clock, inc:true },
+    NO_ENCONTRADA:{ t:"NO_ENCONTRADA · inconclusa", tone:"warning", i:I.search, inc:true },
+    PROCESANDO:{ t:"PROCESANDO · inconclusa", tone:"info", i:I.hour, inc:true },
+    RECIBIDA:{ t:"RECIBIDA · inconclusa", tone:"info", i:I.hour, inc:true },
+    INVALIDA:{ t:"Respuesta inválida · inconclusa", tone:"warning", i:I.warn, inc:true },
+    EXITOSA:{ t:"EXITOSA · concluyente", tone:"success", i:I.check, term:"DESEMBOLSO_SIMULADO_EXITOSO" },
+    RECHAZADA:{ t:"RECHAZADA · concluyente", tone:"danger", i:I.x, term:"DESEMBOLSO_RECHAZADO" },
+    FALLIDA_DEFINITIVA:{ t:"FALLIDA_DEFINITIVA · concluyente", tone:"danger", i:I.x, term:"DESEMBOLSO_FALLIDO" }
+  };
+  const STATE = {
+    DESEMBOLSO_EN_REVISION_MANUAL:{ t:"En revisión manual · resultado pendiente", tone:"warning", i:I.hour, bt:"" },
+    DESEMBOLSO_SIMULADO_EXITOSO:{ t:"Desembolso simulado exitoso", tone:"success", i:I.check, bt:"t-success" },
+    DESEMBOLSO_RECHAZADO:{ t:"Desembolso rechazado", tone:"danger", i:I.x, bt:"t-danger" },
+    DESEMBOLSO_FALLIDO:{ t:"Desembolso fallido (definitivo)", tone:"danger", i:I.x, bt:"t-danger" }
+  };
+  const SRC = {
+    alt:"Altoque", ent:"Core simulado · entrega del comando original", auto:"Recuperación automática · consulta de la operación original",
+    reent:"Recuperación automática · reentrega idempotente (mismo identificador y datos)", man:"Consulta manual · Ana Torres", late:"Core simulado · respuesta tardía"
+  };
+  const DETAIL = {
+    REG:"Se registró la orden única de desembolso del contrato. Estado: DESEMBOLSO_SOLICITADO.",
+    ESC:"La política de recuperación automática terminó sin resultado concluyente. Estado: DESEMBOLSO_EN_REVISION_MANUAL.",
+    TIMEOUT:"El core simulado no respondió dentro del tiempo de espera (30 s). Se trata como inconcluso.",
+    NO_ENCONTRADA:"El core simulado no encontró la operación. No equivale a un fallo; el resultado sigue pendiente.",
+    PROCESANDO:"El core simulado indica que la operación sigue en proceso.",
+    RECIBIDA:"El core simulado recibió la operación y aún no la procesa.",
+    INVALIDA:"El core devolvió un código de resultado desconocido. Se trata como inconcluso."
+  };
+
+  // ---- Dataset común (ficticio) ----
+  let corrN = 0x3a1;
+  function corr(){ corrN += 0x1b7; return "corr-" + (corrN.toString(16) + "f2c").slice(0,4) + "-" + ((corrN*7) % 65536).toString(16).padStart(4,"0"); }
+  function mk(op, ctr, amount, acct, att, crr, since, ver, evs, obs, reqAt){
+    const short = op.slice(4,8);
+    const evidence = evs.map((e, k) => ({
+      id:"EV-" + short + "-" + String(k+1).padStart(2,"0"), at:e[0], src:SRC[e[1]], res:e[2],
+      corr: e[1] === "man" ? (e[3] || corr()) : crr, detail: e[4] || DETAIL[e[2]] || ""
+    }));
+    return { op, ctr, amount, currency:"PEN", acct, att, corr:crr, since, ver, state:"DESEMBOLSO_EN_REVISION_MANUAL",
+      payload:{ operationId:op, contractId:ctr, amount:Number(amount).toFixed(2), currency:"PEN", destinationAccount:acct, requestedAt:reqAt || evidence[0].at },
+      evidence, obs: obs.map(o => ({ at:o[0], who:"Ana Torres", text:o[1], ref:"EV-" + short + "-" + o[2] })) };
+  }
+  const CASES = {
+    "DSB-5F7712": () => mk("DSB-5F7712","CTR-8120",2500,"SINT-001-***-2093","CTR-ATT-4A07","corr-19b2-07c3","2026-10-01T23:05:00Z",9,[
+      ["2026-10-01T22:41:10Z","alt","REG"],["2026-10-01T22:41:12Z","ent","TIMEOUT"],["2026-10-01T22:46:12Z","auto","TIMEOUT"],
+      ["2026-10-01T22:51:13Z","auto","NO_ENCONTRADA"],["2026-10-01T22:51:15Z","reent","TIMEOUT","","Se reentregó el comando original con el mismo operacionId y los mismos datos. El core no respondió a tiempo."],
+      ["2026-10-01T23:05:00Z","alt","ESC"],["2026-10-20T16:10:31Z","man","TIMEOUT","corr-52e0-9a11"],["2026-11-13T15:40:08Z","man","NO_ENCONTRADA","corr-b7c4-1e58"]
+    ],[
+      ["2026-10-02T14:20:05Z","NO_ENCONTRADA tras el timeout de la entrega: no se considera fallo. Se pidió al equipo del core simulado revisar su registro de entradas de ese día.","04"],
+      ["2026-10-20T16:14:50Z","La consulta manual volvió a quedar sin respuesta; el core simulado estaba en mantenimiento según el aviso del equipo de integración.","07"],
+      ["2026-11-13T15:46:22Z","Segunda NO_ENCONTRADA. Se mantiene pendiente; nueva consulta cuando el core confirme que restauró su registro de operaciones.","08"]
+    ]),
+    "DSB-3B19C4": () => mk("DSB-3B19C4","CTR-7955",1200,"SINT-001-***-6610","CTR-ATT-2F88","corr-0c41-a2d9","2026-10-27T14:14:20Z",7,[
+      ["2026-10-27T13:40:02Z","alt","REG"],["2026-10-27T13:40:04Z","ent","TIMEOUT"],["2026-10-27T13:52:10Z","auto","NO_ENCONTRADA"],
+      ["2026-10-27T14:14:20Z","alt","ESC"],["2026-11-05T15:30:44Z","man","TIMEOUT","corr-6d02-4b7e"],["2026-11-12T20:02:44Z","man","TIMEOUT","corr-91aa-3c05"]
+    ],[
+      ["2026-11-05T15:35:12Z","Sin respuesta del core en la primera consulta manual. Se reintentará fuera del horario de carga.","05"],
+      ["2026-11-12T20:06:30Z","Segundo timeout consecutivo. Se informó al equipo del core simulado con la correlación de la consulta.","06"]
+    ]),
+    "DSB-8C04D2": () => mk("DSB-8C04D2","CTR-8301",7800,"SINT-001-***-0158","CTR-ATT-7B90","corr-4e77-d013","2026-11-06T21:40:51Z",6,[
+      ["2026-11-06T21:02:18Z","alt","REG"],["2026-11-06T21:02:20Z","ent","TIMEOUT"],["2026-11-06T21:20:31Z","auto","INVALIDA"],
+      ["2026-11-06T21:40:51Z","alt","ESC"],["2026-11-13T22:15:31Z","man","INVALIDA","corr-c3d8-5f62"]
+    ],[
+      ["2026-11-13T22:19:04Z","El core devolvió el código «EN_COLA_X», que no está en el contrato de integración. Se trata como inconcluso.","05"]
+    ]),
+    "DSB-2E5A08": () => mk("DSB-2E5A08","CTR-8517",650,"SINT-001-***-3324","CTR-ATT-1D46","corr-8a15-6b2f","2026-11-11T16:22:09Z",4,[
+      ["2026-11-11T15:48:00Z","alt","REG"],["2026-11-11T15:48:02Z","ent","RECIBIDA"],["2026-11-11T16:05:47Z","auto","PROCESANDO"],
+      ["2026-11-11T16:22:09Z","alt","ESC"],["2026-11-14T14:05:19Z","man","RECIBIDA","corr-e0b9-7714"]
+    ],[]),
+    "DSB-9D3F6B": () => mk("DSB-9D3F6B","CTR-8690",10000,"SINT-001-***-8807","CTR-ATT-6E13","corr-2b9c-e840","2026-11-14T00:47:33Z",5,[
+      ["2026-11-14T00:10:12Z","alt","REG"],["2026-11-14T00:10:14Z","ent","TIMEOUT"],["2026-11-14T00:28:40Z","auto","TIMEOUT"],
+      ["2026-11-14T00:47:33Z","alt","ESC"],["2026-11-14T16:31:02Z","man","TIMEOUT","corr-73f1-0ad6"]
+    ],[
+      ["2026-11-14T16:33:18Z","Monto alto (S/ 10 000.00). Tercer timeout; no se infiere resultado. Pendiente de nueva consulta tras la ventana de conciliación.","05"]
+    ]),
+    "DSB-6A90F1": () => mk("DSB-6A90F1","CTR-8842",5000,"SINT-001-***-4471","CTR-ATT-5C21","corr-7d1e-44a0","2026-11-14T17:58:02Z",5,[
+      ["2026-11-14T17:27:03Z","alt","REG"],["2026-11-14T17:27:05Z","ent","PROCESANDO"],["2026-11-14T17:45:22Z","auto","PROCESANDO"],
+      ["2026-11-14T17:58:02Z","alt","ESC"]
+    ],[
+      ["2026-11-14T18:12:47Z","El core respondió PROCESANDO dos veces (entrega y consulta automática). Se espera la ventana de conciliación del core antes de solicitar otra consulta.","03"]
+    ], "2026-11-14T17:27:03Z"),
+    "DSB-4C27E9": () => mk("DSB-4C27E9","CTR-8875",3400,"SINT-001-***-5582","CTR-ATT-3A72","corr-5f08-b61d","2026-11-14T18:10:40Z",4,[
+      ["2026-11-14T17:50:05Z","alt","REG"],["2026-11-14T17:50:07Z","ent","TIMEOUT"],["2026-11-14T18:08:15Z","auto","NO_ENCONTRADA"],
+      ["2026-11-14T18:10:40Z","alt","ESC"]
+    ],[]),
+    "DSB-7B33A5": () => mk("DSB-7B33A5","CTR-8901",1850,"SINT-001-***-7016","CTR-ATT-8C55","corr-a64e-2297","2026-11-14T18:28:57Z",4,[
+      ["2026-11-14T18:05:10Z","alt","REG"],["2026-11-14T18:05:12Z","ent","TIMEOUT"],["2026-11-14T18:27:41Z","auto","TIMEOUT"],
+      ["2026-11-14T18:28:57Z","alt","ESC"]
+    ],[])
+  };
+
+  const ROLES = {
+    desembolso: { name:"Ana Torres", role:"Operadora de revisión de desembolso", mods:["desembolso"], ro:false },
+    auditor: { name:"Jorge Lima", role:"Auditor", mods:["contractual","desembolso"], ro:true },
+    operador: { name:"Marco Salas", role:"Operador de revisión contractual", mods:["contractual"], ro:false }
+  };
+
+  const params = new URLSearchParams(location.search);
+  const st = {
+    role: ROLES[params.get("rol")] ? params.get("rol") : "desembolso",
+    caseId: params.get("operacion") || "DSB-6A90F1",
+    c:null, clock: Date.parse("2026-11-14T18:30:12Z"), lastRead:"2026-11-14T18:30:00Z",
+    busy:false, consulting:false, conflict:false, alert:null, idem:null,
+    draft:{ reason:"", obs:"", ref:"" }, errors:{}, newEv:0, newObs:false, timer:null, returnFocus:null
+  };
+
+  // Selector de casos de la banda
+  $("case-sel").innerHTML = Object.keys(CASES).map(k => '<option value="' + k + '">' + k + '</option>').join("") + '<option value="DSB-000000">DSB-000000 (inexistente o ajeno)</option>';
+  $("role").value = st.role;
+  if (CASES[st.caseId]) $("case-sel").value = st.caseId; else $("case-sel").value = "DSB-000000";
+
+  const main = $("contenido");
+  const r = () => ROLES[st.role];
+  const canAct = () => !r().ro && st.c && st.c.state === "DESEMBOLSO_EN_REVISION_MANUAL";
+  function tick(s){ st.clock += (s || 4) * 1000; return new Date(st.clock).toISOString().replace(".000",""); }
+  function announce(t){ $("live").textContent = ""; setTimeout(() => { $("live").textContent = t; }, 30); }
+  function syncUrl(){
+    const u = new URL(location.href); u.searchParams.set("operacion", st.caseId); u.searchParams.set("rol", st.role);
+    try { history.replaceState(null, "", u); } catch(_){}
+  }
+  const inbox = () => "P-012-revision-de-desembolso-bandeja.html?rol=" + st.role;
+
+  function shell(){
+    const q = "?rol=" + st.role; let nav = "";
+    if (r().mods.includes("contractual")) nav += '<a href="P-010-revision-contractual-bandeja.html' + q + '">Revisión contractual</a>';
+    if (r().mods.includes("desembolso")) nav += '<a href="' + inbox() + '" aria-current="page">Revisión desembolso</a>';
+    $("shell-nav").innerHTML = nav;
+    $("who").innerHTML = (r().ro ? '<span class="badge b-neutral">' + I.eye + 'Solo lectura</span>' : "") +
+      '<span class="id"><b>' + r().name + '</b><span class="muted">' + r().role + '</span></span><a href="P-001-inicio-de-sesion.html">Cerrar sesión</a>';
+  }
+
+  function denied(){
+    main.className = "gutter";
+    main.innerHTML = '<div class="denied" role="alert"><span class="muted">' + I.lock + '</span><h1>No tienes acceso a esta página</h1>' +
+      '<p class="muted">No puedes ver este recurso con tu cuenta. Si crees que deberías tener acceso, pide al responsable de tu equipo que revise tus permisos.</p>' +
+      '<p class="muted">Código de error: <span class="mono">403</span></p>' +
+      (r().mods.includes("desembolso") ? '<a class="btn btn-secondary" href="' + inbox() + '">Volver a la bandeja</a>'
+        : r().mods.includes("contractual") ? '<a class="btn btn-secondary" href="P-010-revision-contractual-bandeja.html?rol=' + st.role + '">Ir a tus módulos</a>'
+        : '<a class="btn btn-secondary" href="P-001-inicio-de-sesion.html">Cerrar sesión</a>') + '</div>';
+  }
+
+  function badge(o, extra){ return '<span class="badge b-' + o.tone + '">' + o.i + (extra || o.t) + '</span>'; }
+  function lastEv(c){ return c.evidence.slice().reverse().find(e => e.res !== "ESC" && e.res !== "SOL") || c.evidence[c.evidence.length-1]; }
+  function alertHTML(a){
+    if (!a) return "";
+    const ic = a.kind === "success" ? I.aOk : a.kind === "info" ? I.aInfo : a.kind === "pending" ? I.aHour : I.aErr;
+    const cls = a.kind === "pending" ? "warning" : a.kind;
+    return '<div class="alert alert-' + cls + '" role="' + (a.kind === "danger" || a.kind === "warning" ? "alert" : "status") + '" tabindex="-1" id="case-alert">' + ic +
+      '<div><strong>' + a.title + '</strong>' + a.body + (a.actions ? '<div class="actions">' + a.actions + '</div>' : "") + '</div></div>';
+  }
+
+  function render(focusId){
+    shell();
+    if (!r().mods.includes("desembolso") || !st.c) return denied();
+    const c = st.c, S = STATE[c.state], le = lastEv(c), term = c.state !== "DESEMBOLSO_EN_REVISION_MANUAL";
+    main.className = "case gutter";
+    main.innerHTML =
+      '<nav class="crumbs" aria-label="Ruta de navegación"><ol><li><a href="' + inbox() + '">Revisión de desembolsos</a></li><li aria-current="page"><span class="code">' + c.op + '</span></li></ol></nav>' +
+      '<div class="title-row"><h1>Caso de desembolso <span class="code">' + c.op + '</span></h1>' +
+        '<button type="button" class="btn btn-secondary" id="reload"' + (st.busy ? " disabled" : "") + '>' + I.refresh + 'Recargar caso</button></div>' +
+      (r().ro ? '<div class="alert alert-info" role="note">' + I.aInfo + '<p><b>Modo lectura (Auditor).</b> Ves la evidencia y la auditoría autorizada; no hay comandos que produzcan transiciones.</p></div>' : "") +
+      '<section class="card banner ' + S.bt + '" aria-label="Estado del caso"><dl>' +
+        '<div><dt>Estado</dt><dd>' + badge(S) + '<span class="sub code">' + c.state + '</span></dd></div>' +
+        '<div><dt>Versión</dt><dd class="mono">v' + c.ver + '</dd></div>' +
+        '<div><dt>Última evidencia</dt><dd>' + badge(RES[le.res]) + '<span class="sub">' + le.src.split(" · ")[0] + ' · <span class="mono">' + lima(le.at) + '</span></span></dd></div>' +
+        '<div><dt>En revisión desde</dt><dd class="mono">' + lima(c.since) + '<span class="sub">' + ago(c.since) + ' en revisión</span></dd></div>' +
+      '</dl><span class="sub" id="read-at">Leído: <span class="mono">' + lima(st.lastRead) + '</span> (hora de Lima)</span></section>' +
+      '<div id="msg">' + alertHTML(st.alert) + '</div>' +
+      '<div class="grid"><div class="col">' + summaryHTML(c) + evidenceHTML(c) + obsHTML(c, term) + '</div>' +
+      '<aside class="side" aria-label="Acción">' + panelHTML(c, term) + '</aside></div>';
+    restoreDraft();
+    if (focusId){ const el = $(focusId); if (el) el.focus(); }
+  }
+
+  function summaryHTML(c){
+    const json = JSON.stringify(c.payload, null, 2);
+    return '<section class="card sec" aria-labelledby="h-sum"><div class="sec-head"><h2 id="h-sum">Resumen inmutable</h2><span class="lock-note">' + I.lock16 + 'Datos de la orden original; no se pueden editar.</span></div>' +
+      '<dl class="facts">' +
+        '<div><dt>Orden / operación (operacionId)</dt><dd><span class="code"><b>' + c.op + '</b></span><button type="button" class="icon-btn" data-copy="' + c.op + '" aria-label="Copiar identificador ' + c.op + '">' + I.copy + 'Copiar</button></dd></div>' +
+        '<div><dt>Contrato</dt><dd class="code">' + c.ctr + '</dd></div>' +
+        '<div><dt>Monto</dt><dd class="amount">' + money(c.amount) + '</dd></div>' +
+        '<div><dt>Moneda</dt><dd>PEN · soles</dd></div>' +
+        '<div><dt>Intento de contratación</dt><dd class="code">' + c.att + '</dd></div>' +
+        '<div><dt>Correlación</dt><dd><span class="code">' + c.corr + '</span><button type="button" class="icon-btn" data-copy="' + c.corr + '" aria-label="Copiar correlación ' + c.corr + '">' + I.copy + 'Copiar</button></dd></div>' +
+      '</dl>' +
+      '<details class="payload" id="payload"><summary>' + I.chev + 'Payload original<span class="badge b-neutral">' + I.lock16 + 'Solo lectura</span></summary>' +
+        '<div class="payload-body"><p class="hint" style="margin:0">Es exactamente lo que se envió al core simulado. Cualquier nueva consulta o reentrega usa este mismo contenido.</p>' +
+        '<div class="pre-wrap" tabindex="0" role="region" aria-label="Payload original en JSON, solo lectura"><pre>' + esc(json) + '</pre></div>' +
+        '<div><button type="button" class="icon-btn" data-copy-payload="1">' + I.copy + 'Copiar payload</button></div></div></details>' +
+    '</section>';
+  }
+
+  function evidenceHTML(c){
+    const n = c.evidence.length;
+    return '<section class="card sec" aria-labelledby="h-ev"><div class="sec-head"><h2 id="h-ev">Evidencia</h2><p class="muted">' + n + ' registros · orden cronológico · instantes en UTC</p></div>' +
+      '<ol class="timeline">' + c.evidence.map((e, k) =>
+        '<li id="' + e.id + '"' + (k >= n - st.newEv ? ' class="new"' : "") + ' tabindex="-1">' +
+          '<div class="t-when"><span class="code">' + e.at + '</span><span class="muted">' + lima(e.at) + ' Lima</span></div>' +
+          '<div class="t-what"><span class="src">' + e.src + '</span>' + badge(RES[e.res]) +
+            (e.detail ? '<p>' + esc(e.detail) + '</p>' : "") +
+            '<span class="meta"><span>ID <span class="code">' + e.id + '</span></span><span>Correlación <span class="code">' + e.corr + '</span></span>' + (e.ver ? '<span>Versión <span class="mono">v' + e.ver + '</span></span>' : "") + '</span></div>' +
+        '</li>').join("") + '</ol></section>';
+  }
+
+  function obsHTML(c, term){
+    const list = c.obs.length
+      ? '<ul class="obs-list">' + c.obs.map((o, k) => '<li' + (st.newObs && k === c.obs.length - 1 ? ' class="new"' : "") + '><span class="meta"><b>' + o.who + '</b><span class="mono">' + lima(o.at) + '</span><span>Referencia <a href="#' + o.ref + '" class="code">' + o.ref + '</a></span></span><p>' + esc(o.text) + '</p></li>').join("") + '</ul>'
+      : '<p class="obs-empty">Aún no hay observaciones en este caso.</p>';
+    let form = "";
+    if (!r().ro && !term){
+      const opts = c.evidence.slice().reverse().map(e => '<option value="' + e.id + '">' + e.id + ' · ' + RES[e.res].t.split(" · ")[0] + ' · ' + lima(e.at) + '</option>').join("");
+      const dis = st.busy || st.conflict ? " disabled" : "";
+      form = '<form id="obs-form" novalidate aria-labelledby="h-obs-new"><h3 id="h-obs-new">Registrar observación</h3>' +
+        '<div class="field"><label for="obs-text">Motivo / observación</label><span class="hint" id="obs-hint">Obligatorio. Describe qué revisaste y por qué. No cambia el estado del desembolso.</span>' +
+          '<textarea id="obs-text" rows="3" aria-describedby="obs-hint obs-err"' + dis + '></textarea>' + errHTML("obs-err", st.errors.obs) + '</div>' +
+        '<div class="field"><label for="obs-ref">Referencia de evidencia</label><select class="select" id="obs-ref"' + dis + '>' + opts + '</select></div>' +
+        '<div class="btn-row"><button type="submit" class="btn btn-secondary" id="obs-save"' + dis + '>Guardar observación</button></div>' +
+        '<div class="status" id="obs-status" aria-live="polite"></div></form>';
+    }
+    return '<section class="card sec" aria-labelledby="h-obs"><div class="sec-head"><h2 id="h-obs">Observaciones</h2><p class="muted">' + c.obs.length + ' registradas</p></div>' + list + form + '</section>';
+  }
+  function errHTML(id, m){ return '<span class="field-error" id="' + id + '"' + (m ? "" : " hidden") + '>' + (m ? I.warn + '<span>' + m + '</span>' : "") + '</span>'; }
+
+  function panelHTML(c, term){
+    if (term){
+      const S = STATE[c.state];
+      return '<section class="card sec" aria-labelledby="h-panel"><h2 id="h-panel">Caso cerrado</h2>' + badge(S) +
+        '<p class="explain" style="margin:0">El desembolso tiene un resultado terminal confirmado y persistido. Es de solo lectura: no admite nuevas consultas, observaciones ni cambios de estado.</p>' +
+        '<p class="hint" style="margin:0">Si llegara evidencia que lo contradiga, se abre un expediente de conflicto separado y este resultado no se modifica.</p></section>';
+    }
+    if (r().ro){
+      return '<section class="card sec" aria-labelledby="h-panel"><h2 id="h-panel">Modo lectura</h2><p class="explain" style="margin:0">Como auditor puedes revisar el estado, la evidencia y las observaciones. Las acciones de revisión solo están disponibles para el rol de revisión de desembolso.</p></section>';
+    }
+    const dis = st.busy || st.conflict ? " disabled" : "";
+    return '<section class="card sec panel" aria-labelledby="h-panel"><h2 id="h-panel">Solicitar otra consulta</h2>' +
+      '<p class="explain">Se consultará nuevamente la operación original en el core simulado, con el mismo identificador y los mismos datos. No se crea otra operación ni se modifica el payload.</p>' +
+      '<div class="same-id">' + I.lock16 + '<span>Operación</span><span class="code"><b>' + c.op + '</b></span><span class="muted">· versión esperada <span class="mono">v' + c.ver + '</span></span></div>' +
+      '<form id="ask-form" novalidate>' +
+        '<div class="field"><label for="ask-reason">Motivo de la consulta</label><span class="hint" id="ask-hint">Obligatorio. Queda en la auditoría con tu identidad, la versión y la correlación.</span>' +
+          '<textarea id="ask-reason" rows="4" aria-describedby="ask-hint ask-err"' + dis + '></textarea>' + errHTML("ask-err", st.errors.ask) + '</div>' +
+        '<button type="submit" class="btn btn-primary" id="ask-btn"' + dis + '>' + (st.consulting ? '<span class="spinner" aria-hidden="true"></span>Consultando…' : 'Solicitar otra consulta') + '</button>' +
+        '<div class="status" id="ask-status" tabindex="-1" aria-live="polite">' + (st.consulting ? '<span class="spinner" aria-hidden="true"></span><span>Consultando la operación original <span class="code">' + c.op + '</span> en el core simulado…</span>' : st.conflict ? '<span>Recarga el caso para volver a habilitar las acciones.</span>' : "") + '</div>' +
+      '</form></section>';
+  }
+
+  function restoreDraft(){
+    const a = $("ask-reason"), o = $("obs-text"), ref = $("obs-ref");
+    if (a){ a.value = st.draft.reason; if (st.errors.ask) a.setAttribute("aria-invalid","true"); }
+    if (o){ o.value = st.draft.obs; if (st.errors.obs) o.setAttribute("aria-invalid","true"); }
+    if (ref && st.draft.ref) ref.value = st.draft.ref;
+  }
+
+  // ---- Carga y recarga (solo lectura de Altoque: no invoca al core) ----
+  function skeleton(){
+    shell(); main.className = "case gutter";
+    main.innerHTML = '<nav class="crumbs" aria-label="Ruta de navegación"><ol><li><a href="' + inbox() + '">Revisión de desembolsos</a></li><li aria-current="page"><span class="code">' + esc(st.caseId) + '</span></li></ol></nav>' +
+      '<div class="title-row"><h1>Caso de desembolso</h1></div><div class="status" role="status"><span class="spinner" aria-hidden="true"></span><span>Cargando el caso…</span></div>' +
+      '<div class="skeleton" aria-hidden="true"><div class="sk"></div><div class="sk tall"></div><div class="sk tall"></div></div>';
+  }
+  function load(opts){
+    opts = opts || {};
+    clearTimeout(st.timer); st.busy = true;
+    skeleton();
+    st.timer = setTimeout(() => {
+      st.busy = false;
+      if (opts.fail){ return loadError(); }
+      if (!CASES[st.caseId] || !r().mods.includes("desembolso")){ st.c = null; return render(); }
+      if (!opts.keep) st.c = CASES[st.caseId]();
+      render("contenido");
+      announce("Caso " + st.c.op + " cargado. Versión " + st.c.ver + ".");
+    }, opts.ms || 700);
+  }
+  function loadError(){
+    shell(); main.className = "case gutter";
+    main.innerHTML = '<nav class="crumbs" aria-label="Ruta de navegación"><ol><li><a href="' + inbox() + '">Revisión de desembolsos</a></li><li aria-current="page"><span class="code">' + esc(st.caseId) + '</span></li></ol></nav>' +
+      '<div class="title-row"><h1>Caso de desembolso</h1></div>' +
+      alertHTML({ kind:"danger", title:"No pudimos cargar el caso", body:"<p>Hubo un problema de conexión con Altoque. No se modificó el caso ni se consultó al core. Vuelve a intentarlo en unos segundos.</p>",
+        actions:'<button type="button" class="btn btn-secondary" data-act="retry-load">Reintentar</button><a class="btn btn-secondary" href="' + inbox() + '">Volver a la bandeja</a>' });
+    $("case-alert").focus();
+  }
+
+  function reload(){
+    if (st.busy) return;
+    const wasConflict = st.conflict;
+    const btn = $("reload"); btn.disabled = true; btn.innerHTML = '<span class="spinner" aria-hidden="true"></span>Recargando…';
+    announce("Recargando caso…");
+    st.busy = true;
+    st.timer = setTimeout(() => {
+      st.busy = false;
+      if ($("server").value === "down" && !wasConflict){
+        st.alert = { kind:"warning", title:"No pudimos actualizar el estado", body:"<p>Se muestra la última lectura confirmada (" + lima(st.lastRead) + "). No inferimos ningún resultado a partir de esta falla.</p>",
+          actions:'<button type="button" class="btn btn-secondary" data-act="reload">Reintentar</button>' };
+        render("case-alert"); return;
+      }
+      st.lastRead = tick(2);
+      if (wasConflict){
+        st.conflict = false;
+        st.newEv = st.c.evidence.length - st.conflictBase;
+        st.alert = { kind:"info", title:"Caso recargado · versión v" + st.c.ver, body:"<p>Revisa la nueva evidencia antes de decidir. Tu motivo se conservó, pero <b>no se envió</b>: si aún corresponde, vuelve a solicitar la consulta.</p>" };
+      } else { st.alert = { kind:"info", title:"Caso actualizado", body:"<p>No hay cambios desde la última lectura (versión v" + st.c.ver + ").</p>" }; st.newEv = 0; }
+      render("case-alert");
+    }, 700);
+  }
+
+  // ---- Comandos (simulados) ----
+  function command(onOk, after){
+    const mode = $("server").value;
+    st.busy = true;
+    const run = () => {
+      st.busy = false;
+      if (mode === "conflict") return conflict();
+      if (mode === "down") return after && after("down");
+      onOk();
+    };
+    if (st.instant){ st.instant = false; run(); } else st.timer = setTimeout(run, LATENCY);
+  }
+  function conflict(){
+    st.consulting = false; st.conflict = true;
+    // Mientras tanto, llegó una respuesta tardía del core que el backend aplicó (RN-151: estado no terminal y versión vigente)
+    const c = st.c, from = c.ver;
+    st.conflictBase = c.evidence.length;
+    c.ver += 1;
+    c.evidence.push({ id:"EV-" + c.op.slice(4,8) + "-" + String(c.evidence.length+1).padStart(2,"0"), at:tick(3), src:SRC.late, res:"PROCESANDO", corr:c.corr, detail:"Respuesta tardía a la consulta automática previa; se aplicó porque el caso no era terminal y la versión seguía vigente.", ver:c.ver, hidden:true });
+    const shown = Object.assign({}, c, { evidence:c.evidence.slice(0, st.conflictBase), ver:from });
+    const real = st.c; st.c = shown;
+    st.alert = { kind:"danger", title:"El caso cambió mientras lo revisabas", body:"<p>Tu acción se hizo sobre la versión v" + from + ", pero el caso ya está en una versión más reciente. No guardamos nada y <b>no reenviaremos la solicitud automáticamente</b>.</p><p>Recarga para ver el estado más reciente; tu texto se conserva.</p>",
+      actions:'<button type="button" class="btn btn-primary" data-act="reload">Recargar caso</button>' };
+    render("case-alert");
+    st.c = real; // el siguiente render tras «Recargar» muestra la versión real
+    announce("Conflicto de versión. Recarga el caso.");
+  }
+
+  function openDialog(){
+    const c = st.c;
+    if (!st.idem) st.idem = "idem-" + c.op.slice(4) + "-v" + c.ver + "-" + (st.clock % 9973).toString(16);
+    $("dlg-id").innerHTML = I.lock16 + '<span>' + c.op + '</span>';
+    $("dlg-facts").innerHTML =
+      '<dt>Contrato</dt><dd class="code">' + c.ctr + '</dd>' +
+      '<dt>Monto</dt><dd class="mono">' + money(c.amount) + ' PEN</dd>' +
+      '<dt>Versión esperada</dt><dd class="mono">v' + c.ver + '</dd>' +
+      '<dt>Clave de idempotencia</dt><dd class="code">' + st.idem + '</dd>' +
+      '<dt>Solicitado por</dt><dd>' + r().name + '</dd>';
+    $("dlg-reason").textContent = st.draft.reason.trim();
+    st.returnFocus = document.activeElement;
+    $("dlg-back").hidden = false;
+    ["proto","screen","notes"].forEach(id => $(id).inert = true);
+    $("dlg-cancel").focus();
+  }
+  function closeDialog(restore){
+    $("dlg-back").hidden = true;
+    ["proto","screen","notes"].forEach(id => $(id).inert = false);
+    if (restore !== false){ const t = st.returnFocus && document.contains(st.returnFocus) ? st.returnFocus : $("ask-btn"); if (t) t.focus(); }
+  }
+  $("dlg").addEventListener("keydown", e => {
+    if (e.key === "Escape"){ e.preventDefault(); closeDialog(); return; }
+    if (e.key !== "Tab") return;
+    const f = [...$("dlg").querySelectorAll("button:not([disabled])")];
+    const first = f[0], last = f[f.length-1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  });
+  $("dlg-back").addEventListener("mousedown", e => { if (e.target.id === "dlg-back") e.preventDefault(); });
+  $("dlg-cancel").addEventListener("click", () => closeDialog());
+  $("dlg-ok").addEventListener("click", () => { closeDialog(false); startConsult(); });
+
+  function startConsult(){
+    const c = st.c, reason = st.draft.reason.trim(), coreRes = $("core").value;
+    st.consulting = true; st.alert = null; st.newEv = 0;
+    render("ask-status");
+    announce("Consultando la operación original " + c.op + "…");
+    command(() => {
+      st.consulting = false;
+      const short = c.op.slice(4,8), ncorr = corr();
+      const nextId = () => "EV-" + short + "-" + String(c.evidence.length+1).padStart(2,"0");
+      c.ver += 1;
+      c.evidence.push({ id:nextId(), at:tick(2), src:"Consulta manual · " + r().name, res:"SOL", corr:ncorr, ver:c.ver,
+        detail:"Motivo: «" + reason + "». Mismo operacionId " + c.op + ", payload sin cambios. Clave " + st.idem + "." });
+      c.ver += 1;
+      c.evidence.push({ id:nextId(), at:tick(1), src:"Core simulado · respuesta a la consulta manual", res:coreRes, corr:ncorr, ver:c.ver,
+        detail: RES[coreRes].term ? "Resultado concluyente persistido localmente. Estado: " + RES[coreRes].term + "." : DETAIL[coreRes] });
+      st.newEv = 2; st.idem = null; st.draft.reason = ""; st.lastRead = new Date(st.clock).toISOString().replace(".000","");
+      const R = RES[coreRes];
+      if (R.term){
+        c.state = R.term;
+        const txt = { EXITOSA:"El core confirmó que la operación original se ejecutó. Altoque persistió el resultado: desembolso simulado exitoso.",
+          RECHAZADA:"El core confirmó que rechazó la operación original. Altoque persistió el resultado: desembolso rechazado.",
+          FALLIDA_DEFINITIVA:"El core acreditó que la operación original no se ejecutó ni puede completarse. Altoque persistió el resultado: desembolso fallido definitivo." }[coreRes];
+        st.alert = { kind: coreRes === "EXITOSA" ? "success" : "danger", title:"Resultado concluyente: " + coreRes, body:"<p>" + txt + "</p><p>El caso queda cerrado y en solo lectura.</p>" };
+        announce("Resultado concluyente " + coreRes + ". Caso cerrado.");
+      } else {
+        const why = { NO_ENCONTRADA:"El core no encontró la operación. <b>Esto no es un fallo</b>: no se confirma ningún resultado.",
+          PROCESANDO:"El core indica que la operación sigue en proceso.", RECIBIDA:"El core recibió la operación pero aún no la procesa.",
+          TIMEOUT:"El core no respondió dentro del tiempo de espera." }[coreRes];
+        st.alert = { kind:"pending", title:"La consulta no fue concluyente (" + (coreRes === "TIMEOUT" ? "sin respuesta" : coreRes) + ")", body:"<p>" + why + " El desembolso sigue en revisión manual con el resultado pendiente.</p><p>Puedes registrar una observación o solicitar otra consulta más adelante.</p>" };
+        announce("Consulta inconclusa. El caso sigue en revisión.");
+      }
+      render("case-alert");
+    }, () => {
+      st.consulting = false;
+      st.alert = { kind:"danger", title:"No pudimos confirmar tu solicitud", body:"<p>Se perdió la conexión antes de recibir la confirmación. Puede que la consulta no se haya registrado. Si reintentas, se usa la <b>misma clave de idempotencia</b> (" + st.idem + "), así que no se duplica.</p>",
+        actions:'<button type="button" class="btn btn-primary" data-act="retry-ask">Reintentar con la misma clave</button>' };
+      render("case-alert");
+    });
+  }
+
+  function saveObs(){
+    const c = st.c, text = st.draft.obs.trim(), ref = $("obs-ref").value;
+    $("obs-save").disabled = true; $("obs-text").readOnly = true;
+    $("obs-status").innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Guardando observación…</span>';
+    st.alert = null;
+    command(() => {
+      c.ver += 1;
+      c.obs.push({ at:tick(5), who:r().name, text, ref });
+      st.draft.obs = ""; st.newObs = true; st.newEv = 0;
+      st.alert = { kind:"success", title:"Observación registrada", body:"<p>Quedó en el historial con referencia " + ref + ". La versión del caso pasó a v" + c.ver + "; el estado del desembolso no cambió.</p>" };
+      render("case-alert");
+    }, () => {
+      st.alert = { kind:"danger", title:"No pudimos guardar la observación", body:"<p>Problema de conexión. Tu texto se conservó; vuelve a intentarlo.</p>" };
+      render("case-alert");
+    });
+  }
+
+  // ---- Eventos ----
+  main.addEventListener("input", e => {
+    if (e.target.id === "ask-reason"){ st.draft.reason = e.target.value; if (st.errors.ask && e.target.value.trim()){ st.errors.ask = null; e.target.removeAttribute("aria-invalid"); $("ask-err").hidden = true; } }
+    if (e.target.id === "obs-text"){ st.draft.obs = e.target.value; if (st.errors.obs && e.target.value.trim()){ st.errors.obs = null; e.target.removeAttribute("aria-invalid"); $("obs-err").hidden = true; } }
+  });
+  main.addEventListener("change", e => { if (e.target.id === "obs-ref") st.draft.ref = e.target.value; });
+  main.addEventListener("submit", e => {
+    e.preventDefault();
+    if (st.busy || st.conflict || !canAct()) return;
+    if (e.target.id === "ask-form"){
+      if (!st.draft.reason.trim()){ st.errors.ask = "Escribe el motivo de la consulta para continuar."; st.alert = null; render("ask-reason"); announce(st.errors.ask); return; }
+      openDialog();
+    }
+    if (e.target.id === "obs-form"){
+      if (!st.draft.obs.trim()){ st.errors.obs = "Escribe el motivo de la observación para guardarla."; render("obs-text"); announce(st.errors.obs); return; }
+      saveObs();
+    }
+  });
+  main.addEventListener("click", e => {
+    const t = e.target.closest("button"); if (!t) return;
+    if (t.id === "reload" || t.dataset.act === "reload") return reload();
+    if (t.dataset.act === "retry-load") return load();
+    if (t.dataset.act === "retry-ask"){ st.alert = null; return startConsult(); }
+    if (t.dataset.copy || t.dataset.copyPayload){
+      const text = t.dataset.copy || JSON.stringify(st.c.payload, null, 2);
+      const done = ok => announce(ok ? "Copiado al portapapeles." : "No se pudo copiar; selecciona el texto manualmente.");
+      try { navigator.clipboard.writeText(text).then(() => done(true), () => done(false)); } catch(_){ done(false); }
+      const old = t.innerHTML; t.innerHTML = I.check + "Copiado"; setTimeout(() => { if (document.contains(t)) t.innerHTML = old; }, 1500);
+    }
+  });
+
+  // ---- Selector de estados del prototipo ----
+  function reset(){
+    clearTimeout(st.timer); closeDialog(false);
+    Object.assign(st, { instant:false, busy:false, consulting:false, conflict:false, alert:null, idem:null, errors:{}, newEv:0, newObs:false,
+      draft:{ reason:"", obs:"", ref:"" }, lastRead:"2026-11-14T18:30:00Z", clock:Date.parse("2026-11-14T18:30:12Z") });
+    st.c = CASES[st.caseId] && r().mods.includes("desembolso") ? CASES[st.caseId]() : null;
+  }
+  const REASON = "El core respondió PROCESANDO dos veces; ya pasó la ventana de conciliación indicada por el equipo del core simulado.";
+  function scenario(v){
+    reset();
+    if (v === "denegado"){ st.c = null; return render(); }
+    if (!st.c) return render();
+    const needsOp = ["permitida","validacion","dialogo","encurso","inconclusa","terminal","conflicto","obsedit","obsok"].includes(v);
+    if (needsOp && r().ro){ render(); announce("Estado de operador no disponible para el auditor: se muestra en modo lectura."); return; }
+    switch (v){
+      case "cargando": skeleton(); break;
+      case "error": loadError(); break;
+      case "errorupd":
+        st.lastRead = "2026-11-14T18:12:00Z";
+        st.alert = { kind:"warning", title:"No pudimos actualizar el estado", body:"<p>Se muestra la última lectura confirmada (" + lima(st.lastRead) + "). No inferimos ningún resultado a partir de esta falla.</p>", actions:'<button type="button" class="btn btn-secondary" data-act="reload">Reintentar</button>' };
+        render(); break;
+      case "permitida": st.draft.reason = REASON; render(); break;
+      case "validacion": st.errors.ask = "Escribe el motivo de la consulta para continuar."; render("ask-reason"); break;
+      case "dialogo": st.draft.reason = REASON; render(); openDialog(); break;
+      case "encurso": st.draft.reason = REASON; render(); st.consulting = true; st.busy = true; render("ask-status"); break;
+      case "inconclusa": st.draft.reason = REASON; $("core").value = "NO_ENCONTRADA"; $("server").value = "ok"; render(); startConsultInstant(); break;
+      case "terminal": st.draft.reason = REASON; $("core").value = "EXITOSA"; $("server").value = "ok"; render(); startConsultInstant(); break;
+      case "conflicto": st.draft.reason = REASON; render(); conflict(); break;
+      case "obsedit": st.draft.obs = "Se verificó con el equipo del core que la operación sigue en su cola de conciliación."; render("obs-text"); break;
+      case "obsok": {
+        const c = st.c; c.ver += 1; const ref = c.evidence[c.evidence.length-1].id;
+        c.obs.push({ at:"2026-11-14T18:30:12Z", who:"Ana Torres", text:"Se verificó con el equipo del core que la operación sigue en su cola de conciliación.", ref });
+        st.newObs = true;
+        st.alert = { kind:"success", title:"Observación registrada", body:"<p>Quedó en el historial con referencia " + ref + ". La versión del caso pasó a v" + c.ver + "; el estado del desembolso no cambió.</p>" };
+        render(); break;
+      }
+      default: render();
+    }
+  }
+  // Para los estados de resultado se reutiliza el mismo flujo, con latencia cero
+  function startConsultInstant(){ st.instant = true; startConsult(); }
+
+  $("scenario").addEventListener("change", e => scenario(e.target.value));
+  $("role").addEventListener("change", e => { st.role = e.target.value; syncUrl(); scenario($("scenario").value); });
+  $("case-sel").addEventListener("change", e => { st.caseId = e.target.value; syncUrl(); scenario($("scenario").value); });
+
+  // Carga inicial: abrir el caso solo lee Altoque; no invoca al core
+  syncUrl();
+  if (!r().mods.includes("desembolso") || !CASES[st.caseId]){ shell(); denied(); } else load();
+})();
+</script>

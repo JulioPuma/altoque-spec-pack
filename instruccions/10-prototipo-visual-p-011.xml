@@ -1,0 +1,181 @@
+<agente>
+Eres un desarrollador frontend senior. Tu trabajo es convertir un
+wireframe textual en un prototipo visual interactivo.
+</agente>
+<contexto>
+Estoy prototipando la pantalla "P-011 — Revisión contractual: caso" de "Altoque".
+--- SCREEN SPEC ---
+<![CDATA[
+### P-011 — Revisión contractual: caso
+
+**Propósito:** consultar evidencia, registrar observaciones y resolver solo con evidencia concluyente.  
+**Actor:** operador de revisión contractual; auditor en modo lectura.  
+**HUs:** HU-012.
+
+**Datos:** intento, estado/versión, reserva, oportunidad, aceptación, evidencia durable, correlación, observaciones y auditoría visible autorizada.
+
+**Acciones:** registrar observación; resolver caso entre opciones habilitadas por servidor; recargar ante conflicto; copiar correlación.
+
+**Reglas:** comandos con motivo no vacío, correlación, versión esperada e idempotencia; reserva se conserva sin evidencia; no crear otro intento ni liberar reserva por inferencia; auditor sin comandos.
+
+**Wireframe textual:**
+
+```text
+[Shell interno + breadcrumb]
+[H1 Caso contractual]
+[Banner: estado | tiempo en revisión | versión]
+[Resumen: intento | oportunidad | reserva | aceptación]
+[Sección Evidencia durable]
+  [Lista cronológica: fuente | instante UTC | resultado | correlación]
+[Sección Observaciones]
+  [Historial]
+  [Textarea Motivo/observación + referencia de evidencia + Guardar]
+[Panel Resolver caso, oculto para auditor]
+  [Opciones devueltas por backend]
+  [Textarea Motivo obligatorio]
+  [Resumen de impacto]
+  [Botón Resolver caso + diálogo de confirmación]
+[Conflicto 409: alerta + botón Recargar; no reenviar automáticamente]
+```
+
+**Estados:** lectura; editando observación; enviando; evidencia insuficiente; resolución habilitada; conflicto de versión; resuelto; acceso denegado.
+
+#### Flujo(s) donde participa la pantalla (09-ui-spec.md §2)
+
+### F-06 — Revisión contractual interna
+
+1. El operador autorizado abre **P-010** y selecciona un caso en `CONTRATACION_EN_REVISION_MANUAL`.
+2. **P-011** presenta intento, reserva y evidencia durable sin iniciar transiciones por la mera consulta.
+3. El operador puede agregar una observación con motivo y referencia de evidencia.
+4. Solo si existe evidencia concluyente permitida, elige «Resolver caso», selecciona el resultado habilitado por el backend, revisa el resumen y confirma con versión esperada.
+5. Un conflicto de versión obliga a recargar; nunca se sobrescribe el estado más reciente.
+
+#### Consideraciones mínimas (09-ui-spec.md §0, aplican a todas las pantallas)
+
+- La primera evaluación usa exclusivamente cuentas y datos sintéticos. La UI no ofrece registro, recuperación de identidad, RENIEC, movimientos de dinero reales ni productos distintos del crédito de consumo.
+- Todo texto visible está en español claro. Los identificadores técnicos pueden mostrarse al usuario solo cuando faciliten soporte o trazabilidad, con etiqueta comprensible y opción de copiar.
+- Todos los flujos principales son operables por teclado, con orden de foco coherente, foco visible, enlace «Saltar al contenido», etiquetas programáticas, mensajes de error asociados al campo y anuncios mediante regiones `aria-live`.
+- El contraste cumple WCAG 2.2 AA. El color nunca es el único medio para comunicar estado; cada estado usa texto y, cuando aporte claridad, icono con nombre accesible.
+- El frontend presenta los cálculos recibidos del backend y nunca recalcula cuota, intereses, TCEA, costo total ni cronograma.
+- Las fechas visibles usan formato local comprensible (`14 nov 2026, 13:45`) y, cuando exista vencimiento, indican la zona o el carácter exacto del límite. La autoridad de vigencia sigue siendo el reloj UTC del backend.
+- Las acciones de aceptación, contratación y revisión son explícitas. «Aceptar condiciones» no se presenta como sinónimo de «Contratar».
+- Ante una lectura no confirmada, la UI muestra «No pudimos actualizar el estado» y la última lectura confirmada; nunca infiere éxito o fallo desde caché o por el paso del tiempo.
+- Los estados terminales se muestran como solo lectura. Los reintentos visibles reutilizan la misma identidad y solo aparecen si el backend declara la operación recuperable.
+- En pantallas angostas, las tablas se convierten en listas o tarjetas semánticas sin perder encabezados ni relaciones de datos.
+]]>
+--- DESIGN TOKENS ---
+<![CDATA[
+## 4. Design Tokens
+
+Los valores son una propuesta visual, no parámetros de negocio. Deben validarse con herramientas de contraste y pruebas en dispositivos objetivo antes de integrar.
+
+### 4.1 Color
+
+| Token | Valor sugerido | Uso |
+|---|---|---|
+| `color-primary-700` | `#174EA6` | Botón primario, enlaces y foco sobre fondo claro |
+| `color-primary-800` | `#123B7A` | Hover/pressed primario |
+| `color-secondary-700` | `#0B6B5B` | Elementos secundarios y estados informativos positivos |
+| `color-accent-500` | `#F5A623` | Acento limitado; nunca texto pequeño sobre blanco |
+| `color-bg-page` | `#F7F9FC` | Fondo general |
+| `color-bg-surface` | `#FFFFFF` | Tarjetas, diálogos, formularios |
+| `color-text-primary` | `#172033` | Texto principal |
+| `color-text-secondary` | `#4B5565` | Texto auxiliar |
+| `color-border` | `#C9D2E3` | Bordes y divisores |
+| `color-success-700` | `#18794E` | Éxito, acompañado de texto/icono |
+| `color-warning-800` | `#8A4B08` | Advertencia y pendientes |
+| `color-danger-700` | `#B42318` | Error y acciones destructivas |
+| `color-info-700` | `#175CD3` | Información y revisión |
+| `color-focus` | `#7C3AED` | Anillo de foco de alto contraste |
+
+### 4.2 Tipografía
+
+- Familia: `Inter, "Segoe UI", Roboto, Arial, sans-serif`; usar fuente del sistema como fallback y no bloquear la interfaz por descarga.
+- Base: 16 px; altura de línea 1.5.
+- H1: 32/40 px, peso 700; móvil 28/36 px.
+- H2: 24/32 px, peso 700.
+- H3: 20/28 px, peso 600.
+- Cuerpo: 16/24 px, peso 400.
+- Texto auxiliar: 14/20 px; no usar menos de 14 px para información funcional.
+- Valores monetarios: cifras tabulares (`font-variant-numeric: tabular-nums`) sin reducir la legibilidad.
+
+### 4.3 Espaciado, forma y elevación
+
+- Escala de espaciado: 4, 8, 12, 16, 24, 32, 48 y 64 px.
+- Ancho máximo de contenido cliente: 1200 px; formularios: 640 px; lectura financiera: 960 px.
+- Radio: controles 8 px, tarjetas 12 px, diálogos 16 px.
+- Borde estándar: 1 px; borde enfatizado: 2 px.
+- Sombra de tarjeta: `0 1px 3px rgba(23,32,51,.12)`; no depender de sombra para delimitar superficies.
+
+### 4.4 Componentes y objetivos táctiles
+
+| Componente | Tamaño mínimo | Reglas |
+|---|---:|---|
+| Botón | 44 px de alto | Etiqueta verbal; loading preserva ancho; disabled no sustituye explicación. |
+| Input/select | 48 px de alto | Label visible; ayuda y error asociados mediante `aria-describedby`. |
+| Checkbox/radio | Área activa 44 × 44 px | Control nativo o semántica equivalente; label completo clicable. |
+| Icon button | 44 × 44 px | Nombre accesible y tooltip que no sea la única etiqueta. |
+| Tarjeta accionable | Variable | Una acción primaria inequívoca; foco visible; no anidar controles interactivos inválidos. |
+| Diálogo | 320–640 px | Foco inicial razonable, trampa de foco y retorno al disparador; Escape salvo comando irreversible en proceso. |
+| Tabla | Fila mínima 48 px | Encabezados `th`; caption; alternativa responsive conservando rótulos. |
+
+### 4.5 Breakpoints y comportamiento responsive
+
+- `sm`: 0–599 px, una columna y navegación compacta.
+- `md`: 600–959 px, una o dos columnas según contenido.
+- `lg`: 960–1279 px, grillas y tablas completas.
+- `xl`: 1280 px o más, contenido centrado con ancho máximo.
+- No existe desplazamiento horizontal de página a 320 CSS px. El cronograma puede usar contenedor de tabla con aviso accesible o tarjetas, prefiriendo tarjetas en móvil.
+
+### 4.6 Estados y mensajes
+
+- **Cargando:** skeleton o spinner con texto accesible; no desplazar el foco sin causa.
+- **Vacío:** explicar qué significa y ofrecer una acción válida, si existe.
+- **Error de campo:** resumen enfocable y mensaje junto al campo.
+- **Error de red:** no borrar datos confirmados; marcar la fecha de última lectura.
+- **Pendiente:** icono + texto + siguiente paso; sin animación que sugiera progreso garantizado.
+- **Éxito:** solo tras evidencia durable del backend.
+- **Acción destructiva:** botón danger, consecuencias concretas y confirmación; P-003 cancelar solicitud es el único caso del recorrido cliente definido aquí.
+]]>
+--- REGLAS DE NEGOCIO RELEVANTES ---
+<![CDATA[
+Reglas consideradas y validadas para P-011: 14 (fuente: speck-pack/03-reglas-de-negocio.md).
+Origen = «Prototipo»: la regla está aplicada y citada en prototipos/P-011-revision-contractual-caso.html.
+Origen = «Validación»: la regla aplica a la pantalla, se añadió al validar contra el catálogo porque no estaba citada en las notas del prototipo; confirmar su cobertura en la próxima iteración.
+
+| ID | Regla EARS | Prioridad | Fuente | Origen |
+|---|---|---|---|---|
+| RN-081 | Cuando se confirma una transición, el sistema DEBE auditar los campos de INV-09. | MUST | DEC-71, DEC-94 | Validación |
+| RN-082 | Cuando se intenta una transición, el sistema DEBE validar estado origen y versión de entidad antes de confirmarla. | MUST | DEC-72 | Prototipo |
+| RN-091 | Cuando el intento alcanza `CONTRATACION_RECHAZADA` o `CONTRATACION_FALLIDA_DEFINITIVA`, el sistema DEBE liberar su reserva exactamente una vez. | MUST | Ronda de refinamiento 4, PA-36 | Prototipo |
+| RN-126 | Cuando la lectura durable confirma contrato, auditoría obligatoria, orden única y consumo, el sistema DEBE resolver el intento como `CONTRATACION_EXITOSA` y devolver el contrato al cliente autorizado. | MUST | INV-12, INV-13 | Prototipo |
+| RN-127 | Cuando existe evidencia durable de que la transacción contractual fue revertida o cerró sin contrato, el sistema DEBE clasificar el resultado como rechazo de negocio, fallo técnico recuperable o fallo técnico definitivo y aplicar RN-178–180. | MUST | INV-13, RN-091, PA-36 | Validación |
+| RN-178 | Cuando una guarda de negocio incumplida se confirma con evidencia durable, el sistema DEBE resolver el intento como `CONTRATACION_RECHAZADA` y liberar su reserva exactamente una vez. | MUST | PA-36, RN-091 | Prototipo |
+| RN-179 | Cuando un fallo técnico definitivo se confirma con evidencia durable, el sistema DEBE resolver el intento como `CONTRATACION_FALLIDA_DEFINITIVA` y liberar su reserva exactamente una vez. | MUST | PA-36, RN-070, RN-091 | Prototipo |
+| RN-180 | Cuando un fallo técnico se clasifica como recuperable, el sistema DEBE resolver el intento como `CONTRATACION_FALLIDA_RECUPERABLE`, mantener su reserva y permitir únicamente un reintento controlado del mismo intento. | MUST | PA-36, RN-031 | Prototipo |
+| RN-181 | Mientras una contratación permanezca incierta, el sistema DEBE consultar la evidencia durable cada 30 segundos durante un máximo de 15 minutos desde que se registró `CONTRATACION_PENDIENTE`. | MUST | PA-37, INV-13 | Prototipo |
+| RN-184 | Para resolver una contratación pendiente o en revisión manual, el sistema solo DEBE aceptar como evidencia concluyente el conjunto contractual atómico completo, un marcador durable de rollback o cierre sin contrato, o un resultado autoritativo del gestor transaccional que pruebe el rollback. | MUST | PA-37, INV-13 | Prototipo |
+| RN-185 | Cuando se incumple el objetivo de 4 horas sin evidencia concluyente, el sistema DEBE mantener `CONTRATACION_EN_REVISION_MANUAL`, conservar la reserva y escalar el incidente; NO DEBE inferir éxito, rechazo ni fallo por el tiempo transcurrido, la ausencia de filas, un timeout o una lectura no disponible. | MUST | PA-37, INV-13 | Prototipo |
+| RN-239 | El rol `AUDITOR` solo DEBE poder consultar estados y registros de auditoría autorizados y NO DEBE producir transiciones de negocio. | MUST | PA-15 | Prototipo |
+| RN-243 | Cuando un actor intenta consultar u operar un recurso ajeno o no autorizado, el sistema NO DEBE revelar su existencia ni contenido. | MUST | PA-15, RN-122 | Prototipo |
+| RN-259 | Mientras una contratación esté en `CONTRATACION_EN_REVISION_MANUAL`, solo un actor con rol `OPERADOR_REVISION_CONTRACTUAL` DEBE poder consultar la evidencia autoritativa, registrar observaciones y resolver el caso conforme a RN-184; NO DEBE liberar la reserva, inferir un resultado ni crear otro intento sin evidencia concluyente. Toda acción DEBE auditar actor, instante, motivo, evidencia, correlación, versión y resultado. | MUST | INV-09, INV-13, PA-15, PA-37 | Prototipo |
+]]>
+</contexto>
+<tarea>
+Genera un prototipo visual de esta pantalla como un artifact HTML/CSS/JS
+interactivo. Debe:
+1. Reflejar fielmente el wireframe textual.
+2. Incluir datos de ejemplo realistas (no lorem ipsum).
+3. Ser responsive (funcionar en móvil y desktop).
+4. Incluir estados: vacío, con datos, error, loading.
+5. Usar los design tokens definidos.
+</tarea>
+<restricciones>
+- NO es código de producción: es un prototipo para validar con
+stakeholders.
+- Priorizar claridad del flujo sobre pixel-perfection.
+- Incluir interacciones básicas (clics, navegación simulada,
+validaciones).
+- Si una sección depende de datos dinámicos, usar datos ficticios del
+caso.
+</restricciones>

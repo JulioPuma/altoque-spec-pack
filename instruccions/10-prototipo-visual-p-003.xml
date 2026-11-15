@@ -1,0 +1,198 @@
+<agente>
+Eres un desarrollador frontend senior. Tu trabajo es convertir un
+wireframe textual en un prototipo visual interactivo.
+</agente>
+<contexto>
+Estoy prototipando la pantalla "P-003 — Estado de solicitud regular" de "Altoque".
+--- SCREEN SPEC ---
+<![CDATA[
+### P-003 — Estado de solicitud regular
+
+**Propósito:** comunicar el resultado de preevaluación/autorización y habilitar solo acciones válidas.  
+**Actor:** cliente sintético.  
+**HUs:** HU-003, HU-011, HU-013.
+
+**Datos:** `solicitudId`, estado canónico con etiqueta legible, versión de preevaluación, fecha de creación/vencimiento, máximo autorizado cuando exista, moneda, estado de autorización adicional y última lectura confirmada.
+
+**Acciones:** actualizar estado; simular; reintentar validación controlada; solicitar cancelación; volver a oportunidades.
+
+**Reglas:** solo `SOLICITUD_HABILITADA` vigente permite simular; autorización adicional no prolonga vigencia; no completar datos ausentes; cancelación solo en estados y ausencia de dependencias permitidos; el reintento conserva identidad.
+
+**Wireframe textual:**
+
+```text
+[Shell cliente]
+[Breadcrumb: Oportunidades / Solicitud regular]
+[H1 Estado de tu solicitud]
+[Panel de estado: icono + etiqueta textual + explicación]
+[Definición de datos: Solicitud | creada | vence | última actualización]
+[Panel condicional]
+  HABILITADA: [Monto máximo] [Botón primario Simular]
+  ESPERANDO_AUTORIZACION: [Explicación] [Botón Actualizar estado]
+  RECHAZADA/DENEGADA: [Mensaje sin acción de simulación]
+  NO_DISPONIBLE: [Mensaje] [Actualizar o reintentar si backend habilita]
+  FALLIDA_RECUPERABLE: [Botón Reintentar validación]
+[Acciones secundarias: Cancelar solicitud, solo si permitido | Volver]
+[Diálogo de cancelación: consecuencias | Mantener | Confirmar cancelación]
+```
+
+**Estados:** validando; habilitada; esperando autorización; rechazada/denegada; no disponible; vencida; cancelable; cancelada; fallo recuperable; fallo definitivo; conflicto por actualización concurrente.
+
+#### Flujo(s) donde participa la pantalla (09-ui-spec.md §2)
+
+### F-03 — Solicitud regular a simulación
+
+1. **P-002:** el cliente selecciona explícitamente «Iniciar solicitud regular»; la UI explica que no invalida una oferta preferencial vigente.
+2. **P-003:** muestra el `solicitudId` y el progreso de la preevaluación.
+3. Si queda `SOLICITUD_HABILITADA`, el cliente selecciona «Simular» y avanza a **P-004**.
+4. Si queda `SOLICITUD_ESPERANDO_AUTORIZACION`, selecciona «Actualizar estado» en P-003 hasta obtener autorización, denegación o vencimiento; actualizar es lectura y no crea otra solicitud.
+5. Si queda `SOLICITUD_RECHAZADA`, vencida o no disponible, P-003 explica el resultado y no ofrece simulación.
+6. Si el estado es recuperable, «Reintentar validación» conserva el mismo `solicitudId`.
+7. Si está iniciada o habilitada y no tiene dependencias, el cliente puede elegir «Cancelar solicitud», revisar el diálogo y confirmar; una nueva solicitud posterior tendrá otra identidad.
+
+#### Consideraciones mínimas (09-ui-spec.md §0, aplican a todas las pantallas)
+
+- La primera evaluación usa exclusivamente cuentas y datos sintéticos. La UI no ofrece registro, recuperación de identidad, RENIEC, movimientos de dinero reales ni productos distintos del crédito de consumo.
+- Todo texto visible está en español claro. Los identificadores técnicos pueden mostrarse al usuario solo cuando faciliten soporte o trazabilidad, con etiqueta comprensible y opción de copiar.
+- Todos los flujos principales son operables por teclado, con orden de foco coherente, foco visible, enlace «Saltar al contenido», etiquetas programáticas, mensajes de error asociados al campo y anuncios mediante regiones `aria-live`.
+- El contraste cumple WCAG 2.2 AA. El color nunca es el único medio para comunicar estado; cada estado usa texto y, cuando aporte claridad, icono con nombre accesible.
+- El frontend presenta los cálculos recibidos del backend y nunca recalcula cuota, intereses, TCEA, costo total ni cronograma.
+- Las fechas visibles usan formato local comprensible (`14 nov 2026, 13:45`) y, cuando exista vencimiento, indican la zona o el carácter exacto del límite. La autoridad de vigencia sigue siendo el reloj UTC del backend.
+- Las acciones de aceptación, contratación y revisión son explícitas. «Aceptar condiciones» no se presenta como sinónimo de «Contratar».
+- Ante una lectura no confirmada, la UI muestra «No pudimos actualizar el estado» y la última lectura confirmada; nunca infiere éxito o fallo desde caché o por el paso del tiempo.
+- Los estados terminales se muestran como solo lectura. Los reintentos visibles reutilizan la misma identidad y solo aparecen si el backend declara la operación recuperable.
+- En pantallas angostas, las tablas se convierten en listas o tarjetas semánticas sin perder encabezados ni relaciones de datos.
+]]>
+--- DESIGN TOKENS ---
+<![CDATA[
+## 4. Design Tokens
+
+Los valores son una propuesta visual, no parámetros de negocio. Deben validarse con herramientas de contraste y pruebas en dispositivos objetivo antes de integrar.
+
+### 4.1 Color
+
+| Token | Valor sugerido | Uso |
+|---|---|---|
+| `color-primary-700` | `#174EA6` | Botón primario, enlaces y foco sobre fondo claro |
+| `color-primary-800` | `#123B7A` | Hover/pressed primario |
+| `color-secondary-700` | `#0B6B5B` | Elementos secundarios y estados informativos positivos |
+| `color-accent-500` | `#F5A623` | Acento limitado; nunca texto pequeño sobre blanco |
+| `color-bg-page` | `#F7F9FC` | Fondo general |
+| `color-bg-surface` | `#FFFFFF` | Tarjetas, diálogos, formularios |
+| `color-text-primary` | `#172033` | Texto principal |
+| `color-text-secondary` | `#4B5565` | Texto auxiliar |
+| `color-border` | `#C9D2E3` | Bordes y divisores |
+| `color-success-700` | `#18794E` | Éxito, acompañado de texto/icono |
+| `color-warning-800` | `#8A4B08` | Advertencia y pendientes |
+| `color-danger-700` | `#B42318` | Error y acciones destructivas |
+| `color-info-700` | `#175CD3` | Información y revisión |
+| `color-focus` | `#7C3AED` | Anillo de foco de alto contraste |
+
+### 4.2 Tipografía
+
+- Familia: `Inter, "Segoe UI", Roboto, Arial, sans-serif`; usar fuente del sistema como fallback y no bloquear la interfaz por descarga.
+- Base: 16 px; altura de línea 1.5.
+- H1: 32/40 px, peso 700; móvil 28/36 px.
+- H2: 24/32 px, peso 700.
+- H3: 20/28 px, peso 600.
+- Cuerpo: 16/24 px, peso 400.
+- Texto auxiliar: 14/20 px; no usar menos de 14 px para información funcional.
+- Valores monetarios: cifras tabulares (`font-variant-numeric: tabular-nums`) sin reducir la legibilidad.
+
+### 4.3 Espaciado, forma y elevación
+
+- Escala de espaciado: 4, 8, 12, 16, 24, 32, 48 y 64 px.
+- Ancho máximo de contenido cliente: 1200 px; formularios: 640 px; lectura financiera: 960 px.
+- Radio: controles 8 px, tarjetas 12 px, diálogos 16 px.
+- Borde estándar: 1 px; borde enfatizado: 2 px.
+- Sombra de tarjeta: `0 1px 3px rgba(23,32,51,.12)`; no depender de sombra para delimitar superficies.
+
+### 4.4 Componentes y objetivos táctiles
+
+| Componente | Tamaño mínimo | Reglas |
+|---|---:|---|
+| Botón | 44 px de alto | Etiqueta verbal; loading preserva ancho; disabled no sustituye explicación. |
+| Input/select | 48 px de alto | Label visible; ayuda y error asociados mediante `aria-describedby`. |
+| Checkbox/radio | Área activa 44 × 44 px | Control nativo o semántica equivalente; label completo clicable. |
+| Icon button | 44 × 44 px | Nombre accesible y tooltip que no sea la única etiqueta. |
+| Tarjeta accionable | Variable | Una acción primaria inequívoca; foco visible; no anidar controles interactivos inválidos. |
+| Diálogo | 320–640 px | Foco inicial razonable, trampa de foco y retorno al disparador; Escape salvo comando irreversible en proceso. |
+| Tabla | Fila mínima 48 px | Encabezados `th`; caption; alternativa responsive conservando rótulos. |
+
+### 4.5 Breakpoints y comportamiento responsive
+
+- `sm`: 0–599 px, una columna y navegación compacta.
+- `md`: 600–959 px, una o dos columnas según contenido.
+- `lg`: 960–1279 px, grillas y tablas completas.
+- `xl`: 1280 px o más, contenido centrado con ancho máximo.
+- No existe desplazamiento horizontal de página a 320 CSS px. El cronograma puede usar contenedor de tabla con aviso accesible o tarjetas, prefiriendo tarjetas en móvil.
+
+### 4.6 Estados y mensajes
+
+- **Cargando:** skeleton o spinner con texto accesible; no desplazar el foco sin causa.
+- **Vacío:** explicar qué significa y ofrecer una acción válida, si existe.
+- **Error de campo:** resumen enfocable y mensaje junto al campo.
+- **Error de red:** no borrar datos confirmados; marcar la fecha de última lectura.
+- **Pendiente:** icono + texto + siguiente paso; sin animación que sugiera progreso garantizado.
+- **Éxito:** solo tras evidencia durable del backend.
+- **Acción destructiva:** botón danger, consecuencias concretas y confirmación; P-003 cancelar solicitud es el único caso del recorrido cliente definido aquí.
+]]>
+--- REGLAS DE NEGOCIO RELEVANTES ---
+<![CDATA[
+Reglas consideradas y validadas para P-003: 31 (fuente: speck-pack/03-reglas-de-negocio.md).
+Origen = «Prototipo»: la regla está aplicada y citada en prototipos/P-003-estado-de-solicitud-regular.html.
+Origen = «Validación»: la regla aplica a la pantalla, se añadió al validar contra el catálogo porque no estaba citada en las notas del prototipo; confirmar su cobertura en la próxima iteración.
+
+| ID | Regla EARS | Prioridad | Fuente | Origen |
+|---|---|---|---|---|
+| RN-097 | Cuando la preevaluación habilita una oferta base, el sistema NO DEBE permitir un monto solicitado superior al máximo informado por la preevaluación. | MUST | Ronda de refinamiento 6, PA-08 | Prototipo |
+| RN-109 | Si la preevaluación no responde, el sistema DEBE informar al cliente que el resultado no está disponible. | MUST | Ronda de refinamiento 7 | Prototipo |
+| RN-110 | Si la preevaluación no responde, el sistema DEBE permitir volver a consultar su resultado. | MUST | Ronda de refinamiento 7 | Prototipo |
+| RN-111 | Si la preevaluación confirma que no habilita una oferta base, el sistema DEBE informar ese resultado al cliente. | MUST | Ronda de refinamiento 7 | Prototipo |
+| RN-112 | Si la preevaluación confirma que no habilita una oferta base, el sistema NO DEBE permitir simular ni contratar en el flujo regular correspondiente. | MUST | Ronda de refinamiento 7 | Prototipo |
+| RN-154 | Cuando se confirma una preevaluación, el sistema DEBE conservar `resultadoId`, cliente, `solicitudId` regular previamente creado, versión, estado, `creadoEn` y `venceEn`. | MUST | INV-18, PA-38 | Validación |
+| RN-155 | Cuando se calcula la vigencia de una preevaluación, el sistema DEBE usar el intervalo desde `creadoEn`, inclusive, hasta `creadoEn` más 24 horas, exclusive, medido en UTC. | MUST | INV-18 | Prototipo |
+| RN-156 | Cuando la preevaluación devuelve `OFERTA_BASE_HABILITADA`, DEBE incluir un monto máximo positivo y su moneda. | MUST | INV-18 | Prototipo |
+| RN-157 | Cuando la preevaluación devuelve `EVALUACION_ADICIONAL_REQUERIDA`, DEBE incluir un `evaluacionId` asociado al cliente y a la solicitud. | MUST | INV-18 | Prototipo |
+| RN-158 | Mientras la autorización adicional esté `PENDIENTE`, el sistema DEBE mantener `SOLICITUD_ESPERANDO_AUTORIZACION`, bloquear simulación y contratación y permitir consultar su estado. | MUST | INV-18, PA-38 | Prototipo |
+| RN-159 | Cuando la autorización adicional queda `DENEGADA`, el sistema DEBE informar que no existe oferta habilitada y bloquear la simulación y contratación de esa solicitud. | MUST | INV-18 | Prototipo |
+| RN-160 | Cuando la autorización adicional queda `AUTORIZADA`, el sistema DEBE permitir continuar solo hasta el vencimiento del resultado de preevaluación asociado. | MUST | INV-18 | Prototipo |
+| RN-161 | Cuando la preevaluación devuelve `SIN_OFERTA`, el sistema DEBE bloquear la simulación y contratación de la solicitud correspondiente. | MUST | INV-18 | Prototipo |
+| RN-162 | Cuando la preevaluación devuelve `NO_DISPONIBLE`, el sistema DEBE informar indisponibilidad y permitir una reconsulta sin inferir ausencia de oferta. | MUST | INV-18 | Prototipo |
+| RN-163 | Cuando una respuesta de preevaluación omite un dato obligatorio para su estado, el sistema DEBE tratarla como `NO_DISPONIBLE` y NO DEBE completar el dato por defecto. | MUST | INV-18 | Prototipo |
+| RN-164 | Cuando una reconsulta produce un resultado concluyente con estado, monto máximo o autorización distintos, el sistema DEBE crear una nueva versión sin modificar la previa y convertirla en la versión activa. | MUST | INV-18, PA-23 | Validación |
+| RN-174 | Cuando se reconsulta la preevaluación de una solicitud regular activa, el sistema DEBE crear una nueva versión dentro del mismo `solicitudId` sin crear otra oportunidad. | MUST | INV-18, INV-19 | Validación |
+| RN-176 | Cuando una solicitud regular cierra sin contrato, el sistema NO DEBE reutilizar su `solicitudId` para un préstamo posterior. | MUST | INV-19 | Prototipo |
+| RN-177 | Cuando un cliente inicia otro préstamo regular después del cierre de su solicitud anterior, el sistema DEBE crear un `solicitudId` nuevo y exigir una nueva preevaluación. | MUST | INV-19 | Prototipo |
+| RN-205 | Cuando una reconsulta devuelve `NO_DISPONIBLE`, el sistema NO DEBE reemplazar ni invalidar una versión concluyente que todavía esté vigente. | MUST | PA-23, RN-162 | Validación |
+| RN-211 | Cuando la preevaluación devuelve `OFERTA_BASE_HABILITADA` válida, el sistema DEBE transicionar la solicitud a `SOLICITUD_HABILITADA`. | MUST | PA-38, RN-156 | Prototipo |
+| RN-212 | Cuando la preevaluación devuelve `EVALUACION_ADICIONAL_REQUERIDA`, el sistema DEBE transicionar la solicitud a `SOLICITUD_ESPERANDO_AUTORIZACION`. | MUST | PA-38, RN-157–158 | Prototipo |
+| RN-213 | Cuando una autorización vigente cambia a `AUTORIZADA`, el sistema DEBE transicionar la solicitud asociada de `SOLICITUD_ESPERANDO_AUTORIZACION` a `SOLICITUD_HABILITADA`. | MUST | PA-38, RN-160 | Prototipo |
+| RN-214 | Cuando una autorización cambia a `DENEGADA` o la preevaluación devuelve `SIN_OFERTA`, el sistema DEBE transicionar la solicitud asociada a `SOLICITUD_RECHAZADA`. | MUST | PA-38, RN-159, RN-161 | Prototipo |
+| RN-215 | Cuando la preevaluación devuelve `NO_DISPONIBLE`, el sistema DEBE transicionar la solicitud a `SOLICITUD_PENDIENTE` y permitir reconsultar dentro del mismo `solicitudId`. | MUST | PA-38, RN-162, RN-174 | Prototipo |
+| RN-216 | Mientras una solicitud regular no esté en `SOLICITUD_HABILITADA`, el sistema NO DEBE permitir crear una simulación para esa solicitud. | MUST | PA-38 | Prototipo |
+| RN-217 | Cuando un fallo técnico de solicitud se clasifica como recuperable, el sistema DEBE registrar `SOLICITUD_FALLIDA_RECUPERABLE`; si se confirma como definitivo, DEBE registrar `SOLICITUD_FALLIDA_DEFINITIVA`. | MUST | PA-22, RN-066, RN-070 | Prototipo |
+| RN-221 | Cuando se reintenta una solicitud en `SOLICITUD_FALLIDA_RECUPERABLE`, el sistema DEBE reutilizar el mismo `solicitudId` y transicionar a `SOLICITUD_VALIDANDO`. | MUST | PA-22, RN-031 | Prototipo |
+| RN-228 | Cuando un error se clasifica como definitivo, el sistema NO DEBE reintentar automáticamente la operación. | MUST | PA-03, RN-070 | Prototipo |
+| RN-243 | Cuando un actor intenta consultar u operar un recurso ajeno o no autorizado, el sistema NO DEBE revelar su existencia ni contenido. | MUST | PA-15, RN-122 | Prototipo |
+| RN-260 | Cuando el `CLIENTE_SINTETICO` propietario cancela una solicitud en `SOLICITUD_INICIADA` o `SOLICITUD_HABILITADA`, el sistema DEBE confirmar `SOLICITUD_CANCELADA` de forma idempotente únicamente si no existe ninguna simulación asociada ni intento, reserva o contrato; DEBE serializar por oportunidad, revalidar las guardas después de esperar y auditar cliente, actor, instante, motivo, correlación, estado origen y versión. La identidad cancelada NO DEBE reutilizarse y una solicitud posterior DEBE recibir otro `solicitudId` y nueva preevaluación. | MUST | PA-13, INV-09, INV-15, INV-19 | Prototipo |
+]]>
+</contexto>
+<tarea>
+Genera un prototipo visual de esta pantalla como un artifact HTML/CSS/JS
+interactivo. Debe:
+1. Reflejar fielmente el wireframe textual.
+2. Incluir datos de ejemplo realistas (no lorem ipsum).
+3. Ser responsive (funcionar en móvil y desktop).
+4. Incluir estados: vacío, con datos, error, loading.
+5. Usar los design tokens definidos.
+</tarea>
+<restricciones>
+- NO es código de producción: es un prototipo para validar con
+stakeholders.
+- Priorizar claridad del flujo sobre pixel-perfection.
+- Incluir interacciones básicas (clics, navegación simulada,
+validaciones).
+- Si una sección depende de datos dinámicos, usar datos ficticios del
+caso.
+</restricciones>

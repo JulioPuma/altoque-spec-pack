@@ -1,0 +1,178 @@
+<agente>
+Eres un desarrollador frontend senior. Tu trabajo es convertir un
+wireframe textual en un prototipo visual interactivo.
+</agente>
+<contexto>
+Estoy prototipando la pantalla "P-001 — Inicio de sesión" de "Altoque".
+--- SCREEN SPEC ---
+<![CDATA[
+### P-001 — Inicio de sesión
+
+**Propósito:** crear una sesión segura para una cuenta sintética precargada.  
+**Actor:** cliente sintético.  
+**HUs:** HU-001.
+
+**Datos:** nombre del producto, aviso «Entorno de evaluación con datos sintéticos», DNI sintético, contraseña y enlace a ayuda de acceso definida para la evaluación.
+
+**Acciones:** ingresar DNI; ingresar, mostrar u ocultar contraseña; enviar; saltar al contenido.
+
+**Reglas:** sin registro autónomo; mensaje de error genérico; no revelar existencia o estado de una cuenta; no persistir credenciales en almacenamiento del navegador; respetar bloqueo temporal aprobado; contraseña independiente del DNI.
+
+**Wireframe textual:**
+
+```text
+[Saltar al contenido]
+[Encabezado simple: logotipo Altoque | insignia "Evaluación"]
+<main ancho máx. 480 px>
+  [H1 Inicia sesión]
+  [Texto: Usa las credenciales sintéticas que te entregaron]
+  [Alerta informativa: No ingreses datos personales reales]
+  [Resumen de error, enfocable, si aplica]
+  [Label DNI sintético]
+  [Input texto, inputmode=numeric, autocomplete=off]
+  [Error asociado al DNI]
+  [Label Contraseña]
+  [Input password, autocomplete=current-password]
+  [Botón secundario Mostrar/Ocultar contraseña]
+  [Error asociado a contraseña]
+  [Botón primario ancho completo Ingresar]
+  [Estado enviando: spinner + "Verificando acceso", aria-live]
+</main>
+[Pie: privacidad de evaluación | accesibilidad]
+```
+
+**Estados:** inicial; validación local; enviando; credenciales no válidas; cuenta temporalmente bloqueada con texto aprobado; servicio no disponible; sesión vencida.
+
+#### Flujo(s) donde participa la pantalla (09-ui-spec.md §2)
+
+### F-01 — Autenticación y entrada
+
+1. **P-001 Inicio de sesión:** el cliente ingresa DNI sintético y contraseña, puede mostrar u ocultar la contraseña y selecciona «Ingresar».
+2. Si las credenciales son válidas, el sistema crea la sesión y dirige a **P-002 Oportunidades**.
+3. Si son inválidas, inactivas, no precargadas o alcanzan el umbral aprobado, P-001 conserva el DNI, limpia la contraseña y muestra un mensaje genérico sin revelar qué dato falló.
+4. Si una sesión vence durante otro flujo, el sistema vuelve a P-001. Tras autenticar, puede regresar a la ruta protegida de solo lectura; una acción de comando debe confirmarse nuevamente.
+
+#### Consideraciones mínimas (09-ui-spec.md §0, aplican a todas las pantallas)
+
+- La primera evaluación usa exclusivamente cuentas y datos sintéticos. La UI no ofrece registro, recuperación de identidad, RENIEC, movimientos de dinero reales ni productos distintos del crédito de consumo.
+- Todo texto visible está en español claro. Los identificadores técnicos pueden mostrarse al usuario solo cuando faciliten soporte o trazabilidad, con etiqueta comprensible y opción de copiar.
+- Todos los flujos principales son operables por teclado, con orden de foco coherente, foco visible, enlace «Saltar al contenido», etiquetas programáticas, mensajes de error asociados al campo y anuncios mediante regiones `aria-live`.
+- El contraste cumple WCAG 2.2 AA. El color nunca es el único medio para comunicar estado; cada estado usa texto y, cuando aporte claridad, icono con nombre accesible.
+- El frontend presenta los cálculos recibidos del backend y nunca recalcula cuota, intereses, TCEA, costo total ni cronograma.
+- Las fechas visibles usan formato local comprensible (`14 nov 2026, 13:45`) y, cuando exista vencimiento, indican la zona o el carácter exacto del límite. La autoridad de vigencia sigue siendo el reloj UTC del backend.
+- Las acciones de aceptación, contratación y revisión son explícitas. «Aceptar condiciones» no se presenta como sinónimo de «Contratar».
+- Ante una lectura no confirmada, la UI muestra «No pudimos actualizar el estado» y la última lectura confirmada; nunca infiere éxito o fallo desde caché o por el paso del tiempo.
+- Los estados terminales se muestran como solo lectura. Los reintentos visibles reutilizan la misma identidad y solo aparecen si el backend declara la operación recuperable.
+- En pantallas angostas, las tablas se convierten en listas o tarjetas semánticas sin perder encabezados ni relaciones de datos.
+]]>
+--- DESIGN TOKENS ---
+<![CDATA[
+## 4. Design Tokens
+
+Los valores son una propuesta visual, no parámetros de negocio. Deben validarse con herramientas de contraste y pruebas en dispositivos objetivo antes de integrar.
+
+### 4.1 Color
+
+| Token | Valor sugerido | Uso |
+|---|---|---|
+| `color-primary-700` | `#174EA6` | Botón primario, enlaces y foco sobre fondo claro |
+| `color-primary-800` | `#123B7A` | Hover/pressed primario |
+| `color-secondary-700` | `#0B6B5B` | Elementos secundarios y estados informativos positivos |
+| `color-accent-500` | `#F5A623` | Acento limitado; nunca texto pequeño sobre blanco |
+| `color-bg-page` | `#F7F9FC` | Fondo general |
+| `color-bg-surface` | `#FFFFFF` | Tarjetas, diálogos, formularios |
+| `color-text-primary` | `#172033` | Texto principal |
+| `color-text-secondary` | `#4B5565` | Texto auxiliar |
+| `color-border` | `#C9D2E3` | Bordes y divisores |
+| `color-success-700` | `#18794E` | Éxito, acompañado de texto/icono |
+| `color-warning-800` | `#8A4B08` | Advertencia y pendientes |
+| `color-danger-700` | `#B42318` | Error y acciones destructivas |
+| `color-info-700` | `#175CD3` | Información y revisión |
+| `color-focus` | `#7C3AED` | Anillo de foco de alto contraste |
+
+### 4.2 Tipografía
+
+- Familia: `Inter, "Segoe UI", Roboto, Arial, sans-serif`; usar fuente del sistema como fallback y no bloquear la interfaz por descarga.
+- Base: 16 px; altura de línea 1.5.
+- H1: 32/40 px, peso 700; móvil 28/36 px.
+- H2: 24/32 px, peso 700.
+- H3: 20/28 px, peso 600.
+- Cuerpo: 16/24 px, peso 400.
+- Texto auxiliar: 14/20 px; no usar menos de 14 px para información funcional.
+- Valores monetarios: cifras tabulares (`font-variant-numeric: tabular-nums`) sin reducir la legibilidad.
+
+### 4.3 Espaciado, forma y elevación
+
+- Escala de espaciado: 4, 8, 12, 16, 24, 32, 48 y 64 px.
+- Ancho máximo de contenido cliente: 1200 px; formularios: 640 px; lectura financiera: 960 px.
+- Radio: controles 8 px, tarjetas 12 px, diálogos 16 px.
+- Borde estándar: 1 px; borde enfatizado: 2 px.
+- Sombra de tarjeta: `0 1px 3px rgba(23,32,51,.12)`; no depender de sombra para delimitar superficies.
+
+### 4.4 Componentes y objetivos táctiles
+
+| Componente | Tamaño mínimo | Reglas |
+|---|---:|---|
+| Botón | 44 px de alto | Etiqueta verbal; loading preserva ancho; disabled no sustituye explicación. |
+| Input/select | 48 px de alto | Label visible; ayuda y error asociados mediante `aria-describedby`. |
+| Checkbox/radio | Área activa 44 × 44 px | Control nativo o semántica equivalente; label completo clicable. |
+| Icon button | 44 × 44 px | Nombre accesible y tooltip que no sea la única etiqueta. |
+| Tarjeta accionable | Variable | Una acción primaria inequívoca; foco visible; no anidar controles interactivos inválidos. |
+| Diálogo | 320–640 px | Foco inicial razonable, trampa de foco y retorno al disparador; Escape salvo comando irreversible en proceso. |
+| Tabla | Fila mínima 48 px | Encabezados `th`; caption; alternativa responsive conservando rótulos. |
+
+### 4.5 Breakpoints y comportamiento responsive
+
+- `sm`: 0–599 px, una columna y navegación compacta.
+- `md`: 600–959 px, una o dos columnas según contenido.
+- `lg`: 960–1279 px, grillas y tablas completas.
+- `xl`: 1280 px o más, contenido centrado con ancho máximo.
+- No existe desplazamiento horizontal de página a 320 CSS px. El cronograma puede usar contenedor de tabla con aviso accesible o tarjetas, prefiriendo tarjetas en móvil.
+
+### 4.6 Estados y mensajes
+
+- **Cargando:** skeleton o spinner con texto accesible; no desplazar el foco sin causa.
+- **Vacío:** explicar qué significa y ofrecer una acción válida, si existe.
+- **Error de campo:** resumen enfocable y mensaje junto al campo.
+- **Error de red:** no borrar datos confirmados; marcar la fecha de última lectura.
+- **Pendiente:** icono + texto + siguiente paso; sin animación que sugiera progreso garantizado.
+- **Éxito:** solo tras evidencia durable del backend.
+- **Acción destructiva:** botón danger, consecuencias concretas y confirmación; P-003 cancelar solicitud es el único caso del recorrido cliente definido aquí.
+]]>
+--- REGLAS DE NEGOCIO RELEVANTES ---
+<![CDATA[
+Reglas consideradas y validadas para P-001: 9 (fuente: speck-pack/03-reglas-de-negocio.md).
+Origen = «Prototipo»: la regla está aplicada y citada en prototipos/P-001-inicio-de-sesion.html.
+Origen = «Validación»: la regla aplica a la pantalla, se añadió al validar contra el catálogo porque no estaba citada en las notas del prototipo; confirmar su cobertura en la próxima iteración.
+
+| ID | Regla EARS | Prioridad | Fuente | Origen |
+|---|---|---|---|---|
+| RN-001 | Cuando un cliente accede a operaciones crediticias, el sistema DEBE verificar una sesión autenticada válida. | MUST | PRINCIPIO-006 | Prototipo |
+| RN-028 | El sistema DEBE permitir operar mediante teclado los flujos principales. | MUST | PRINCIPIO-012 | Prototipo |
+| RN-065 | Cuando un actor se autentica, el sistema DEBE asignarle uno de los roles funcionales aprobados y limitarlo a las acciones y recursos autorizados para ese rol. El mecanismo técnico se define en la especificación de seguridad. | MUST | DEC-87, PA-15 | Validación |
+| RN-080 | Cuando se presenta un control de un flujo principal, el sistema DEBE proporcionar una etiqueta identificable. | MUST | DEC-93 | Prototipo |
+| RN-121 | Mientras se opera en la primera evaluación cerrada, el sistema DEBE permitir la autenticación únicamente a cuentas sintéticas creadas previamente para la evaluación. | MUST | Decisión de cierre de brechas de acceso | Prototipo |
+| RN-124 | Cuando se configura una cuenta sintética para la primera evaluación, su contraseña DEBE ser independiente de su DNI sintético y NO DEBE ser igual ni derivarse de ese identificador. | MUST | PRINCIPIO-013, M-01 | Prototipo |
+| RN-241 | Cuando la sesión de un actor está vencida o fue cerrada, el sistema NO DEBE permitir aceptar, contratar ni ejecutar otra acción protegida hasta una nueva autenticación válida. | MUST | PA-15 | Prototipo |
+| RN-242 | Cuando se acumulan intentos reiterados de autenticación fallida, el sistema DEBE aplicar un bloqueo temporal conforme a la política de seguridad aprobada. | MUST | PA-15 | Prototipo |
+| RN-243 | Cuando un actor intenta consultar u operar un recurso ajeno o no autorizado, el sistema NO DEBE revelar su existencia ni contenido. | MUST | PA-15, RN-122 | Prototipo |
+]]>
+</contexto>
+<tarea>
+Genera un prototipo visual de esta pantalla como un artifact HTML/CSS/JS
+interactivo. Debe:
+1. Reflejar fielmente el wireframe textual.
+2. Incluir datos de ejemplo realistas (no lorem ipsum).
+3. Ser responsive (funcionar en móvil y desktop).
+4. Incluir estados: vacío, con datos, error, loading.
+5. Usar los design tokens definidos.
+</tarea>
+<restricciones>
+- NO es código de producción: es un prototipo para validar con
+stakeholders.
+- Priorizar claridad del flujo sobre pixel-perfection.
+- Incluir interacciones básicas (clics, navegación simulada,
+validaciones).
+- Si una sección depende de datos dinámicos, usar datos ficticios del
+caso.
+</restricciones>

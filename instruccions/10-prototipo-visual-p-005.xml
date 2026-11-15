@@ -1,0 +1,201 @@
+<agente>
+Eres un desarrollador frontend senior. Tu trabajo es convertir un
+wireframe textual en un prototipo visual interactivo.
+</agente>
+<contexto>
+Estoy prototipando la pantalla "P-005 — Detalle y aceptación de simulación" de "Altoque".
+--- SCREEN SPEC ---
+<![CDATA[
+### P-005 — Detalle y aceptación de simulación
+
+**Propósito:** presentar una versión íntegra y permitir su aceptación expresa mientras siga vigente.  
+**Actor:** cliente sintético.  
+**HUs:** HU-005, HU-010.
+
+**Datos:** `simulacionId`, versión/hash abreviado, creación/vencimiento, monto, plazo, cuota financiera, seguro por cuota, pago total por cuota, intereses totales, TCEA con dos decimales, costo total y cronograma completo.
+
+**Acciones:** expandir cronograma; aceptar condiciones; volver a simular; imprimir mediante función del navegador si se desea.
+
+**Reglas:** todos los campos obligatorios pertenecen a la misma versión; información incompleta deshabilita aceptación; vencimiento exclusivo a 30 minutos; aceptar no contrata; no usar un contador local como autoridad.
+
+**Wireframe textual:**
+
+```text
+[Shell cliente + breadcrumb]
+[H1 Revisa tu simulación]
+[Banner de vigencia: "Disponible para aceptar hasta …" + estado textual]
+[Resumen destacado: Monto | Plazo | Pago total mensual]
+[Grid Costos]
+  [Cuota financiera] [Seguro por cuota] [Intereses totales]
+  [TCEA] [Costo total]
+[Acordeón Cronograma de pagos, expandible por teclado]
+  [Tabla: N° | fecha | saldo inicial | capital | interés | seguro | pago | saldo final]
+  [En móvil: una tarjeta por cuota con los mismos rótulos]
+[Nota: valores calculados por Altoque; moneda PEN]
+[Checkbox: "He revisado y acepto estas condiciones de la versión …"]
+[Botón primario Aceptar condiciones]
+[Botón secundario Cambiar monto o plazo]
+[Alerta bloqueante si falta información o venció]
+```
+
+**Estados:** vigente completa; cronograma contraído/expandido; aceptando; aceptada; repetición idempotente; vencida; invalidada; información incompleta; conflicto por contratación concurrente.
+
+#### Flujo(s) donde participa la pantalla (09-ui-spec.md §2)
+
+### F-04 — Revisión, aceptación y contratación
+
+1. **P-005:** el cliente revisa resumen, costos y cronograma de una única versión.
+2. Abre el cronograma si estaba contraído; la interfaz registra la interacción permitida sin alterar la simulación.
+3. Marca la casilla de conformidad y selecciona «Aceptar condiciones».
+4. Al confirmarse la aceptación, **P-006** muestra nuevamente las condiciones esenciales, la diferencia entre aceptar y contratar y el aviso de revalidación de saldo/vigencias.
+5. El cliente selecciona «Contratar crédito» una sola vez. El botón queda deshabilitado mientras se procesa y conserva la misma clave idempotente ante repetición técnica.
+6. **P-007** muestra el resultado durable: exitoso, pendiente, revisión manual, rechazo funcional o fallo definitivo. Nunca comunica éxito si la respuesta es ambigua.
+
+#### Consideraciones mínimas (09-ui-spec.md §0, aplican a todas las pantallas)
+
+- La primera evaluación usa exclusivamente cuentas y datos sintéticos. La UI no ofrece registro, recuperación de identidad, RENIEC, movimientos de dinero reales ni productos distintos del crédito de consumo.
+- Todo texto visible está en español claro. Los identificadores técnicos pueden mostrarse al usuario solo cuando faciliten soporte o trazabilidad, con etiqueta comprensible y opción de copiar.
+- Todos los flujos principales son operables por teclado, con orden de foco coherente, foco visible, enlace «Saltar al contenido», etiquetas programáticas, mensajes de error asociados al campo y anuncios mediante regiones `aria-live`.
+- El contraste cumple WCAG 2.2 AA. El color nunca es el único medio para comunicar estado; cada estado usa texto y, cuando aporte claridad, icono con nombre accesible.
+- El frontend presenta los cálculos recibidos del backend y nunca recalcula cuota, intereses, TCEA, costo total ni cronograma.
+- Las fechas visibles usan formato local comprensible (`14 nov 2026, 13:45`) y, cuando exista vencimiento, indican la zona o el carácter exacto del límite. La autoridad de vigencia sigue siendo el reloj UTC del backend.
+- Las acciones de aceptación, contratación y revisión son explícitas. «Aceptar condiciones» no se presenta como sinónimo de «Contratar».
+- Ante una lectura no confirmada, la UI muestra «No pudimos actualizar el estado» y la última lectura confirmada; nunca infiere éxito o fallo desde caché o por el paso del tiempo.
+- Los estados terminales se muestran como solo lectura. Los reintentos visibles reutilizan la misma identidad y solo aparecen si el backend declara la operación recuperable.
+- En pantallas angostas, las tablas se convierten en listas o tarjetas semánticas sin perder encabezados ni relaciones de datos.
+]]>
+--- DESIGN TOKENS ---
+<![CDATA[
+## 4. Design Tokens
+
+Los valores son una propuesta visual, no parámetros de negocio. Deben validarse con herramientas de contraste y pruebas en dispositivos objetivo antes de integrar.
+
+### 4.1 Color
+
+| Token | Valor sugerido | Uso |
+|---|---|---|
+| `color-primary-700` | `#174EA6` | Botón primario, enlaces y foco sobre fondo claro |
+| `color-primary-800` | `#123B7A` | Hover/pressed primario |
+| `color-secondary-700` | `#0B6B5B` | Elementos secundarios y estados informativos positivos |
+| `color-accent-500` | `#F5A623` | Acento limitado; nunca texto pequeño sobre blanco |
+| `color-bg-page` | `#F7F9FC` | Fondo general |
+| `color-bg-surface` | `#FFFFFF` | Tarjetas, diálogos, formularios |
+| `color-text-primary` | `#172033` | Texto principal |
+| `color-text-secondary` | `#4B5565` | Texto auxiliar |
+| `color-border` | `#C9D2E3` | Bordes y divisores |
+| `color-success-700` | `#18794E` | Éxito, acompañado de texto/icono |
+| `color-warning-800` | `#8A4B08` | Advertencia y pendientes |
+| `color-danger-700` | `#B42318` | Error y acciones destructivas |
+| `color-info-700` | `#175CD3` | Información y revisión |
+| `color-focus` | `#7C3AED` | Anillo de foco de alto contraste |
+
+### 4.2 Tipografía
+
+- Familia: `Inter, "Segoe UI", Roboto, Arial, sans-serif`; usar fuente del sistema como fallback y no bloquear la interfaz por descarga.
+- Base: 16 px; altura de línea 1.5.
+- H1: 32/40 px, peso 700; móvil 28/36 px.
+- H2: 24/32 px, peso 700.
+- H3: 20/28 px, peso 600.
+- Cuerpo: 16/24 px, peso 400.
+- Texto auxiliar: 14/20 px; no usar menos de 14 px para información funcional.
+- Valores monetarios: cifras tabulares (`font-variant-numeric: tabular-nums`) sin reducir la legibilidad.
+
+### 4.3 Espaciado, forma y elevación
+
+- Escala de espaciado: 4, 8, 12, 16, 24, 32, 48 y 64 px.
+- Ancho máximo de contenido cliente: 1200 px; formularios: 640 px; lectura financiera: 960 px.
+- Radio: controles 8 px, tarjetas 12 px, diálogos 16 px.
+- Borde estándar: 1 px; borde enfatizado: 2 px.
+- Sombra de tarjeta: `0 1px 3px rgba(23,32,51,.12)`; no depender de sombra para delimitar superficies.
+
+### 4.4 Componentes y objetivos táctiles
+
+| Componente | Tamaño mínimo | Reglas |
+|---|---:|---|
+| Botón | 44 px de alto | Etiqueta verbal; loading preserva ancho; disabled no sustituye explicación. |
+| Input/select | 48 px de alto | Label visible; ayuda y error asociados mediante `aria-describedby`. |
+| Checkbox/radio | Área activa 44 × 44 px | Control nativo o semántica equivalente; label completo clicable. |
+| Icon button | 44 × 44 px | Nombre accesible y tooltip que no sea la única etiqueta. |
+| Tarjeta accionable | Variable | Una acción primaria inequívoca; foco visible; no anidar controles interactivos inválidos. |
+| Diálogo | 320–640 px | Foco inicial razonable, trampa de foco y retorno al disparador; Escape salvo comando irreversible en proceso. |
+| Tabla | Fila mínima 48 px | Encabezados `th`; caption; alternativa responsive conservando rótulos. |
+
+### 4.5 Breakpoints y comportamiento responsive
+
+- `sm`: 0–599 px, una columna y navegación compacta.
+- `md`: 600–959 px, una o dos columnas según contenido.
+- `lg`: 960–1279 px, grillas y tablas completas.
+- `xl`: 1280 px o más, contenido centrado con ancho máximo.
+- No existe desplazamiento horizontal de página a 320 CSS px. El cronograma puede usar contenedor de tabla con aviso accesible o tarjetas, prefiriendo tarjetas en móvil.
+
+### 4.6 Estados y mensajes
+
+- **Cargando:** skeleton o spinner con texto accesible; no desplazar el foco sin causa.
+- **Vacío:** explicar qué significa y ofrecer una acción válida, si existe.
+- **Error de campo:** resumen enfocable y mensaje junto al campo.
+- **Error de red:** no borrar datos confirmados; marcar la fecha de última lectura.
+- **Pendiente:** icono + texto + siguiente paso; sin animación que sugiera progreso garantizado.
+- **Éxito:** solo tras evidencia durable del backend.
+- **Acción destructiva:** botón danger, consecuencias concretas y confirmación; P-003 cancelar solicitud es el único caso del recorrido cliente definido aquí.
+]]>
+--- REGLAS DE NEGOCIO RELEVANTES ---
+<![CDATA[
+Reglas consideradas y validadas para P-005: 33 (fuente: speck-pack/03-reglas-de-negocio.md).
+Origen = «Prototipo»: la regla está aplicada y citada en prototipos/P-005-detalle-y-aceptacion-de-simulacion.html.
+Origen = «Validación»: la regla aplica a la pantalla, se añadió al validar contra el catálogo porque no estaba citada en las notas del prototipo; confirmar su cobertura en la próxima iteración.
+
+| ID | Regla EARS | Prioridad | Fuente | Origen |
+|---|---|---|---|---|
+| RN-005 | El sistema DEBE calcular condiciones financieras en el único módulo financiero backend. | MUST | PRINCIPIO-003 | Prototipo |
+| RN-006 | El frontend NO DEBE mantener fórmulas financieras independientes ni recalcular condiciones financieras. | MUST | PRINCIPIO-003 | Prototipo |
+| RN-007 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar el monto. | MUST | PRINCIPIO-004 | Prototipo |
+| RN-008 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar el plazo. | MUST | PRINCIPIO-004 | Validación |
+| RN-009 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar la cuota financiera de cada período. | MUST | DEC-51 | Validación |
+| RN-010 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar los intereses. | MUST | PRINCIPIO-004 | Validación |
+| RN-011 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar la TCEA. | MUST | DEC-49 | Validación |
+| RN-012 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar el cronograma. | MUST | PRINCIPIO-004 | Validación |
+| RN-013 | Cuando cambia cualquier condición financiera, el sistema DEBE exigir nueva simulación. | MUST | Ronda 6 | Validación |
+| RN-014 | Cuando cambia la versión simulada, el sistema DEBE exigir nueva aceptación expresa. | MUST | Ronda 6 | Validación |
+| RN-028 | El sistema DEBE permitir operar mediante teclado los flujos principales. | MUST | PRINCIPIO-012 | Prototipo |
+| RN-030 | Mientras la contratación posea el bloqueo transaccional por oportunidad, el sistema DEBE hacer esperar las nuevas aceptaciones de esa oportunidad y revalidarlas antes de continuar. | MUST | INV-15 | Prototipo |
+| RN-040 | Cuando se calcula la última cuota, el sistema DEBE ajustarla para cancelar exactamente el saldo. | MUST | DEC-50 | Prototipo |
+| RN-057 | Cuando se comprueba la vigencia de una simulación exitosa, el sistema DEBE considerarla vencida desde el instante de creación más 30 minutos. | MUST | DEC-81, DEC-101 | Prototipo |
+| RN-059 | Cuando se genera otra simulación, el sistema NO DEBE invalidar por ese solo hecho una aceptación asociada a otra simulación. | MUST | Ronda de refinamiento 3, sustituye DEC-82 para esta regla | Validación |
+| RN-074 | Cuando se verifica un vencimiento, el sistema DEBE comparar instantes UTC y considerar vencido el recurso en el instante límite. | MUST | DEC-101 | Prototipo |
+| RN-075 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar el seguro de cada cuota. | MUST | DEC-51 | Prototipo |
+| RN-076 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar el pago total de cada cuota. | MUST | DEC-51 | Validación |
+| RN-077 | Cuando una simulación finaliza correctamente, el sistema DEBE mostrar el costo total. | MUST | DEC-49 | Validación |
+| RN-083 | Si la simulación está incompleta o es inválida, el sistema NO DEBE publicarla como SIMULACION_EXITOSA. | MUST | DEC-86 | Prototipo |
+| RN-092 | Cuando el mismo cliente repite una aceptación para la misma simulación y versión inmutable, el sistema DEBE devolver la aceptación existente sin duplicar su registro. | MUST | INV-16 | Prototipo |
+| RN-105 | Cuando el cliente autenticado acepta expresamente una simulación vigente, el sistema DEBE conservar la identidad del cliente, la fecha y hora, la acción expresa y la referencia a la versión inmutable que contiene todas las condiciones mostradas. | MUST | Ronda de refinamiento 7 | Prototipo |
+| RN-140 | Cuando una aceptación continúa después de esperar a una contratación, el sistema DEBE rechazarla si ya existe contrato para la oportunidad. | MUST | INV-15 | Prototipo |
+| RN-192 | Cuando calcula la TCEA, el sistema DEBE conservarla con 12 decimales y presentarla como porcentaje con dos decimales usando `HALF_UP`. | MUST | PA-07 | Prototipo |
+| RN-200 | Cuando falta un dato obligatorio de la línea o configuración financiera, el sistema DEBE bloquear la simulación o contratación afectada y NO DEBE completar el dato con un valor predeterminado. | MUST | PA-08, INV-18 | Prototipo |
+| RN-206 | Cuando una nueva versión concluyente reemplaza la preevaluación activa, el sistema NO DEBE permitir contratar simulaciones o aceptaciones vinculadas a la versión reemplazada. | MUST | PA-23, RN-164, RN-166 | Validación |
+| RN-209 | Cuando una oferta preferencial es reemplazada, el sistema DEBE conservar para auditoría sus simulaciones y aceptaciones, marcarlas inválidas para contratación y transicionar sus simulaciones exitosas a `SIMULACION_INVALIDADA`. | MUST | PA-23, RN-167–168 | Prototipo |
+| RN-241 | Cuando la sesión de un actor está vencida o fue cerrada, el sistema NO DEBE permitir aceptar, contratar ni ejecutar otra acción protegida hasta una nueva autenticación válida. | MUST | PA-15 | Prototipo |
+| RN-253 | Cuando se presenta una simulación al cliente, el sistema DEBE conservar evidencia de que la versión íntegra con todas las condiciones obligatorias estuvo disponible para ese cliente antes de aceptar. | MUST | PA-30, PRINCIPIO-004 | Prototipo |
+| RN-254 | Cuando el cliente acepta, el sistema DEBE verificar que la sesión sea válida y que la simulación sea propia, exitosa, vigente, no invalidada y exactamente la misma versión presentada. | MUST | PA-30 | Validación |
+| RN-255 | Cuando la sesión está vencida o la versión está vencida, invalidada, desactualizada o no coincide con la presentada, el sistema NO DEBE registrar la aceptación y DEBE informar el motivo funcional aplicable sin revelar recursos ajenos. | MUST | PA-30 | Validación |
+| RN-256 | Cuando se repite la aceptación de la misma versión por el mismo cliente, el sistema DEBE devolver la aceptación existente sin duplicarla. | MUST | PA-30, RN-092 | Validación |
+| RN-257 | La aceptación DEBE conservar cliente, simulación, versión íntegra presentada, instante, acción expresa y vínculo con la evidencia de presentación. | MUST | PA-30, RN-105 | Validación |
+]]>
+</contexto>
+<tarea>
+Genera un prototipo visual de esta pantalla como un artifact HTML/CSS/JS
+interactivo. Debe:
+1. Reflejar fielmente el wireframe textual.
+2. Incluir datos de ejemplo realistas (no lorem ipsum).
+3. Ser responsive (funcionar en móvil y desktop).
+4. Incluir estados: vacío, con datos, error, loading.
+5. Usar los design tokens definidos.
+</tarea>
+<restricciones>
+- NO es código de producción: es un prototipo para validar con
+stakeholders.
+- Priorizar claridad del flujo sobre pixel-perfection.
+- Incluir interacciones básicas (clics, navegación simulada,
+validaciones).
+- Si una sección depende de datos dinámicos, usar datos ficticios del
+caso.
+</restricciones>

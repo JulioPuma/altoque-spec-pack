@@ -1,0 +1,192 @@
+<agente>
+Eres un desarrollador frontend senior. Tu trabajo es convertir un
+wireframe textual en un prototipo visual interactivo.
+</agente>
+<contexto>
+Estoy prototipando la pantalla "P-009 — Detalle de operación" de "Altoque".
+--- SCREEN SPEC ---
+<![CDATA[
+### P-009 — Detalle de operación
+
+**Propósito:** explicar de forma separada el estado contractual y el desembolso simulado.  
+**Actor:** cliente sintético.  
+**HUs:** HU-007, HU-008, HU-009, HU-010, HU-012.
+
+**Datos:** IDs persistentes, estados y versiones, monto/moneda, reserva, hitos confirmados, última lectura y mensajes de revisión.
+
+**Acciones:** actualizar estado; copiar identificadores; volver a lista.
+
+**Reglas:** consulta no transiciona; estados terminales inmutables; timeout/`NOT_FOUND` no son fallo; pendiente/revisión no habilita otra operación; mínima revelación para un ID ajeno.
+
+**Wireframe textual:**
+
+```text
+[Shell cliente + breadcrumb Mis operaciones / Detalle]
+[H1 Detalle de operación]
+[Resumen: monto PEN | fecha | estado general textual]
+[Sección Contratación]
+  [Intento ID + copiar | estado | reserva | contrato ID si existe]
+[Sección Desembolso simulado]
+  [Operación ID + copiar | estado independiente | explicación]
+[Timeline de hitos confirmados con fecha/hora]
+[Alerta contextual para pendiente o revisión]
+[Última lectura confirmada]
+[Botón Actualizar estado] [Volver a Mis operaciones]
+```
+
+**Estados:** pendiente; revisión contractual; contratación exitosa con desembolso en cada estado; terminal exitoso/fallido; contradicción escalada sin sobrescribir terminal; lectura fallida.
+
+#### Flujo(s) donde participa la pantalla (09-ui-spec.md §2)
+
+### F-05 — Consulta posterior y recuperación
+
+1. Desde la navegación global, el cliente abre **P-008 Mis operaciones**.
+2. Filtra por estado o abre una operación mediante «Ver detalle».
+3. **P-009** muestra identidades, estado contractual y estado de desembolso por separado, además de la última actualización confirmada.
+4. «Actualizar estado» ejecuta una lectura pura. Si falla la red, conserva visualmente la lectura previa marcada como no actualizada.
+5. Si el intento está pendiente o en revisión, la pantalla explica que no debe iniciarse otra contratación. Si el desembolso está pendiente, explica que se recupera la operación original sin crear otra.
+
+#### Consideraciones mínimas (09-ui-spec.md §0, aplican a todas las pantallas)
+
+- La primera evaluación usa exclusivamente cuentas y datos sintéticos. La UI no ofrece registro, recuperación de identidad, RENIEC, movimientos de dinero reales ni productos distintos del crédito de consumo.
+- Todo texto visible está en español claro. Los identificadores técnicos pueden mostrarse al usuario solo cuando faciliten soporte o trazabilidad, con etiqueta comprensible y opción de copiar.
+- Todos los flujos principales son operables por teclado, con orden de foco coherente, foco visible, enlace «Saltar al contenido», etiquetas programáticas, mensajes de error asociados al campo y anuncios mediante regiones `aria-live`.
+- El contraste cumple WCAG 2.2 AA. El color nunca es el único medio para comunicar estado; cada estado usa texto y, cuando aporte claridad, icono con nombre accesible.
+- El frontend presenta los cálculos recibidos del backend y nunca recalcula cuota, intereses, TCEA, costo total ni cronograma.
+- Las fechas visibles usan formato local comprensible (`14 nov 2026, 13:45`) y, cuando exista vencimiento, indican la zona o el carácter exacto del límite. La autoridad de vigencia sigue siendo el reloj UTC del backend.
+- Las acciones de aceptación, contratación y revisión son explícitas. «Aceptar condiciones» no se presenta como sinónimo de «Contratar».
+- Ante una lectura no confirmada, la UI muestra «No pudimos actualizar el estado» y la última lectura confirmada; nunca infiere éxito o fallo desde caché o por el paso del tiempo.
+- Los estados terminales se muestran como solo lectura. Los reintentos visibles reutilizan la misma identidad y solo aparecen si el backend declara la operación recuperable.
+- En pantallas angostas, las tablas se convierten en listas o tarjetas semánticas sin perder encabezados ni relaciones de datos.
+]]>
+--- DESIGN TOKENS ---
+<![CDATA[
+## 4. Design Tokens
+
+Los valores son una propuesta visual, no parámetros de negocio. Deben validarse con herramientas de contraste y pruebas en dispositivos objetivo antes de integrar.
+
+### 4.1 Color
+
+| Token | Valor sugerido | Uso |
+|---|---|---|
+| `color-primary-700` | `#174EA6` | Botón primario, enlaces y foco sobre fondo claro |
+| `color-primary-800` | `#123B7A` | Hover/pressed primario |
+| `color-secondary-700` | `#0B6B5B` | Elementos secundarios y estados informativos positivos |
+| `color-accent-500` | `#F5A623` | Acento limitado; nunca texto pequeño sobre blanco |
+| `color-bg-page` | `#F7F9FC` | Fondo general |
+| `color-bg-surface` | `#FFFFFF` | Tarjetas, diálogos, formularios |
+| `color-text-primary` | `#172033` | Texto principal |
+| `color-text-secondary` | `#4B5565` | Texto auxiliar |
+| `color-border` | `#C9D2E3` | Bordes y divisores |
+| `color-success-700` | `#18794E` | Éxito, acompañado de texto/icono |
+| `color-warning-800` | `#8A4B08` | Advertencia y pendientes |
+| `color-danger-700` | `#B42318` | Error y acciones destructivas |
+| `color-info-700` | `#175CD3` | Información y revisión |
+| `color-focus` | `#7C3AED` | Anillo de foco de alto contraste |
+
+### 4.2 Tipografía
+
+- Familia: `Inter, "Segoe UI", Roboto, Arial, sans-serif`; usar fuente del sistema como fallback y no bloquear la interfaz por descarga.
+- Base: 16 px; altura de línea 1.5.
+- H1: 32/40 px, peso 700; móvil 28/36 px.
+- H2: 24/32 px, peso 700.
+- H3: 20/28 px, peso 600.
+- Cuerpo: 16/24 px, peso 400.
+- Texto auxiliar: 14/20 px; no usar menos de 14 px para información funcional.
+- Valores monetarios: cifras tabulares (`font-variant-numeric: tabular-nums`) sin reducir la legibilidad.
+
+### 4.3 Espaciado, forma y elevación
+
+- Escala de espaciado: 4, 8, 12, 16, 24, 32, 48 y 64 px.
+- Ancho máximo de contenido cliente: 1200 px; formularios: 640 px; lectura financiera: 960 px.
+- Radio: controles 8 px, tarjetas 12 px, diálogos 16 px.
+- Borde estándar: 1 px; borde enfatizado: 2 px.
+- Sombra de tarjeta: `0 1px 3px rgba(23,32,51,.12)`; no depender de sombra para delimitar superficies.
+
+### 4.4 Componentes y objetivos táctiles
+
+| Componente | Tamaño mínimo | Reglas |
+|---|---:|---|
+| Botón | 44 px de alto | Etiqueta verbal; loading preserva ancho; disabled no sustituye explicación. |
+| Input/select | 48 px de alto | Label visible; ayuda y error asociados mediante `aria-describedby`. |
+| Checkbox/radio | Área activa 44 × 44 px | Control nativo o semántica equivalente; label completo clicable. |
+| Icon button | 44 × 44 px | Nombre accesible y tooltip que no sea la única etiqueta. |
+| Tarjeta accionable | Variable | Una acción primaria inequívoca; foco visible; no anidar controles interactivos inválidos. |
+| Diálogo | 320–640 px | Foco inicial razonable, trampa de foco y retorno al disparador; Escape salvo comando irreversible en proceso. |
+| Tabla | Fila mínima 48 px | Encabezados `th`; caption; alternativa responsive conservando rótulos. |
+
+### 4.5 Breakpoints y comportamiento responsive
+
+- `sm`: 0–599 px, una columna y navegación compacta.
+- `md`: 600–959 px, una o dos columnas según contenido.
+- `lg`: 960–1279 px, grillas y tablas completas.
+- `xl`: 1280 px o más, contenido centrado con ancho máximo.
+- No existe desplazamiento horizontal de página a 320 CSS px. El cronograma puede usar contenedor de tabla con aviso accesible o tarjetas, prefiriendo tarjetas en móvil.
+
+### 4.6 Estados y mensajes
+
+- **Cargando:** skeleton o spinner con texto accesible; no desplazar el foco sin causa.
+- **Vacío:** explicar qué significa y ofrecer una acción válida, si existe.
+- **Error de campo:** resumen enfocable y mensaje junto al campo.
+- **Error de red:** no borrar datos confirmados; marcar la fecha de última lectura.
+- **Pendiente:** icono + texto + siguiente paso; sin animación que sugiera progreso garantizado.
+- **Éxito:** solo tras evidencia durable del backend.
+- **Acción destructiva:** botón danger, consecuencias concretas y confirmación; P-003 cancelar solicitud es el único caso del recorrido cliente definido aquí.
+]]>
+--- REGLAS DE NEGOCIO RELEVANTES ---
+<![CDATA[
+Reglas consideradas y validadas para P-009: 29 (fuente: speck-pack/03-reglas-de-negocio.md).
+Origen = «Prototipo»: la regla está aplicada y citada en prototipos/P-009-detalle-de-operacion.html.
+Origen = «Validación»: la regla aplica a la pantalla, se añadió al validar contra el catálogo porque no estaba citada en las notas del prototipo; confirmar su cobertura en la próxima iteración.
+
+| ID | Regla EARS | Prioridad | Fuente | Origen |
+|---|---|---|---|---|
+| RN-021 | Cuando el resultado sea ambiguo o expire la espera, el sistema NO DEBE declarar éxito ni fallo. | MUST | INV-06 | Prototipo |
+| RN-022 | Cuando el resultado sea ambiguo, el sistema DEBE registrar `DESEMBOLSO_PENDIENTE_DE_GESTION`. | MUST | Ronda 6 | Prototipo |
+| RN-023 | Cuando se recupera un desembolso pendiente, el sistema DEBE consultar la operación original. | MUST | Ronda 7 | Prototipo |
+| RN-024 | Durante la recuperación, el sistema NO DEBE crear otro identificador ni iniciar una segunda operación lógica de desembolso; solo puede consultar o reentregar idempotentemente el comando original. | MUST | INV-05, INV-14 | Prototipo |
+| RN-031 | Cuando se solicita recuperar un estado de fallo, el sistema DEBE exigir clasificación recuperable y un reintento controlado. En contratación, solo `CONTRATACION_FALLIDA_RECUPERABLE` admite esta recuperación. | MUST | DEC-59, DEC-96 | Prototipo |
+| RN-032 | Cuando un estado terminal está confirmado, el sistema NO DEBE modificarlo. | MUST | DEC-61 | Prototipo |
+| RN-048 | Cuando se solicita otro intento de contratación, el sistema DEBE comprobar que no exista contrato ni intento previo con resultado incierto antes de permitirlo. | MUST | DEC-69 | Prototipo |
+| RN-052 | Si el core responde «operación no encontrada», el sistema DEBE mantener el desembolso pendiente hasta obtener evidencia concluyente. | MUST | DEC-74 | Prototipo |
+| RN-053 | Cuando se confirma DESEMBOLSO_FALLIDO definitivo, el sistema DEBE disponer de evidencia concluyente de que el desembolso no se ejecutó y no puede completarse. | MUST | DEC-75 | Prototipo |
+| RN-072 | Mientras la revisión manual carezca de evidencia concluyente, el sistema DEBE conservar pendiente el resultado del desembolso. | MUST | DEC-98 | Prototipo |
+| RN-091 | Cuando el intento alcanza `CONTRATACION_RECHAZADA` o `CONTRATACION_FALLIDA_DEFINITIVA`, el sistema DEBE liberar su reserva exactamente una vez. | MUST | Ronda de refinamiento 4, PA-36 | Prototipo |
+| RN-102 | Si se confirma el fallo definitivo del desembolso, el sistema DEBE conservar el contrato registrado. | MUST | Ronda de refinamiento 6 | Validación |
+| RN-103 | Si se confirma el fallo definitivo del desembolso, el sistema DEBE conservar el consumo de la línea asociado al contrato. | MUST | Ronda de refinamiento 6 | Validación |
+| RN-118 | Cuando un cliente autenticado consulta una contratación propia, el sistema DEBE mostrar su estado actual, pendiente o resuelto. | MUST | Ronda de refinamiento 8 | Validación |
+| RN-119 | Cuando un cliente autenticado consulta un desembolso propio, el sistema DEBE mostrar su estado actual, pendiente o resuelto. | MUST | Ronda de refinamiento 8 | Validación |
+| RN-120 | Cuando el cliente solicita el estado de una contratación o desembolso, el sistema DEBE verificar la titularidad antes de devolver información. | MUST | Ronda de refinamiento 8 | Validación |
+| RN-122 | Cuando un cliente solicita un recurso de crédito, el sistema DEBE verificar su titularidad antes de devolver información o ejecutar una acción. | MUST | M-01 y Ronda de refinamiento 8 | Prototipo |
+| RN-133 | Después de una caída o pérdida de respuesta en `DESEMBOLSO_PROCESANDO`, el sistema DEBE consultar la operación original y solo puede reentregar el comando usando exactamente el mismo identificador persistente y los mismos datos. | MUST | INV-14, RN-023–024 | Validación |
+| RN-147 | Cuando el core simulado responde `FALLIDA_DEFINITIVA`, el sistema DEBE confirmar `DESEMBOLSO_FALLIDO` solo si la respuesta acredita que la operación no se ejecutó ni puede completarse y después de persistir localmente el resultado. | MUST | RN-053, INV-17 | Prototipo |
+| RN-148 | Cuando el core simulado responde `NO_ENCONTRADA`, el sistema DEBE tratar la consulta como inconclusa y puede reentregar idempotentemente el comando original conforme a RN-133; NO DEBE confirmar un fallo ni crear otra operación. | MUST | RN-052, INV-14 | Prototipo |
+| RN-152 | Cuando una respuesta contradice un estado terminal local confirmado, el sistema NO DEBE modificar el terminal y DEBE registrar ambas evidencias y escalar el conflicto a revisión manual. | MUST | INV-07, INV-17 | Prototipo |
+| RN-153 | Cuando el core simulado confirma un resultado terminal, DEBE conservarlo inmutable y devolverlo en las consultas posteriores de la misma operación. | MUST | INV-17 | Prototipo |
+| RN-178 | Cuando una guarda de negocio incumplida se confirma con evidencia durable, el sistema DEBE resolver el intento como `CONTRATACION_RECHAZADA` y liberar su reserva exactamente una vez. | MUST | PA-36, RN-091 | Prototipo |
+| RN-179 | Cuando un fallo técnico definitivo se confirma con evidencia durable, el sistema DEBE resolver el intento como `CONTRATACION_FALLIDA_DEFINITIVA` y liberar su reserva exactamente una vez. | MUST | PA-36, RN-070, RN-091 | Prototipo |
+| RN-180 | Cuando un fallo técnico se clasifica como recuperable, el sistema DEBE resolver el intento como `CONTRATACION_FALLIDA_RECUPERABLE`, mantener su reserva y permitir únicamente un reintento controlado del mismo intento. | MUST | PA-36, RN-031 | Prototipo |
+| RN-182 | Cuando una contratación completa 15 minutos en `CONTRATACION_PENDIENTE` sin evidencia concluyente, el sistema DEBE pasarla a `CONTRATACION_EN_REVISION_MANUAL`, mantener su reserva y conservar el bloqueo de otro intento para la oportunidad. | MUST | PA-37, INV-13 | Prototipo |
+| RN-185 | Cuando se incumple el objetivo de 4 horas sin evidencia concluyente, el sistema DEBE mantener `CONTRATACION_EN_REVISION_MANUAL`, conservar la reserva y escalar el incidente; NO DEBE inferir éxito, rechazo ni fallo por el tiempo transcurrido, la ausencia de filas, un timeout o una lectura no disponible. | MUST | PA-37, INV-13 | Prototipo |
+| RN-236 | Cuando una evidencia contradice un terminal local confirmado, el sistema DEBE crear un expediente de conflicto separado y NO DEBE modificar el terminal. | MUST | PA-12, RN-152 | Prototipo |
+| RN-243 | Cuando un actor intenta consultar u operar un recurso ajeno o no autorizado, el sistema NO DEBE revelar su existencia ni contenido. | MUST | PA-15, RN-122 | Prototipo |
+]]>
+</contexto>
+<tarea>
+Genera un prototipo visual de esta pantalla como un artifact HTML/CSS/JS
+interactivo. Debe:
+1. Reflejar fielmente el wireframe textual.
+2. Incluir datos de ejemplo realistas (no lorem ipsum).
+3. Ser responsive (funcionar en móvil y desktop).
+4. Incluir estados: vacío, con datos, error, loading.
+5. Usar los design tokens definidos.
+</tarea>
+<restricciones>
+- NO es código de producción: es un prototipo para validar con
+stakeholders.
+- Priorizar claridad del flujo sobre pixel-perfection.
+- Incluir interacciones básicas (clics, navegación simulada,
+validaciones).
+- Si una sección depende de datos dinámicos, usar datos ficticios del
+caso.
+</restricciones>

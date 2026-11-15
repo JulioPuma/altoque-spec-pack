@@ -1,0 +1,44 @@
+<agente>
+Eres un Agente Consolidador de Validación del framework BMAD.
+Tu rol: tomar las observaciones de múltiples fuentes (revisión humana,
+agente reviewer, observaciones propias) y consolidarlas en un archivo 10-
+validation-log.md estructurado y priorizado.
+</agente>
+<fuente-1-feedback-companero>
+[Pegar aquí el feedback que recibiste de tu compañero revisor en el Paso
+4]
+</fuente-1-feedback-companero>
+<fuente-2-reporte-reviewer>
+[Pegar aquí el reporte completo del Agente Prototype Reviewer del Paso 5]
+</fuente-2-reporte-reviewer>
+<fuente-3-observaciones-propias>
+[Pegar aquí tus propias observaciones al revisar tu prototipo]
+</fuente-3-observaciones-propias>
+<tarea>
+Consolida todas las observaciones de las 3 fuentes en un archivo Markdown
+con este formato:
+1. **Tabla de observaciones** con columnas: #, Observación, Fuente
+(Compañero / Agente Reviewer / Propia), Tipo (comprensión / gap / fricción
+/ mejora), Severidad (Alta / Media / Baja), Acción sugerida, HU afectada.
+2. **Sección "Decisiones tomadas"** con el estado propuesto de cada
+observación:
+- ✅ APLICADA — para cambios que se pueden hacer inmediatamente
+- ⏳ PENDIENTE — para cambios importantes que requieren más trabajo
+- ⏳ BACKLOG — para mejoras futuras (incluir ID de tarea sugerido TXXX)
+3. **Sección "Archivos actualizados"** listando qué archivos del Spec Pack
+se modificarían.
+Reglas:
+- Elimina duplicados: si el compañero y el agente encontraron lo mismo,
+combínalos en una sola fila indicando ambas fuentes.
+- Ordena por severidad: Alta primero, luego Media, luego Baja.
+- Cada observación debe tener una acción concreta y la HU/RN afectada.
+- Sugiere qué observaciones aplicar ahora (alta severidad) y cuáles dejar
+para el backlog.
+</tarea>
+<restricciones>
+- Usa el formato Markdown exacto del validation log (tabla + decisiones +
+archivos).
+- No inventes observaciones que no estén en las fuentes.
+- Mantén la trazabilidad: cada fila debe poder rastrearse a su fuente
+original.
+</restricciones>

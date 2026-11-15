@@ -1,0 +1,194 @@
+<agente>
+Eres un desarrollador frontend senior. Tu trabajo es convertir un
+wireframe textual en un prototipo visual interactivo.
+</agente>
+<contexto>
+Estoy prototipando la pantalla "P-007 — Resultado de contratación" de "Altoque".
+--- SCREEN SPEC ---
+<![CDATA[
+### P-007 — Resultado de contratación
+
+**Propósito:** mostrar el resultado confirmado o pendiente del mismo intento sin inducir duplicados.  
+**Actor:** cliente sintético.  
+**HUs:** HU-006, HU-007, HU-008, HU-009, HU-012, HU-013.
+
+**Datos:** `intentoId`, estado contractual, reserva, contrato si existe, `operacionId` y estado de desembolso si existen, última lectura confirmada y explicación contextual.
+
+**Acciones:** actualizar estado mediante lectura; ver detalle de operación; ir a Mis operaciones; reintentar solo si el backend habilita el mismo intento.
+
+**Reglas:** no inferir éxito; pendiente conserva identidad/reserva; a los 15 minutos la recuperación contractual puede pasar a revisión manual, pero el tiempo no acredita resultado; desembolso separado del contrato; no ofrecer «Contratar otra vez» para la oportunidad.
+
+**Wireframe textual:**
+
+```text
+[Shell cliente]
+[H1 Resultado de tu contratación]
+[Panel dominante de estado]
+  EXITOSA: icono + "Contrato registrado" + ID de contrato
+  PENDIENTE: icono + "Resultado pendiente" + explicación
+  REVISION: icono + "En revisión manual" + objetivo operativo, sin promesa de resultado
+  RECHAZADA/FALLIDA: texto y motivo funcional permitido
+[Línea de progreso semántica, no basada solo en color]
+  Aceptación — Contratación — Desembolso simulado
+[Definición de datos: intento | reserva | contrato | operación | última lectura]
+[Alerta: no inicies otra contratación mientras este intento esté pendiente]
+[Botones: Actualizar estado | Ver detalle | Mis operaciones]
+```
+
+**Estados:** contratación exitosa con desembolso solicitado/procesando/exitoso; contratación pendiente; revisión contractual; fallo recuperable; fallo definitivo; rechazo; lectura no disponible.
+
+#### Flujo(s) donde participa la pantalla (09-ui-spec.md §2)
+
+### F-04 — Revisión, aceptación y contratación
+
+1. **P-005:** el cliente revisa resumen, costos y cronograma de una única versión.
+2. Abre el cronograma si estaba contraído; la interfaz registra la interacción permitida sin alterar la simulación.
+3. Marca la casilla de conformidad y selecciona «Aceptar condiciones».
+4. Al confirmarse la aceptación, **P-006** muestra nuevamente las condiciones esenciales, la diferencia entre aceptar y contratar y el aviso de revalidación de saldo/vigencias.
+5. El cliente selecciona «Contratar crédito» una sola vez. El botón queda deshabilitado mientras se procesa y conserva la misma clave idempotente ante repetición técnica.
+6. **P-007** muestra el resultado durable: exitoso, pendiente, revisión manual, rechazo funcional o fallo definitivo. Nunca comunica éxito si la respuesta es ambigua.
+
+#### Consideraciones mínimas (09-ui-spec.md §0, aplican a todas las pantallas)
+
+- La primera evaluación usa exclusivamente cuentas y datos sintéticos. La UI no ofrece registro, recuperación de identidad, RENIEC, movimientos de dinero reales ni productos distintos del crédito de consumo.
+- Todo texto visible está en español claro. Los identificadores técnicos pueden mostrarse al usuario solo cuando faciliten soporte o trazabilidad, con etiqueta comprensible y opción de copiar.
+- Todos los flujos principales son operables por teclado, con orden de foco coherente, foco visible, enlace «Saltar al contenido», etiquetas programáticas, mensajes de error asociados al campo y anuncios mediante regiones `aria-live`.
+- El contraste cumple WCAG 2.2 AA. El color nunca es el único medio para comunicar estado; cada estado usa texto y, cuando aporte claridad, icono con nombre accesible.
+- El frontend presenta los cálculos recibidos del backend y nunca recalcula cuota, intereses, TCEA, costo total ni cronograma.
+- Las fechas visibles usan formato local comprensible (`14 nov 2026, 13:45`) y, cuando exista vencimiento, indican la zona o el carácter exacto del límite. La autoridad de vigencia sigue siendo el reloj UTC del backend.
+- Las acciones de aceptación, contratación y revisión son explícitas. «Aceptar condiciones» no se presenta como sinónimo de «Contratar».
+- Ante una lectura no confirmada, la UI muestra «No pudimos actualizar el estado» y la última lectura confirmada; nunca infiere éxito o fallo desde caché o por el paso del tiempo.
+- Los estados terminales se muestran como solo lectura. Los reintentos visibles reutilizan la misma identidad y solo aparecen si el backend declara la operación recuperable.
+- En pantallas angostas, las tablas se convierten en listas o tarjetas semánticas sin perder encabezados ni relaciones de datos.
+]]>
+--- DESIGN TOKENS ---
+<![CDATA[
+## 4. Design Tokens
+
+Los valores son una propuesta visual, no parámetros de negocio. Deben validarse con herramientas de contraste y pruebas en dispositivos objetivo antes de integrar.
+
+### 4.1 Color
+
+| Token | Valor sugerido | Uso |
+|---|---|---|
+| `color-primary-700` | `#174EA6` | Botón primario, enlaces y foco sobre fondo claro |
+| `color-primary-800` | `#123B7A` | Hover/pressed primario |
+| `color-secondary-700` | `#0B6B5B` | Elementos secundarios y estados informativos positivos |
+| `color-accent-500` | `#F5A623` | Acento limitado; nunca texto pequeño sobre blanco |
+| `color-bg-page` | `#F7F9FC` | Fondo general |
+| `color-bg-surface` | `#FFFFFF` | Tarjetas, diálogos, formularios |
+| `color-text-primary` | `#172033` | Texto principal |
+| `color-text-secondary` | `#4B5565` | Texto auxiliar |
+| `color-border` | `#C9D2E3` | Bordes y divisores |
+| `color-success-700` | `#18794E` | Éxito, acompañado de texto/icono |
+| `color-warning-800` | `#8A4B08` | Advertencia y pendientes |
+| `color-danger-700` | `#B42318` | Error y acciones destructivas |
+| `color-info-700` | `#175CD3` | Información y revisión |
+| `color-focus` | `#7C3AED` | Anillo de foco de alto contraste |
+
+### 4.2 Tipografía
+
+- Familia: `Inter, "Segoe UI", Roboto, Arial, sans-serif`; usar fuente del sistema como fallback y no bloquear la interfaz por descarga.
+- Base: 16 px; altura de línea 1.5.
+- H1: 32/40 px, peso 700; móvil 28/36 px.
+- H2: 24/32 px, peso 700.
+- H3: 20/28 px, peso 600.
+- Cuerpo: 16/24 px, peso 400.
+- Texto auxiliar: 14/20 px; no usar menos de 14 px para información funcional.
+- Valores monetarios: cifras tabulares (`font-variant-numeric: tabular-nums`) sin reducir la legibilidad.
+
+### 4.3 Espaciado, forma y elevación
+
+- Escala de espaciado: 4, 8, 12, 16, 24, 32, 48 y 64 px.
+- Ancho máximo de contenido cliente: 1200 px; formularios: 640 px; lectura financiera: 960 px.
+- Radio: controles 8 px, tarjetas 12 px, diálogos 16 px.
+- Borde estándar: 1 px; borde enfatizado: 2 px.
+- Sombra de tarjeta: `0 1px 3px rgba(23,32,51,.12)`; no depender de sombra para delimitar superficies.
+
+### 4.4 Componentes y objetivos táctiles
+
+| Componente | Tamaño mínimo | Reglas |
+|---|---:|---|
+| Botón | 44 px de alto | Etiqueta verbal; loading preserva ancho; disabled no sustituye explicación. |
+| Input/select | 48 px de alto | Label visible; ayuda y error asociados mediante `aria-describedby`. |
+| Checkbox/radio | Área activa 44 × 44 px | Control nativo o semántica equivalente; label completo clicable. |
+| Icon button | 44 × 44 px | Nombre accesible y tooltip que no sea la única etiqueta. |
+| Tarjeta accionable | Variable | Una acción primaria inequívoca; foco visible; no anidar controles interactivos inválidos. |
+| Diálogo | 320–640 px | Foco inicial razonable, trampa de foco y retorno al disparador; Escape salvo comando irreversible en proceso. |
+| Tabla | Fila mínima 48 px | Encabezados `th`; caption; alternativa responsive conservando rótulos. |
+
+### 4.5 Breakpoints y comportamiento responsive
+
+- `sm`: 0–599 px, una columna y navegación compacta.
+- `md`: 600–959 px, una o dos columnas según contenido.
+- `lg`: 960–1279 px, grillas y tablas completas.
+- `xl`: 1280 px o más, contenido centrado con ancho máximo.
+- No existe desplazamiento horizontal de página a 320 CSS px. El cronograma puede usar contenedor de tabla con aviso accesible o tarjetas, prefiriendo tarjetas en móvil.
+
+### 4.6 Estados y mensajes
+
+- **Cargando:** skeleton o spinner con texto accesible; no desplazar el foco sin causa.
+- **Vacío:** explicar qué significa y ofrecer una acción válida, si existe.
+- **Error de campo:** resumen enfocable y mensaje junto al campo.
+- **Error de red:** no borrar datos confirmados; marcar la fecha de última lectura.
+- **Pendiente:** icono + texto + siguiente paso; sin animación que sugiera progreso garantizado.
+- **Éxito:** solo tras evidencia durable del backend.
+- **Acción destructiva:** botón danger, consecuencias concretas y confirmación; P-003 cancelar solicitud es el único caso del recorrido cliente definido aquí.
+]]>
+--- REGLAS DE NEGOCIO RELEVANTES ---
+<![CDATA[
+Reglas consideradas y validadas para P-007: 29 (fuente: speck-pack/03-reglas-de-negocio.md).
+Origen = «Prototipo»: la regla está aplicada y citada en prototipos/P-007-resultado-de-contratacion.html.
+Origen = «Validación»: la regla aplica a la pantalla, se añadió al validar contra el catálogo porque no estaba citada en las notas del prototipo; confirmar su cobertura en la próxima iteración.
+
+| ID | Regla EARS | Prioridad | Fuente | Origen |
+|---|---|---|---|---|
+| RN-016 | Al registrar un contrato, el sistema DEBE confirmar en la misma transacción el contrato, su auditoría obligatoria, la orden única de desembolso y la conversión de la reserva en consumo. | MUST | INV-04, INV-12 | Prototipo |
+| RN-017 | Cuando existe un contrato para la oferta preferencial o la solicitud regular, el sistema NO DEBE registrar un segundo contrato para esa misma oportunidad. | MUST | INV-03, DEC-62 | Prototipo |
+| RN-020 | Cuando el core confirma éxito inequívoco, el sistema DEBE registrar `DESEMBOLSO_SIMULADO_EXITOSO`. | MUST | Rondas 6–7 | Prototipo |
+| RN-021 | Cuando el resultado sea ambiguo o expire la espera, el sistema NO DEBE declarar éxito ni fallo. | MUST | INV-06 | Prototipo |
+| RN-022 | Cuando el resultado sea ambiguo, el sistema DEBE registrar `DESEMBOLSO_PENDIENTE_DE_GESTION`. | MUST | Ronda 6 | Prototipo |
+| RN-024 | Durante la recuperación, el sistema NO DEBE crear otro identificador ni iniciar una segunda operación lógica de desembolso; solo puede consultar o reentregar idempotentemente el comando original. | MUST | INV-05, INV-14 | Prototipo |
+| RN-031 | Cuando se solicita recuperar un estado de fallo, el sistema DEBE exigir clasificación recuperable y un reintento controlado. En contratación, solo `CONTRATACION_FALLIDA_RECUPERABLE` admite esta recuperación. | MUST | DEC-59, DEC-96 | Prototipo |
+| RN-045 | Cuando se consulta una contratación cuya respuesta se perdió después del registro, el sistema DEBE devolver el contrato existente al cliente autorizado. | MUST | DEC-67 | Validación |
+| RN-049 | Si el resultado de la contratación es incierto, el sistema DEBE mantener el intento en CONTRATACION_PENDIENTE. | MUST | DEC-70 | Prototipo |
+| RN-079 | Cuando finaliza un intento de contratación, el sistema DEBE conservar su correlación. | MUST | DEC-60, DEC-71 | Prototipo |
+| RN-089 | Mientras el resultado de la contratación sea incierto, el sistema DEBE mantener la reserva del intento original. | MUST | Ronda de refinamiento 4 | Prototipo |
+| RN-090 | Cuando se confirma el contrato, el sistema DEBE convertir la reserva en consumo de la línea dentro de la misma transacción del contrato, la auditoría obligatoria y la orden única de desembolso, sin duplicar el descuento. | MUST | INV-12 | Prototipo |
+| RN-091 | Cuando el intento alcanza `CONTRATACION_RECHAZADA` o `CONTRATACION_FALLIDA_DEFINITIVA`, el sistema DEBE liberar su reserva exactamente una vez. | MUST | Ronda de refinamiento 4, PA-36 | Prototipo |
+| RN-108 | Mientras falte confirmar si el intento original registró un contrato o terminó sin contrato, el sistema NO DEBE permitir otro intento para la misma oportunidad. | MUST | Ronda de refinamiento 7 | Prototipo |
+| RN-118 | Cuando un cliente autenticado consulta una contratación propia, el sistema DEBE mostrar su estado actual, pendiente o resuelto. | MUST | Ronda de refinamiento 8 | Prototipo |
+| RN-119 | Cuando un cliente autenticado consulta un desembolso propio, el sistema DEBE mostrar su estado actual, pendiente o resuelto. | MUST | Ronda de refinamiento 8 | Validación |
+| RN-120 | Cuando el cliente solicita el estado de una contratación o desembolso, el sistema DEBE verificar la titularidad antes de devolver información. | MUST | Ronda de refinamiento 8 | Prototipo |
+| RN-123 | Cuando la respuesta del registro contractual sea incierta, el sistema DEBE recuperar el intento persistido por su identidad y conservar pendiente el resultado hasta obtener evidencia concluyente. | MUST | Rondas de refinamiento 3 y 7 | Validación |
+| RN-126 | Cuando la lectura durable confirma contrato, auditoría obligatoria, orden única y consumo, el sistema DEBE resolver el intento como `CONTRATACION_EXITOSA` y devolver el contrato al cliente autorizado. | MUST | INV-12, INV-13 | Prototipo |
+| RN-128 | Mientras la recuperación contractual no confirme ni el conjunto contractual ni el cierre sin contrato, el sistema DEBE conservar `CONTRATACION_PENDIENTE`, mantener la reserva y bloquear otro intento para la misma oportunidad. | MUST | INV-13 | Prototipo |
+| RN-131 | Antes de efectuar la llamada inicial al core, el despachador DEBE confirmar durablemente la transición de `DESEMBOLSO_SOLICITADO` a `DESEMBOLSO_PROCESANDO`. | MUST | INV-14 | Prototipo |
+| RN-178 | Cuando una guarda de negocio incumplida se confirma con evidencia durable, el sistema DEBE resolver el intento como `CONTRATACION_RECHAZADA` y liberar su reserva exactamente una vez. | MUST | PA-36, RN-091 | Prototipo |
+| RN-179 | Cuando un fallo técnico definitivo se confirma con evidencia durable, el sistema DEBE resolver el intento como `CONTRATACION_FALLIDA_DEFINITIVA` y liberar su reserva exactamente una vez. | MUST | PA-36, RN-070, RN-091 | Prototipo |
+| RN-180 | Cuando un fallo técnico se clasifica como recuperable, el sistema DEBE resolver el intento como `CONTRATACION_FALLIDA_RECUPERABLE`, mantener su reserva y permitir únicamente un reintento controlado del mismo intento. | MUST | PA-36, RN-031 | Prototipo |
+| RN-181 | Mientras una contratación permanezca incierta, el sistema DEBE consultar la evidencia durable cada 30 segundos durante un máximo de 15 minutos desde que se registró `CONTRATACION_PENDIENTE`. | MUST | PA-37, INV-13 | Prototipo |
+| RN-182 | Cuando una contratación completa 15 minutos en `CONTRATACION_PENDIENTE` sin evidencia concluyente, el sistema DEBE pasarla a `CONTRATACION_EN_REVISION_MANUAL`, mantener su reserva y conservar el bloqueo de otro intento para la oportunidad. | MUST | PA-37, INV-13 | Prototipo |
+| RN-183 | Cuando una contratación entra en `CONTRATACION_EN_REVISION_MANUAL`, el sistema DEBE registrar un incidente crítico con objetivo de resolución de 4 horas desde el ingreso a revisión. | MUST | PA-37 | Prototipo |
+| RN-185 | Cuando se incumple el objetivo de 4 horas sin evidencia concluyente, el sistema DEBE mantener `CONTRATACION_EN_REVISION_MANUAL`, conservar la reserva y escalar el incidente; NO DEBE inferir éxito, rechazo ni fallo por el tiempo transcurrido, la ausencia de filas, un timeout o una lectura no disponible. | MUST | PA-37, INV-13 | Prototipo |
+| RN-229 | Cuando un resultado se clasifica como incierto, el sistema DEBE mantenerlo pendiente hasta obtener evidencia concluyente y NO DEBE convertirlo en fallo solo por agotar consultas o reintentos. | MUST | PA-03 | Validación |
+]]>
+</contexto>
+<tarea>
+Genera un prototipo visual de esta pantalla como un artifact HTML/CSS/JS
+interactivo. Debe:
+1. Reflejar fielmente el wireframe textual.
+2. Incluir datos de ejemplo realistas (no lorem ipsum).
+3. Ser responsive (funcionar en móvil y desktop).
+4. Incluir estados: vacío, con datos, error, loading.
+5. Usar los design tokens definidos.
+</tarea>
+<restricciones>
+- NO es código de producción: es un prototipo para validar con
+stakeholders.
+- Priorizar claridad del flujo sobre pixel-perfection.
+- Incluir interacciones básicas (clics, navegación simulada,
+validaciones).
+- Si una sección depende de datos dinámicos, usar datos ficticios del
+caso.
+</restricciones>

@@ -1,0 +1,691 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altoque P-008 Mis operaciones</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: banda de controles del prototipo arriba, pantalla real (P-008) en el centro, notas de validación debajo. Tokens = 09-ui-spec.md §4. */
+:root{
+  --color-primary-700:#174EA6; --color-primary-800:#123B7A;
+  --color-secondary-700:#0B6B5B; --color-accent-500:#F5A623;
+  --color-bg-page:#F7F9FC; --color-bg-surface:#FFFFFF;
+  --color-text-primary:#172033; --color-text-secondary:#4B5565;
+  --color-border:#C9D2E3; --color-success-700:#18794E;
+  --color-warning-800:#8A4B08; --color-danger-700:#B42318;
+  --color-info-700:#175CD3; --color-focus:#7C3AED;
+  --on-primary:#FFFFFF;
+  --tint-info:#EAF1FD; --tint-danger:#FDECEA; --tint-warning:#FDF3E4; --tint-success:#E7F5EE; --tint-neutral:#EEF1F7;
+  --proto-bg:#EEF1F7; --proto-ink:#4B5565; --skel:#E3E8F1;
+  --font:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --r-control:8px;--r-card:12px;--r-dialog:16px;
+  --shadow-card:0 1px 3px rgba(23,32,51,.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024; --tint-neutral:#1C2436;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --skel:#24304A; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024; --tint-neutral:#1C2436;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --skel:#24304A; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--color-bg-page);color:var(--color-text-primary);font:400 16px/1.5 var(--font);overflow-wrap:anywhere}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--color-primary-700)}
+button{font:inherit}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--color-text-secondary)}
+.small{font-size:14px;line-height:20px}
+.mono{font-variant-numeric:tabular-nums}
+.id{font-family:var(--mono);font-size:14px;line-height:20px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+
+/* ---------- Banda del prototipo ---------- */
+.proto{background:var(--proto-bg);border-bottom:2px dashed var(--color-border);color:var(--proto-ink);font-size:14px;line-height:20px}
+.proto-in{max-width:1200px;margin:0 auto;padding-block:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.proto-tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.proto label{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap;min-width:0;max-width:100%}
+.proto select{font:inherit;min-height:36px;min-width:0;max-width:100%;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary)}
+.proto b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+
+/* ---------- Shell cliente ---------- */
+.skip{position:absolute;left:16px;top:-80px;background:var(--color-primary-700);color:var(--on-primary);padding:var(--s3) var(--s4);border-radius:var(--r-control);z-index:20;text-decoration:none;font-weight:600}
+.skip:focus{top:8px}
+.app-head{border-bottom:1px solid var(--color-border);background:var(--color-bg-surface);position:relative;z-index:10}
+.app-head-in{max-width:1200px;margin:0 auto;min-height:64px;display:flex;align-items:center;gap:var(--s2) var(--s6);flex-wrap:wrap}
+.logo{display:inline-flex;align-items:center;gap:var(--s2);font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--color-text-primary);text-decoration:none;min-height:44px}
+.logo svg{flex:none}
+.shell-nav{display:flex;gap:var(--s5);align-items:stretch;align-self:stretch}
+.shell-nav a{display:inline-flex;align-items:center;min-height:44px;text-decoration:none;font-weight:600;color:var(--color-text-secondary);border-bottom:3px solid transparent;padding-top:3px}
+.shell-nav a:hover{color:var(--color-text-primary)}
+.shell-nav a[aria-current]:not([aria-current="false"]){color:var(--color-primary-700);border-color:var(--color-primary-700)}
+.session{margin-left:auto;position:relative}
+.session-btn{min-height:44px;display:inline-flex;align-items:center;gap:var(--s2);background:none;border:1px solid transparent;border-radius:var(--r-control);padding:0 var(--s2);color:var(--color-text-primary);cursor:pointer}
+.session-btn:hover{border-color:var(--color-border)}
+.avatar{width:32px;height:32px;border-radius:50%;display:inline-grid;place-items:center;background:var(--tint-info);color:var(--color-info-700);font-weight:700;font-size:13px}
+.session-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:240px;background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:0 8px 24px rgba(23,32,51,.18);padding:var(--s2);display:flex;flex-direction:column}
+.session-menu .who{padding:var(--s2) var(--s3);font-size:14px;line-height:20px;color:var(--color-text-secondary);border-bottom:1px solid var(--color-border);margin-bottom:var(--s1)}
+.session-menu .who b{display:block;color:var(--color-text-primary)}
+.session-menu a{display:flex;align-items:center;gap:var(--s2);min-height:44px;padding:0 var(--s3);border-radius:var(--r-control);text-decoration:none;color:var(--color-text-primary);font-weight:600}
+.session-menu a:hover{background:var(--tint-neutral)}
+@media (max-width:599px){
+  .app-head-in{gap:0 var(--s4)}
+  .shell-nav{order:3;width:100%;gap:var(--s5);border-top:1px solid var(--color-border)}
+  .session-name{display:none}
+}
+
+/* ---------- Página ---------- */
+main.page{margin:0 auto;padding-block:var(--s6) var(--s8);display:flex;flex-direction:column;gap:var(--s5)}
+main.page:focus{outline:none}
+.page-head{display:flex;flex-direction:column;gap:var(--s2)}
+h1{font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.015em}
+h2{font-size:24px;line-height:32px;font-weight:700}
+h3{font-size:20px;line-height:28px;font-weight:600}
+@media (max-width:599px){main.page{padding-block:var(--s5) var(--s7)} h1{font-size:28px;line-height:36px}}
+.card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card)}
+
+.alert{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid currentColor;border-radius:var(--r-control);padding:var(--s3) var(--s4);font-size:14px;line-height:20px}
+.alert>svg{flex:none;margin-top:2px}
+.alert strong{display:block;font-size:16px;line-height:24px;color:var(--color-text-primary)}
+.alert p{margin:0;color:var(--color-text-primary)}
+.alert p+p{margin-top:var(--s1)}
+.alert .alert-actions{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+.alert-info{color:var(--color-info-700);background:var(--tint-info)}
+.alert-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.alert-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.alert-success{color:var(--color-success-700);background:var(--tint-success)}
+.alert:focus-visible{outline-offset:3px}
+.alert:focus{outline:none}
+.alert:focus-visible{outline:3px solid var(--color-focus)}
+
+.btn{min-height:44px;border-radius:var(--r-control);padding:0 var(--s4);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);border:1px solid transparent;text-decoration:none;font-size:16px;line-height:24px;white-space:nowrap}
+.btn-primary{background:var(--color-primary-700);color:var(--on-primary)}
+.btn-primary:hover:not([aria-disabled="true"]){background:var(--color-primary-800)}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-primary-700);border-color:var(--color-border)}
+.btn-secondary:hover:not([aria-disabled="true"]){border-color:var(--color-primary-700)}
+.btn[aria-disabled="true"]{cursor:progress;opacity:.8}
+.btn-sm{min-height:44px;padding:0 var(--s3);font-size:14px}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Estado: icono + texto, nunca solo color */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:600;border:1px solid currentColor;border-radius:999px;padding:2px 10px 2px 8px;white-space:nowrap;max-width:100%}
+.st svg{flex:none}
+.st span{white-space:normal}
+.t-success{color:var(--color-success-700);background:var(--tint-success)}
+.t-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.t-info{color:var(--color-info-700);background:var(--tint-info)}
+.t-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.t-neutral{color:var(--color-text-secondary);background:var(--tint-neutral);border-style:dashed}
+
+.skel{background:var(--skel);border-radius:6px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.55}}
+
+.app-foot{border-top:1px solid var(--color-border)}
+.app-foot-in{max-width:1200px;margin:0 auto;padding-block:var(--s4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);font-size:14px;color:var(--color-text-secondary)}
+
+/* ---------- Notas ---------- */
+.notes{border-top:2px dashed var(--color-border);background:var(--proto-bg)}
+.notes-in{max-width:1200px;margin:0 auto;padding-block:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s5)}
+.notes h2{font-size:20px;line-height:28px;font-weight:600;margin-bottom:var(--s3)}
+.notes ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.notes b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+
+/* ---------- P-008 ---------- */
+main.page{max-width:1200px}
+.toolbar{display:flex;flex-wrap:wrap;gap:var(--s4) var(--s5);align-items:flex-end;justify-content:space-between}
+.filters{display:flex;flex-direction:column;gap:var(--s2)}
+.filters-label{font-weight:600;font-size:14px;line-height:20px}
+.seg{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.seg button{min-height:44px;padding:0 var(--s4);border-radius:999px;border:1px solid var(--color-border);background:var(--color-bg-surface);color:var(--color-text-primary);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button:hover{border-color:var(--color-primary-700)}
+.seg button[aria-pressed="true"]{background:var(--color-primary-700);border-color:var(--color-primary-700);color:var(--on-primary)}
+.seg button svg{display:none}
+.seg button[aria-pressed="true"] svg{display:block}
+.refresh{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);align-items:center}
+.last-read{font-size:14px;line-height:20px;color:var(--color-text-secondary);display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center}
+.last-read time{color:var(--color-text-primary);font-weight:600;font-variant-numeric:tabular-nums}
+.results[aria-busy="true"] .data{opacity:.55;transition:opacity .2s}
+.sub{display:block;font-size:14px;line-height:20px;color:var(--color-text-secondary);margin-top:var(--s1)}
+.sub .id{color:var(--color-text-primary)}
+/* Tabla escritorio */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:16px;line-height:24px}
+caption{text-align:left}
+th{font-size:14px;line-height:20px;font-weight:600;color:var(--color-text-secondary);text-align:left;padding:var(--s3) var(--s4);border-bottom:1px solid var(--color-border);background:var(--tint-neutral)}
+td{padding:var(--s3) var(--s4);border-bottom:1px solid var(--color-border);vertical-align:top}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:color-mix(in srgb,var(--tint-info) 45%,transparent)}
+td.act{text-align:right;vertical-align:middle}
+td .strong{font-weight:600}
+.cards{display:none;list-style:none;margin:0;padding:0;flex-direction:column;gap:var(--s3)}
+.op-card{padding:var(--s4);display:flex;flex-direction:column;gap:var(--s3)}
+.op-card-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:var(--s1) var(--s3);align-items:baseline}
+.op-card-head h2{font-size:16px;line-height:24px;font-weight:700}
+.op-card dl{margin:0;display:grid;gap:var(--s3)}
+.op-card dt{font-size:14px;line-height:20px;color:var(--color-text-secondary);font-weight:500}
+.op-card dd{margin:var(--s1) 0 0}
+.op-card .btn{width:100%}
+@media (max-width:719px){.table-card{display:none}.cards{display:flex}}
+.table-card{overflow:hidden}
+.more{display:flex;flex-direction:column;align-items:center;gap:var(--s3)}
+.more .hint{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.empty{padding:var(--s7) var(--s5);display:flex;flex-direction:column;align-items:center;text-align:center;gap:var(--s3)}
+.empty svg{color:var(--color-text-secondary)}
+.empty p{max-width:52ch}
+.skel-list{display:flex;flex-direction:column;gap:0}
+.skel-row{display:grid;grid-template-columns:1.2fr 1fr 1.2fr 1.2fr .8fr;gap:var(--s4);padding:var(--s4);border-bottom:1px solid var(--color-border)}
+.skel-row:last-child{border-bottom:0}
+.skel-row span{height:20px}
+@media (max-width:719px){.skel-row{grid-template-columns:1fr;gap:var(--s2)} .skel-row span:nth-child(n+4){display:none}}
+</style>
+
+<!-- Banda de control: no forma parte de la pantalla -->
+<div class="proto gutter" role="region" aria-label="Controles del prototipo">
+  <div class="proto-in">
+    <span class="proto-tag">Prototipo · no es parte de la pantalla</span>
+    <label for="scenario">Ver estado
+      <select id="scenario">
+        <option value="datos">Con resultados (primera página)</option>
+        <option value="cargando">Cargando</option>
+        <option value="pagina">Página adicional cargada</option>
+        <option value="cargando-mas">Cargando página siguiente</option>
+        <option value="actualizando">Actualizando</option>
+        <option value="filtrado-vacio">Filtrado sin resultados</option>
+        <option value="vacio">Vacío (sin operaciones)</option>
+        <option value="error-carga">Error de red · sin lectura previa</option>
+        <option value="error-actualizar">Error de red · conserva última lectura</option>
+        <option value="error-mas">Error de red · al cargar más</option>
+        <option value="sesion">Sesión vencida</option>
+      </select>
+    </label>
+    <label for="server">Próxima respuesta del servidor
+      <select id="server">
+        <option value="ok">Normal</option>
+        <option value="net">Error de red</option>
+        <option value="session">Sesión vencida</option>
+      </select>
+    </label>
+    <span>Hoy simulado: <b>14 nov 2026, 13:30</b> (Lima)</span>
+  </div>
+</div>
+
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<header class="app-head gutter">
+  <div class="app-head-in">
+    <a class="logo" href="P-002-oportunidades.html" aria-label="Altoque, ir a Oportunidades">
+      <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span aria-hidden="true">Altoque</span>
+    </a>
+    <nav class="shell-nav" aria-label="Principal">
+      <a href="P-002-oportunidades.html">Oportunidades</a>
+      <a href="P-008-mis-operaciones.html" aria-current="page">Mis operaciones</a>
+    </nav>
+    <div class="session">
+      <button type="button" class="session-btn" id="session-btn" aria-expanded="false" aria-controls="session-menu" aria-label="Menú de sesión de Lucía Ramos">
+        <span class="avatar" aria-hidden="true">LR</span><span class="session-name" aria-hidden="true">Lucía</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="session-menu" id="session-menu" hidden>
+        <p class="who"><b>Lucía Ramos Huamán</b>DNI sintético ···1238</p>
+        <a href="P-001-inicio-de-sesion.html"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3M13 6.5 16.5 10 13 13.5M16 10H8" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Cerrar sesión</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page gutter" id="contenido" tabindex="-1">
+  <div class="page-head">
+    <h1>Mis operaciones</h1>
+    <p class="muted">Revisa el estado de tus contrataciones y de sus desembolsos simulados.</p>
+  </div>
+
+  <div id="session-box" class="alert alert-info" role="alert" tabindex="-1" hidden>
+    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5V10l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+    <div><strong>Tu sesión venció</strong><p>Por seguridad, ocultamos tus operaciones. Vuelve a ingresar para consultarlas; ninguna operación cambió por cerrar la sesión.</p>
+      <div class="alert-actions"><a class="btn btn-primary" href="P-001-inicio-de-sesion.html">Iniciar sesión de nuevo</a></div></div>
+  </div>
+
+  <div id="content" style="display:flex;flex-direction:column;gap:var(--s5)">
+    <div class="toolbar">
+      <div class="filters">
+        <span class="filters-label" id="filters-label">Mostrar</span>
+        <div class="seg" role="group" aria-labelledby="filters-label" id="filters">
+          <button type="button" data-f="todas" aria-pressed="true"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.2 3 3 6-6.4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Todas</button>
+          <button type="button" data-f="pendientes" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.2 3 3 6-6.4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Pendientes</button>
+          <button type="button" data-f="revision" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.2 3 3 6-6.4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>En revisión</button>
+          <button type="button" data-f="resueltas" aria-pressed="false"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.2 3 3 6-6.4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Resueltas</button>
+        </div>
+      </div>
+      <div class="refresh">
+        <p class="last-read" id="last-read"></p>
+        <button type="button" class="btn btn-secondary" id="refresh">
+          <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Actualizar</span>
+        </button>
+      </div>
+    </div>
+
+    <div id="net-alert" class="alert alert-warning" role="alert" tabindex="-1" hidden></div>
+    <div id="results" class="results" aria-busy="false"></div>
+    <div id="more" class="more"></div>
+  </div>
+  <div id="live" class="sr-only" aria-live="polite"></div>
+</main>
+
+<footer class="app-foot gutter">
+  <div class="app-foot-in"><span>Entorno de evaluación con datos sintéticos. No se mueve dinero real.</span></div>
+</footer>
+
+<section class="notes gutter" aria-label="Notas para validación">
+  <div class="notes-in">
+    <div>
+      <h2>Comportamiento a validar</h2>
+      <ul>
+        <li>Contratación y desembolso aparecen en columnas separadas: un contrato registrado <b>no</b> significa que el desembolso terminó.</li>
+        <li>Los filtros y «Cargar más» los resuelve el backend con un cursor; la página trae <b>6</b> operaciones (valor ilustrativo dentro del rango 1–50).</li>
+        <li>«Actualizar» solo consulta, no cambia estados. Pruébalo: el backend informa que <b>DSB-6A90F1</b> ya terminó.</li>
+        <li>Si falla la red, la lista confirmada se conserva y la hora de lectura queda marcada como <b>no actualizada</b>. Usa «Próxima respuesta del servidor» para provocarlo en cualquier acción.</li>
+        <li>Menos de <b>720 px</b>: la tabla pasa a tarjetas con los mismos rótulos.</li>
+        <li>Con la sesión vencida no se muestra ningún dato hasta volver a ingresar.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Reglas aplicadas</h2>
+      <ul>
+        <li><b>RN-237 / RN-122</b> Solo se listan operaciones propias, verificadas por el backend.</li>
+        <li><b>RN-119</b> Se muestra el estado actual de cada desembolso, pendiente o resuelto.</li>
+        <li><b>RN-021 / RN-185</b> No se infiere éxito ni fallo por tiempo transcurrido ni por una lectura no disponible.</li>
+        <li><b>RN-032</b> Los estados terminales se muestran solo como lectura.</li>
+        <li><b>RN-182 / RN-231</b> Los casos en revisión manual tienen su propio filtro.</li>
+        <li><b>RN-241</b> Sesión vencida exige autenticar de nuevo.</li>
+        <li><b>RN-028</b> Filtros, paginación y detalle operables por teclado.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  // ===== Datos sintéticos: respuesta simulada del backend (el frontend no calcula importes) =====
+  const ICON = {
+    check:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="m5 8.2 2 2 4-4.2" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    clock:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 4.6V8l2.4 1.6" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>',
+    review:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m10.4 10.4 3.4 3.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    x:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="m5.6 5.6 4.8 4.8m0-4.8-4.8 4.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    alert:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8 15 14H1z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M8 6.2v3.6M8 11.8v.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    dash:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.6" stroke="currentColor" stroke-width="1.5" fill="none" stroke-dasharray="2.4 2"/><path d="M5.4 8h5.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    flag:'<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 14.5V2m0 .8h8.2l-1.7 3 1.7 3H3.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  const AL = {
+    info:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    warning:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 18.5 17h-17z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M10 8v4.2M10 14.4v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    danger:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5v5.5M10 13.8v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    success:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m6.2 10.3 2.6 2.6 5-5.2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    clock:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5V10l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>',
+    lock:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="8.5" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>',
+    review:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.8" cy="8.8" r="5.8" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="m13 13 4.3 4.3" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>'
+  };
+
+  // Estados canónicos (03-reglas §7) con etiqueta legible para el cliente
+  const CTR = {
+    CONTRATACION_INICIADA:{label:"Iniciada", tone:"warning", icon:"clock"},
+    CONTRATACION_VALIDANDO:{label:"Validando", tone:"warning", icon:"clock"},
+    CONTRATACION_REGISTRANDO:{label:"Registrando", tone:"warning", icon:"clock"},
+    CONTRATACION_PENDIENTE:{label:"Por confirmar", tone:"warning", icon:"clock"},
+    CONTRATACION_EN_REVISION_MANUAL:{label:"En revisión", tone:"info", icon:"review"},
+    CONTRATACION_FALLIDA_RECUPERABLE:{label:"No completada · recuperable", tone:"warning", icon:"alert"},
+    CONTRATACION_EXITOSA:{label:"Contratada", tone:"success", icon:"check", terminal:true},
+    CONTRATACION_RECHAZADA:{label:"Rechazada", tone:"danger", icon:"x", terminal:true},
+    CONTRATACION_FALLIDA_DEFINITIVA:{label:"Fallida", tone:"danger", icon:"x", terminal:true}
+  };
+  const DSB = {
+    DESEMBOLSO_SOLICITADO:{label:"Solicitado", tone:"warning", icon:"clock"},
+    DESEMBOLSO_PROCESANDO:{label:"Procesando", tone:"warning", icon:"clock"},
+    DESEMBOLSO_PENDIENTE_DE_GESTION:{label:"Por confirmar", tone:"warning", icon:"clock"},
+    DESEMBOLSO_CONSULTANDO_ESTADO:{label:"Consultando estado", tone:"warning", icon:"clock"},
+    DESEMBOLSO_EN_REVISION_MANUAL:{label:"En revisión", tone:"info", icon:"review"},
+    DESEMBOLSO_SIMULADO_EXITOSO:{label:"Exitoso (simulado)", tone:"success", icon:"check", terminal:true},
+    DESEMBOLSO_RECHAZADO:{label:"Rechazado", tone:"danger", icon:"x", terminal:true},
+    DESEMBOLSO_FALLIDO:{label:"Fallido", tone:"danger", icon:"x", terminal:true}
+  };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const chip = (tone, icon, label) => '<span class="st t-' + tone + '">' + ICON[icon] + "<span>" + esc(label) + "</span></span>";
+  const ctrChip = op => { const s = CTR[op.ctr.code]; return chip(s.tone, s.icon, s.label); };
+  const dsbChip = op => {
+    if (!op.dsb){
+      const t = CTR[op.ctr.code].terminal;
+      return chip("neutral", "dash", t ? "No aplica" : "Aún no existe");
+    }
+    const s = DSB[op.dsb.code]; return chip(s.tone, s.icon, s.label);
+  };
+  // Agrupación para los filtros de P-008 (la aplica el backend; aquí se simula)
+  function groupOf(op){
+    if (op.ctr.code === "CONTRATACION_EN_REVISION_MANUAL" || (op.dsb && op.dsb.code === "DESEMBOLSO_EN_REVISION_MANUAL")) return "revision";
+    const c = CTR[op.ctr.code];
+    if (!c.terminal) return "pendientes";
+    if (op.ctr.code !== "CONTRATACION_EXITOSA") return "resueltas";
+    return op.dsb && DSB[op.dsb.code].terminal ? "resueltas" : "pendientes";
+  }
+
+  const H = (t, x) => ({t, x});
+  const OPS = [
+    { intento:"CTR-ATT-5C21", monto:"S/ 5 000,00", creado:"14 nov 2026, 13:26", actualizado:"14 nov 2026, 13:27",
+      origen:"Oferta preferencial OFR-7F3A2C", sim:"SIM-A1C9F2", ace:"ACE-2B7D40", corr:"corr-7d1e-44a0",
+      condiciones:"12 cuotas mensuales de S/ 469,28 · TCEA 25,03 %",
+      ctr:{code:"CONTRATACION_EXITOSA", v:4, desde:"14 nov 2026, 13:27", contrato:"CTR-8842"},
+      reserva:{monto:"S/ 5 000,00", estado:"Convertida en consumo de tu línea"},
+      dsb:{id:"DSB-6A90F1", code:"DESEMBOLSO_PROCESANDO", v:2, desde:"14 nov 2026, 13:27"},
+      hitos:[H("14 nov 2026, 13:24","Aceptaste las condiciones de la simulación SIM-A1C9F2 (aceptación ACE-2B7D40)."),
+             H("14 nov 2026, 13:26","Iniciamos la contratación CTR-ATT-5C21 y reservamos S/ 5 000,00 de tu línea."),
+             H("14 nov 2026, 13:27","Registramos el contrato CTR-8842; la reserva pasó a consumo de tu línea."),
+             H("14 nov 2026, 13:27","Creamos la orden única de desembolso DSB-6A90F1."),
+             H("14 nov 2026, 13:27","Enviamos la orden DSB-6A90F1 al core simulado.")] },
+    { intento:"CTR-ATT-51A7", monto:"S/ 1 800,00", creado:"13 nov 2026, 18:09", actualizado:"13 nov 2026, 18:11",
+      origen:"Solicitud regular SOL-3E81", sim:"SIM-9B04D7", ace:"ACE-27C1A9", corr:"corr-5a2b-19f3",
+      condiciones:"6 cuotas mensuales de S/ 324,15 · TCEA 26,40 %",
+      ctr:{code:"CONTRATACION_EXITOSA", v:4, desde:"13 nov 2026, 18:10", contrato:"CTR-8301"},
+      reserva:{monto:"S/ 1 800,00", estado:"Convertida en consumo de tu línea"},
+      dsb:{id:"DSB-5A0C33", code:"DESEMBOLSO_PENDIENTE_DE_GESTION", v:3, desde:"13 nov 2026, 18:11"},
+      hitos:[H("13 nov 2026, 18:07","Aceptaste las condiciones de la simulación SIM-9B04D7 (aceptación ACE-27C1A9)."),
+             H("13 nov 2026, 18:09","Iniciamos la contratación CTR-ATT-51A7 y reservamos S/ 1 800,00 de tu línea."),
+             H("13 nov 2026, 18:10","Registramos el contrato CTR-8301 y la orden única de desembolso DSB-5A0C33."),
+             H("13 nov 2026, 18:10","Enviamos la orden DSB-5A0C33 al core simulado."),
+             H("13 nov 2026, 18:11","El core simulado no respondió de forma concluyente. Seguimos consultando la misma operación.")] },
+    { intento:"CTR-ATT-4F02", monto:"S/ 3 000,00", creado:"8 nov 2026, 16:24", actualizado:"8 nov 2026, 16:40",
+      origen:"Oferta preferencial OFR-6D21B9", sim:"SIM-8E3A11", ace:"ACE-1F9C02", corr:"corr-41c8-0b77",
+      condiciones:"9 cuotas mensuales de S/ 368,02 · TCEA 25,02 %",
+      ctr:{code:"CONTRATACION_EN_REVISION_MANUAL", v:4, desde:"8 nov 2026, 16:40", contrato:null},
+      reserva:{monto:"S/ 3 000,00", estado:"Retenida mientras se resuelve"},
+      dsb:null,
+      hitos:[H("8 nov 2026, 16:22","Aceptaste las condiciones de la simulación SIM-8E3A11 (aceptación ACE-1F9C02)."),
+             H("8 nov 2026, 16:24","Iniciamos la contratación CTR-ATT-4F02 y reservamos S/ 3 000,00 de tu línea."),
+             H("8 nov 2026, 16:25","No obtuvimos confirmación del registro. Empezamos a verificar la evidencia."),
+             H("8 nov 2026, 16:40","Tras 15 minutos sin evidencia concluyente, un equipo de revisión tomó el caso.")] },
+    { intento:"CTR-ATT-4C3E", monto:"S/ 1 200,00", creado:"27 oct 2026, 19:02", actualizado:"27 oct 2026, 19:03",
+      origen:"Solicitud regular SOL-2C47", sim:"SIM-7C55E0", ace:"ACE-18D3F4", corr:"corr-2f90-c3d1",
+      condiciones:"6 cuotas mensuales de S/ 216,10 · TCEA 26,40 %",
+      ctr:{code:"CONTRATACION_FALLIDA_DEFINITIVA", v:3, desde:"27 oct 2026, 19:03", contrato:null},
+      reserva:{monto:"S/ 1 200,00", estado:"Liberada"},
+      dsb:null, motivo:"Un problema técnico definitivo impidió registrar el contrato.",
+      hitos:[H("27 oct 2026, 19:01","Aceptaste las condiciones de la simulación SIM-7C55E0 (aceptación ACE-18D3F4)."),
+             H("27 oct 2026, 19:02","Iniciamos la contratación CTR-ATT-4C3E y reservamos S/ 1 200,00 de tu línea."),
+             H("27 oct 2026, 19:03","Confirmamos con evidencia un fallo técnico definitivo: no se registró contrato y liberamos la reserva.")] },
+    { intento:"CTR-ATT-4B88", monto:"S/ 1 500,00", creado:"20 oct 2026, 11:14", actualizado:"20 oct 2026, 11:15",
+      origen:"Oferta preferencial OFR-5A90C3", sim:"SIM-6F12A8", ace:"ACE-15B6E2", corr:"corr-1d77-8e05",
+      condiciones:"3 cuotas mensuales de S/ 521,63 · TCEA 25,02 %",
+      ctr:{code:"CONTRATACION_RECHAZADA", v:3, desde:"20 oct 2026, 11:15", contrato:null},
+      reserva:{monto:"S/ 1 500,00", estado:"Liberada"},
+      dsb:null, motivo:"Tu línea no tenía saldo disponible suficiente al momento de validar.",
+      hitos:[H("20 oct 2026, 11:12","Aceptaste las condiciones de la simulación SIM-6F12A8 (aceptación ACE-15B6E2)."),
+             H("20 oct 2026, 11:14","Iniciamos la contratación CTR-ATT-4B88."),
+             H("20 oct 2026, 11:15","Rechazamos la contratación por saldo insuficiente y liberamos la reserva.")] },
+    { intento:"CTR-ATT-49D7", monto:"S/ 2 500,00", creado:"1 oct 2026, 09:40", actualizado:"1 oct 2026, 10:12",
+      origen:"Oferta preferencial OFR-4E07A6", sim:"SIM-5D88B2", ace:"ACE-12A4C7", corr:"corr-0c3e-5f61",
+      condiciones:"12 cuotas mensuales de S/ 234,64 · TCEA 25,02 %",
+      ctr:{code:"CONTRATACION_EXITOSA", v:4, desde:"1 oct 2026, 09:41", contrato:"CTR-8120"},
+      reserva:{monto:"S/ 2 500,00", estado:"Convertida en consumo de tu línea"},
+      dsb:{id:"DSB-5F7712", code:"DESEMBOLSO_EN_REVISION_MANUAL", v:6, desde:"1 oct 2026, 10:12"},
+      hitos:[H("1 oct 2026, 09:38","Aceptaste las condiciones de la simulación SIM-5D88B2 (aceptación ACE-12A4C7)."),
+             H("1 oct 2026, 09:40","Iniciamos la contratación CTR-ATT-49D7 y reservamos S/ 2 500,00 de tu línea."),
+             H("1 oct 2026, 09:41","Registramos el contrato CTR-8120 y la orden única de desembolso DSB-5F7712."),
+             H("1 oct 2026, 09:42","El core simulado no respondió de forma concluyente. Consultamos la misma operación."),
+             H("1 oct 2026, 10:12","La recuperación automática no obtuvo un resultado concluyente. Un equipo revisa el caso.")] },
+    { intento:"CTR-ATT-3A10", monto:"S/ 2 000,00", creado:"3 sep 2026, 15:20", actualizado:"3 sep 2026, 15:22",
+      origen:"Oferta preferencial OFR-3B61F0", sim:"SIM-4A27C9", ace:"ACE-0E91B3", corr:"corr-9b14-2a6c",
+      condiciones:"6 cuotas mensuales de S/ 359,74 · TCEA 25,02 %",
+      ctr:{code:"CONTRATACION_EXITOSA", v:4, desde:"3 sep 2026, 15:21", contrato:"CTR-7710"},
+      reserva:{monto:"S/ 2 000,00", estado:"Convertida en consumo de tu línea"},
+      dsb:{id:"DSB-51C2E0", code:"DESEMBOLSO_SIMULADO_EXITOSO", v:3, desde:"3 sep 2026, 15:22"},
+      hitos:[H("3 sep 2026, 15:18","Aceptaste las condiciones de la simulación SIM-4A27C9 (aceptación ACE-0E91B3)."),
+             H("3 sep 2026, 15:20","Iniciamos la contratación CTR-ATT-3A10 y reservamos S/ 2 000,00 de tu línea."),
+             H("3 sep 2026, 15:21","Registramos el contrato CTR-7710 y la orden única de desembolso DSB-51C2E0."),
+             H("3 sep 2026, 15:22","El core simulado confirmó el desembolso simulado de S/ 2 000,00.")] },
+    { intento:"CTR-ATT-38E5", monto:"S/ 800,00", creado:"28 ago 2026, 20:45", actualizado:"28 ago 2026, 20:46",
+      origen:"Solicitud regular SOL-1A93", sim:"SIM-3F70D4", ace:"ACE-0B52E8", corr:"corr-87e2-61ad",
+      condiciones:"3 cuotas mensuales de S/ 279,10 · TCEA 26,40 %",
+      ctr:{code:"CONTRATACION_RECHAZADA", v:3, desde:"28 ago 2026, 20:46", contrato:null},
+      reserva:{monto:"S/ 800,00", estado:"Liberada"},
+      dsb:null, motivo:"La simulación venció antes de terminar el registro del contrato.",
+      hitos:[H("28 ago 2026, 20:30","Aceptaste las condiciones de la simulación SIM-3F70D4 (aceptación ACE-0B52E8)."),
+             H("28 ago 2026, 20:45","Iniciamos la contratación CTR-ATT-38E5 y reservamos S/ 800,00 de tu línea."),
+             H("28 ago 2026, 20:46","Rechazamos la contratación porque la simulación venció y liberamos la reserva.")] },
+    { intento:"CTR-ATT-3D90", monto:"S/ 1 000,00", creado:"22 ago 2026, 12:30", actualizado:"22 ago 2026, 12:34",
+      origen:"Oferta preferencial OFR-2C84E1", sim:"SIM-2E19A0", ace:"ACE-09F7C1", corr:"corr-7f05-d912",
+      condiciones:"3 cuotas mensuales de S/ 347,75 · TCEA 25,02 %",
+      ctr:{code:"CONTRATACION_EXITOSA", v:4, desde:"22 ago 2026, 12:31", contrato:"CTR-7655"},
+      reserva:{monto:"S/ 1 000,00", estado:"Convertida en consumo de tu línea"},
+      dsb:{id:"DSB-4F8B21", code:"DESEMBOLSO_FALLIDO", v:4, desde:"22 ago 2026, 12:34"},
+      hitos:[H("22 ago 2026, 12:28","Aceptaste las condiciones de la simulación SIM-2E19A0 (aceptación ACE-09F7C1)."),
+             H("22 ago 2026, 12:30","Iniciamos la contratación CTR-ATT-3D90 y reservamos S/ 1 000,00 de tu línea."),
+             H("22 ago 2026, 12:31","Registramos el contrato CTR-7655 y la orden única de desembolso DSB-4F8B21."),
+             H("22 ago 2026, 12:34","El core simulado acreditó que el desembolso no se ejecutó ni puede completarse.")] },
+    { intento:"CTR-ATT-2E64", monto:"S/ 3 500,00", creado:"15 ago 2026, 17:05", actualizado:"15 ago 2026, 17:07",
+      origen:"Oferta preferencial OFR-1F33A7", sim:"SIM-1B62F5", ace:"ACE-07A0D6", corr:"corr-6a41-3c8e",
+      condiciones:"12 cuotas mensuales de S/ 328,50 · TCEA 25,02 %",
+      ctr:{code:"CONTRATACION_EXITOSA", v:4, desde:"15 ago 2026, 17:06", contrato:"CTR-7402"},
+      reserva:{monto:"S/ 3 500,00", estado:"Convertida en consumo de tu línea"},
+      dsb:{id:"DSB-4D19A8", code:"DESEMBOLSO_RECHAZADO", v:3, desde:"15 ago 2026, 17:07"},
+      hitos:[H("15 ago 2026, 17:03","Aceptaste las condiciones de la simulación SIM-1B62F5 (aceptación ACE-07A0D6)."),
+             H("15 ago 2026, 17:05","Iniciamos la contratación CTR-ATT-2E64 y reservamos S/ 3 500,00 de tu línea."),
+             H("15 ago 2026, 17:06","Registramos el contrato CTR-7402 y la orden única de desembolso DSB-4D19A8."),
+             H("15 ago 2026, 17:07","El core simulado rechazó el desembolso.")] }
+  ];
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  // Reloj simulado: "hoy" 14 nov 2026; cada lectura nueva avanza un minuto desde 13:30
+  let clockMin = 13 * 60 + 29;
+  const nextRead = () => { clockMin++; return "14 nov 2026, " + String(Math.floor(clockMin / 60)).padStart(2, "0") + ":" + String(clockMin % 60).padStart(2, "0"); };
+
+  // Menú de sesión del shell
+  (function sessionMenu(){
+    const btn = document.getElementById("session-btn"), menu = document.getElementById("session-menu");
+    if (!btn) return;
+    const set = open => { btn.setAttribute("aria-expanded", String(open)); menu.hidden = !open; };
+    btn.addEventListener("click", () => { const open = btn.getAttribute("aria-expanded") !== "true"; set(open); if (open) menu.querySelector("a").focus(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden){ set(false); btn.focus(); } });
+    document.addEventListener("click", e => { if (!menu.hidden && !e.target.closest(".session")) set(false); });
+    menu.addEventListener("focusout", e => { if (!e.relatedTarget || !e.relatedTarget.closest(".session")) set(false); });
+  })();
+
+  // ===== P-008 =====
+  const $ = id => document.getElementById(id);
+  const LIMIT = 6, LATENCY = 1000;
+  const FILTERS = { todas:"Todas", pendientes:"Pendientes", revision:"En revisión", resueltas:"Resueltas" };
+  const EMPTY_FILTER = { pendientes:"pendientes", revision:"en revisión", resueltas:"resueltas" };
+  const st = { phase:"loading", filter:"todas", items:[], cursor:null, lastRead:null, stale:false, busy:null, moreError:false };
+  let serverOps = clone(OPS), timer = null;
+
+  // ---- Backend simulado (lectura pura, paginación por cursor) ----
+  function backendList(filter, cursor){
+    const all = serverOps.filter(o => filter === "todas" || groupOf(o) === filter);
+    const start = cursor ? parseInt(cursor.slice(4), 10) : 0;
+    return { items: clone(all.slice(start, start + LIMIT)), nextCursor: start + LIMIT < all.length ? "cur_" + (start + LIMIT) : null };
+  }
+  function backendProgress(){
+    // Mientras tanto, el core simulado confirmó DSB-6A90F1 (no lo provoca la consulta).
+    const o = serverOps.find(x => x.intento === "CTR-ATT-5C21");
+    if (o && o.dsb && o.dsb.code === "DESEMBOLSO_PROCESANDO"){ o.dsb.code = "DESEMBOLSO_SIMULADO_EXITOSO"; o.dsb.v = 3; o.dsb.desde = o.actualizado = "14 nov 2026, 13:30"; }
+  }
+  function request(fn, cb){
+    clearTimeout(timer);
+    const mode = $("server").value;
+    timer = setTimeout(() => cb(mode === "net" ? {error:"net"} : mode === "session" ? {error:"session"} : fn()), LATENCY);
+  }
+  const announce = msg => { const l = $("live"); l.textContent = ""; setTimeout(() => { l.textContent = msg; }, 50); };
+
+  // ---- Render ----
+  const detailHref = o => "P-009-detalle-de-operacion.html?intento=" + encodeURIComponent(o.intento);
+  const ctrSub = o => o.ctr.contrato ? 'Contrato <span class="id">' + o.ctr.contrato + "</span>" : (CTR[o.ctr.code].terminal ? "Sin contrato · reserva liberada" : "Contrato aún no registrado");
+  const dsbSub = o => o.dsb ? 'Operación <span class="id">' + o.dsb.id + "</span>" : "";
+  function rowHtml(o){
+    return "<tr><td><span class=\"mono\">" + o.actualizado + "</span></td>" +
+      '<td><span class="id strong">' + o.intento + '</span><span class="sub mono">' + o.monto + "</span></td>" +
+      "<td>" + ctrChip(o) + '<span class="sub">' + ctrSub(o) + "</span></td>" +
+      "<td>" + dsbChip(o) + (o.dsb ? '<span class="sub">' + dsbSub(o) + "</span>" : "") + "</td>" +
+      '<td class="act"><a class="btn btn-secondary btn-sm" data-op="' + o.intento + '" href="' + detailHref(o) + '">Ver detalle<span class="sr-only"> de ' + o.intento + "</span></a></td></tr>";
+  }
+  function cardHtml(o){
+    return '<li class="op-card card"><div class="op-card-head"><h2 class="id">' + o.intento + '</h2><span class="mono">' + o.monto + "</span></div>" +
+      "<dl><div><dt>Fecha (último cambio)</dt><dd class=\"mono\">" + o.actualizado + "</dd></div>" +
+      "<div><dt>Contratación</dt><dd>" + ctrChip(o) + '<span class="sub">' + ctrSub(o) + "</span></dd></div>" +
+      "<div><dt>Desembolso simulado</dt><dd>" + dsbChip(o) + (o.dsb ? '<span class="sub">' + dsbSub(o) + "</span>" : "") + "</dd></div></dl>" +
+      '<a class="btn btn-secondary" data-op="' + o.intento + '" href="' + detailHref(o) + '">Ver detalle<span class="sr-only"> de ' + o.intento + "</span></a></li>";
+  }
+  const skeleton = () => '<div class="card skel-list" aria-hidden="true">' + Array.from({length:4}, () => '<div class="skel-row"><span class="skel"></span><span class="skel"></span><span class="skel"></span><span class="skel"></span><span class="skel"></span></div>').join("") + "</div>" +
+    '<p class="sr-only">Cargando tus operaciones</p>';
+  const spinBtn = label => '<span class="spinner" aria-hidden="true"></span><span>' + label + "</span>";
+
+  function render(){
+    const had = document.activeElement;
+    draw();
+    // Si el control enfocado desapareció al redibujar, el foco vuelve a «Actualizar» (no se pierde en <body>)
+    if (had && had !== document.body && !document.body.contains(had) && !$("content").hidden) $("refresh").focus();
+  }
+  function draw(){
+    const session = st.phase === "session";
+    $("session-box").hidden = !session; $("content").hidden = session;
+    if (session) return;
+
+    // filtros
+    document.querySelectorAll("#filters button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.f === st.filter)));
+    // última lectura
+    const lr = $("last-read");
+    if (st.lastRead) lr.innerHTML = 'Última actualización: <time>' + st.lastRead + "</time>" + (st.stale ? chip("warning", "alert", "No actualizada") : "");
+    else lr.innerHTML = st.phase === "loading" ? "Consultando tus operaciones…" : "Sin lectura confirmada";
+    // botón actualizar
+    const rb = $("refresh"), refreshing = st.busy === "refresh";
+    rb.setAttribute("aria-disabled", String(!!st.busy || st.phase === "loading"));
+    rb.innerHTML = refreshing ? spinBtn("Actualizando…") : '<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Actualizar</span>';
+    // alerta de lectura no actualizada
+    const na = $("net-alert");
+    na.hidden = !st.stale;
+    if (st.stale) na.innerHTML = AL.warning + '<div><strong>No pudimos actualizar el estado</strong><p>Mostramos la última lectura confirmada, del <span class="mono">' + st.lastRead + '</span>. Los estados pueden haber cambiado desde entonces: no los tomes como actuales.</p><div class="alert-actions"><button type="button" class="btn btn-secondary" data-act="refresh">Reintentar</button></div></div>';
+
+    const res = $("results"), more = $("more");
+    res.setAttribute("aria-busy", String(st.phase === "loading" || !!st.busy));
+    more.innerHTML = "";
+    if (st.phase === "loading"){ res.innerHTML = skeleton(); return; }
+    if (st.phase === "error"){
+      res.innerHTML = '<div class="alert alert-danger" role="alert">' + AL.danger + '<div><strong>No pudimos cargar tus operaciones</strong><p>La lectura no está disponible por un problema de conexión. Tus operaciones no cambian por esto; inténtalo de nuevo en unos segundos.</p><div class="alert-actions"><button type="button" class="btn btn-primary" data-act="retry">Reintentar</button></div></div></div>';
+      return;
+    }
+    if (!st.items.length){
+      res.innerHTML = st.filter === "todas"
+        ? '<div class="card empty"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><rect x="7" y="6" width="26" height="30" rx="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M13 15h14M13 21h14M13 27h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><h2>Aún no tienes operaciones</h2><p class="muted">Cuando inicies una contratación, aquí verás su estado y el de su desembolso simulado.</p><a class="btn btn-primary" href="P-002-oportunidades.html">Ver mis oportunidades</a></div>'
+        : '<div class="card empty"><svg width="40" height="40" viewBox="0 0 40 40" aria-hidden="true"><circle cx="18" cy="18" r="10" stroke="currentColor" stroke-width="2" fill="none"/><path d="m26 26 7 7" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><h2>No tienes operaciones ' + EMPTY_FILTER[st.filter] + '</h2><p class="muted">Prueba con otro filtro para ver el resto de tus operaciones.</p><button type="button" class="btn btn-secondary" data-act="all">Ver todas</button></div>';
+      return;
+    }
+    res.innerHTML = '<div class="data"><div class="card table-card"><div class="table-wrap"><table><caption class="sr-only">Operaciones: ' + FILTERS[st.filter] + ", de la más reciente a la más antigua</caption>" +
+      '<thead><tr><th scope="col">Fecha (último cambio)</th><th scope="col">Intento</th><th scope="col">Contratación</th><th scope="col">Desembolso simulado</th><th scope="col"><span class="sr-only">Acción</span></th></tr></thead><tbody>' +
+      st.items.map(rowHtml).join("") + '</tbody></table></div></div><ul class="cards" aria-label="Operaciones">' + st.items.map(cardHtml).join("") + "</ul></div>";
+
+    let m = '<p class="hint">Mostrando ' + st.items.length + (st.items.length === 1 ? " operación" : " operaciones") + "</p>";
+    if (st.moreError) m = '<div class="alert alert-danger" role="alert" style="align-self:stretch">' + AL.danger + '<div><strong>No pudimos cargar más operaciones</strong><p>Las que ya ves siguen siendo la última lectura confirmada.</p><div class="alert-actions"><button type="button" class="btn btn-secondary" data-act="more">Reintentar</button></div></div></div>' + m;
+    else if (st.cursor) m += '<button type="button" class="btn btn-secondary" data-act="more" aria-disabled="' + (st.busy === "more") + '">' + (st.busy === "more" ? spinBtn("Cargando…") : "Cargar más") + "</button>";
+    more.innerHTML = m;
+  }
+
+  // ---- Acciones ----
+  function firstLoad(){
+    st.phase = "loading"; st.items = []; st.cursor = null; st.stale = false; st.moreError = false; render();
+    request(() => backendList(st.filter, null), r => {
+      if (r.error === "session"){ st.phase = "session"; render(); $("session-box").focus(); return; }
+      if (r.error){ st.phase = "error"; render(); return; }
+      Object.assign(st, { phase:"ready", items:r.items, cursor:r.nextCursor, lastRead:nextRead(), stale:false });
+      render(); announce(r.items.length ? "Se cargaron " + r.items.length + " operaciones." : "No hay operaciones para mostrar.");
+    });
+  }
+  function refresh(){
+    if (st.busy || st.phase !== "ready") return;
+    st.busy = "refresh"; st.moreError = false; render(); announce("Actualizando tus operaciones");
+    request(() => { backendProgress(); return backendList(st.filter, null); }, r => {
+      st.busy = null;
+      if (r.error === "session"){ st.phase = "session"; render(); $("session-box").focus(); return; }
+      if (r.error){ st.stale = true; render(); return; }
+      Object.assign(st, { items:r.items, cursor:r.nextCursor, lastRead:nextRead(), stale:false });
+      render(); announce("Lista actualizada a las " + st.lastRead.slice(-5) + ".");
+    });
+  }
+  function setFilter(f){
+    if (st.busy || f === st.filter || st.phase !== "ready") return;
+    const prev = st.filter; st.filter = f; st.busy = "filter"; st.moreError = false; render(); announce("Filtrando: " + FILTERS[f]);
+    request(() => backendList(f, null), r => {
+      st.busy = null;
+      if (r.error === "session"){ st.phase = "session"; render(); $("session-box").focus(); return; }
+      if (r.error){ st.filter = prev; st.stale = true; render(); return; }
+      Object.assign(st, { items:r.items, cursor:r.nextCursor, lastRead:nextRead(), stale:false });
+      render(); announce(FILTERS[f] + ": " + (r.items.length ? r.items.length + (r.cursor ? " o más" : "") + " operaciones." : "sin resultados."));
+    });
+  }
+  function loadMore(){
+    if (st.busy || !st.cursor) return;
+    st.busy = "more"; st.moreError = false; render(); announce("Cargando más operaciones");
+    const from = st.items.length;
+    request(() => backendList(st.filter, st.cursor), r => {
+      st.busy = null;
+      if (r.error === "session"){ st.phase = "session"; render(); $("session-box").focus(); return; }
+      if (r.error){ st.moreError = true; render(); return; }
+      st.items = st.items.concat(r.items); st.cursor = r.nextCursor; render();
+      announce("Se cargaron " + r.items.length + " operaciones más.");
+      const links = [...document.querySelectorAll("#results a[data-op]")].filter(a => a.offsetParent !== null);
+      const target = links[from]; if (target) target.focus();
+    });
+  }
+
+  $("filters").addEventListener("click", e => { const b = e.target.closest("button[data-f]"); if (b) setFilter(b.dataset.f); });
+  $("refresh").addEventListener("click", refresh);
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    ({ refresh, retry:firstLoad, more:loadMore, all:() => setFilter("todas") })[b.dataset.act]();
+  });
+
+  // ---- Selector de estados del prototipo ----
+  const RESOLVED_ONLY = ["CTR-ATT-3A10", "CTR-ATT-4B88", "CTR-ATT-2E64"];
+  function scenario(v){
+    clearTimeout(timer); $("server").value = "ok"; clockMin = 13 * 60 + 29;
+    serverOps = clone(OPS);
+    Object.assign(st, { phase:"ready", filter:"todas", items:[], cursor:null, lastRead:null, stale:false, busy:null, moreError:false });
+    const page = (f, c) => backendList(f, c);
+    const fill = () => { const r = page("todas", null); st.items = r.items; st.cursor = r.nextCursor; st.lastRead = nextRead(); };
+    switch (v){
+      case "cargando": st.phase = "loading"; break;
+      case "datos": fill(); break;
+      case "pagina": { fill(); const r = page("todas", st.cursor); st.items = st.items.concat(r.items); st.cursor = r.nextCursor; break; }
+      case "cargando-mas": fill(); st.busy = "more"; break;
+      case "actualizando": fill(); st.busy = "refresh"; break;
+      case "filtrado-vacio": serverOps = clone(OPS.filter(o => RESOLVED_ONLY.includes(o.intento))); st.filter = "pendientes"; st.lastRead = nextRead(); break;
+      case "vacio": serverOps = []; st.lastRead = nextRead(); break;
+      case "error-carga": st.phase = "error"; break;
+      case "error-actualizar": fill(); st.stale = true; break;
+      case "error-mas": fill(); st.moreError = true; break;
+      case "sesion": st.phase = "session"; break;
+    }
+    render();
+  }
+  $("scenario").addEventListener("change", e => scenario(e.target.value));
+
+  firstLoad();
+})();
+</script>

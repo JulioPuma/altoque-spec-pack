@@ -1,0 +1,837 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altoque P-011 Revisión contractual caso</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: banda de controles del prototipo arriba, pantalla interna P-011 al centro, notas de validación debajo. Tokens = 09-ui-spec.md §4. */
+:root{
+  --color-primary-700:#174EA6; --color-primary-800:#123B7A;
+  --color-secondary-700:#0B6B5B; --color-accent-500:#F5A623;
+  --color-bg-page:#F7F9FC; --color-bg-surface:#FFFFFF;
+  --color-text-primary:#172033; --color-text-secondary:#4B5565;
+  --color-border:#C9D2E3; --color-success-700:#18794E;
+  --color-warning-800:#8A4B08; --color-danger-700:#B42318;
+  --color-info-700:#175CD3; --color-focus:#7C3AED;
+  --on-primary:#FFFFFF;
+  --tint-info:#EAF1FD; --tint-danger:#FDECEA; --tint-warning:#FDF3E4; --tint-success:#E7F5EE;
+  --proto-bg:#EEF1F7; --proto-ink:#4B5565; --skel:#E4E9F2; --scrim:rgba(23,32,51,.55);
+  --font:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --r-control:8px;--r-card:12px;--r-dialog:16px;
+  --shadow-card:0 1px 3px rgba(23,32,51,.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --skel:#243049; --scrim:rgba(0,0,0,.65); --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --skel:#243049; --scrim:rgba(0,0,0,.65); --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg-page);color:var(--color-text-primary);font:400 16px/1.5 var(--font)}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:var(--color-primary-700)}
+button{font:inherit}
+p{margin:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mono{font-variant-numeric:tabular-nums}
+.code{font-family:ui-monospace,Consolas,monospace;font-size:14px;letter-spacing:.01em;overflow-wrap:anywhere}
+.muted{color:var(--color-text-secondary)}
+
+/* ---------- Banda del prototipo ---------- */
+.proto{background:var(--proto-bg);border-bottom:2px dashed var(--color-border);color:var(--proto-ink);font-size:14px;line-height:20px}
+.proto-in{max-width:1200px;margin:0 auto;padding-block:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.proto-tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.proto label{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap;min-width:0;max-width:100%}
+.proto select{font:inherit;min-height:36px;max-width:100%;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary)}
+
+/* ---------- Shell interno ---------- */
+.skip{position:absolute;left:16px;top:-60px;background:var(--color-primary-700);color:var(--on-primary);padding:var(--s3) var(--s4);border-radius:var(--r-control);z-index:5;text-decoration:none;font-weight:600}
+.skip:focus{top:8px}
+.screen{position:relative}
+.app-head{border-bottom:1px solid var(--color-border);background:var(--color-bg-surface)}
+.app-head-in{max-width:1200px;margin:0 auto;min-height:64px;padding-block:var(--s2);display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2) var(--s5)}
+.logo{display:flex;align-items:center;gap:var(--s2);font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--color-text-primary)}
+.logo svg{flex:none}
+.logo small{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-secondary);border-left:1px solid var(--color-border);padding-left:var(--s2);margin-left:var(--s1)}
+.shell-nav{display:flex;gap:var(--s5);align-items:center;flex-wrap:wrap}
+.shell-nav a{text-decoration:none;font-weight:600;color:var(--color-text-secondary);min-height:44px;display:inline-flex;align-items:center;border-bottom:2px solid transparent}
+.shell-nav a:hover{color:var(--color-primary-700)}
+.shell-nav a[aria-current]{color:var(--color-primary-700);border-color:var(--color-primary-700)}
+.ident{margin-left:auto;display:flex;align-items:center;gap:var(--s3);flex-wrap:wrap;font-size:14px;line-height:20px}
+.ident .who{display:flex;flex-direction:column;text-align:right}
+.ident .who b{font-weight:600}
+.ident a{min-height:44px;display:inline-flex;align-items:center;font-weight:600}
+@media (max-width:599px){.ident{margin-left:0;width:100%;justify-content:space-between}.ident .who{text-align:left}}
+
+/* ---------- Contenido ---------- */
+main.wrap{max-width:1200px;margin:0 auto;padding-block:var(--s5) var(--s7);display:flex;flex-direction:column;gap:var(--s5)}
+main.wrap:focus{outline:none}
+.crumbs ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:var(--s2);font-size:14px;line-height:20px;align-items:center}
+.crumbs li{display:flex;gap:var(--s2);align-items:center}
+.crumbs li+li::before{content:"›";color:var(--color-text-secondary)}
+.crumbs a{min-height:24px;display:inline-flex;align-items:center}
+.page-head{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s4);align-items:center;justify-content:space-between}
+.page-head h1{font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.015em}
+.page-head h1 .code{font-size:20px;font-weight:600;color:var(--color-text-secondary);display:block;line-height:28px;letter-spacing:0}
+@media (max-width:599px){.page-head h1{font-size:28px;line-height:36px}}
+h2.sec{font-size:24px;line-height:32px;font-weight:700}
+h3{font-size:20px;line-height:28px;font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:14px;line-height:20px;font-weight:600;border:1px solid currentColor;border-radius:999px;padding:1px 10px;max-width:100%}
+.chip svg{flex:none}
+.chip-info{color:var(--color-info-700);background:var(--tint-info)}
+.chip-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.chip-success{color:var(--color-success-700);background:var(--tint-success)}
+.chip-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.chip-neutral{color:var(--color-text-secondary);background:var(--color-bg-page)}
+.card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4);min-width:0}
+@media (max-width:599px){.card{padding:var(--s4)}}
+.alert{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid currentColor;border-radius:var(--r-control);padding:var(--s3) var(--s4);font-size:14px;line-height:20px}
+.alert svg{flex:none;margin-top:1px}
+.alert strong{display:block;font-size:16px;line-height:24px;color:var(--color-text-primary)}
+.alert p,.alert li{color:var(--color-text-primary)}
+.alert p+p{margin-top:var(--s1)}
+.alert ul{margin:var(--s1) 0 0;padding-left:20px}
+.alert .actions{margin-top:var(--s3);display:flex;gap:var(--s2);flex-wrap:wrap}
+.alert-info{color:var(--color-info-700);background:var(--tint-info)}
+.alert-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.alert-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.alert-success{color:var(--color-success-700);background:var(--tint-success)}
+.alert:focus-visible{outline-offset:3px}
+.btn{min-height:44px;border-radius:var(--r-control);padding:0 var(--s4);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);border:1px solid transparent;text-decoration:none;font-size:16px;text-align:center}
+.btn-primary{background:var(--color-primary-700);color:var(--on-primary)}
+.btn-primary:hover:not(:disabled){background:var(--color-primary-800)}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-primary-700);border-color:var(--color-border)}
+.btn-secondary:hover:not(:disabled){border-color:var(--color-primary-700)}
+.btn:disabled{cursor:not-allowed;opacity:.7}
+.btn-sm{font-size:14px;padding:0 var(--s3)}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Banner */
+.banner{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s4);padding:var(--s4) var(--s5);border:2px solid var(--color-info-700);border-radius:var(--r-card);background:var(--color-bg-surface)}
+.banner.ok{border-color:var(--color-success-700)}
+.banner.warn{border-color:var(--color-warning-800)}
+.banner .k{font-size:14px;line-height:20px;color:var(--color-text-secondary);display:block}
+.banner .v{font-weight:600;display:block}
+.banner .s{font-size:14px;line-height:20px;color:var(--color-text-secondary);display:block}
+.readrow{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);align-items:center;justify-content:space-between;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+
+/* Resumen */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:var(--s4);margin:0}
+.summary div{min-width:0}
+.summary dt{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.summary dd{margin:0;font-weight:600}
+.summary dd .s{display:block;font-weight:400;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.corr{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center}
+
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:var(--s5);align-items:start}
+.cols>div{display:flex;flex-direction:column;gap:var(--s5);min-width:0}
+@media (max-width:959px){.cols{grid-template-columns:minmax(0,1fr)}}
+
+/* Evidencia */
+.evlist,.obslist,.audlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s3)}
+.ev{border:1px solid var(--color-border);border-radius:var(--r-control);padding:var(--s3) var(--s4);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:var(--s2) var(--s4)}
+.ev.concl{border:2px solid var(--color-success-700)}
+.ev.new{background:var(--tint-info)}
+.ev .k{display:block;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.ev .d{grid-column:1/-1;font-size:14px;line-height:20px}
+.ev .id{font-weight:600}
+.obs{border-left:3px solid var(--color-border);padding:var(--s1) 0 var(--s1) var(--s3);display:flex;flex-direction:column;gap:var(--s1)}
+.obs.new{border-left-color:var(--color-info-700)}
+.obs .by{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.obs .by b{color:var(--color-text-primary);font-weight:600}
+.obs .ref{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.aud{display:grid;grid-template-columns:minmax(0,170px) minmax(0,1fr) auto;gap:var(--s1) var(--s3);font-size:14px;line-height:20px;padding-bottom:var(--s3);border-bottom:1px solid var(--color-border)}
+.aud:last-child{border-bottom:0;padding-bottom:0}
+@media (max-width:599px){.aud{grid-template-columns:1fr auto}.aud .t{grid-column:1/-1}}
+.empty-inline{display:flex;gap:var(--s2);align-items:flex-start;color:var(--color-text-secondary);font-size:14px;line-height:20px;padding:var(--s3);border:1px dashed var(--color-border);border-radius:var(--r-control)}
+
+/* Formularios */
+form{display:flex;flex-direction:column;gap:var(--s4)}
+.field{display:flex;flex-direction:column;gap:var(--s1)}
+.field>label,fieldset legend{font-weight:600}
+.hint{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.input,.select,textarea{width:100%;min-height:48px;padding:var(--s3);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary);font:400 16px/24px var(--font)}
+textarea{min-height:104px;resize:vertical}
+.select{padding:0 var(--s3)}
+.input:hover,.select:hover,textarea:hover{border-color:var(--color-text-secondary)}
+[aria-invalid="true"]{border:2px solid var(--color-danger-700)!important}
+textarea:disabled,.select:disabled{opacity:.6}
+.field-error{display:flex;gap:6px;align-items:flex-start;color:var(--color-danger-700);font-size:14px;line-height:20px;font-weight:500}
+.counter{font-size:14px;line-height:20px;color:var(--color-text-secondary);text-align:right}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--s2);min-width:0}
+fieldset legend{padding:0;margin-bottom:var(--s1)}
+.opt{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid var(--color-border);border-radius:var(--r-control);padding:var(--s3);cursor:pointer;min-height:44px}
+.opt:hover{border-color:var(--color-primary-700)}
+.opt:has(input:checked){border:2px solid var(--color-primary-700);background:var(--tint-info)}
+.opt input{width:20px;height:20px;margin:2px 0 0;flex:none;accent-color:var(--color-primary-700)}
+.opt b{display:block}
+.opt span span{display:block;font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.fieldset-invalid .opt{border-color:var(--color-danger-700)}
+.impact{border:1px solid var(--color-border);border-radius:var(--r-control);padding:var(--s3) var(--s4);background:var(--color-bg-page);font-size:14px;line-height:20px}
+.impact h4{margin:0 0 var(--s2);font-size:16px;line-height:24px}
+.impact ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s1)}
+.form-status{display:flex;align-items:center;gap:var(--s2);min-height:24px;font-size:14px;color:var(--color-text-secondary)}
+.btnrow{display:flex;gap:var(--s2);flex-wrap:wrap}
+.btnrow .btn{flex:1 1 auto}
+
+/* Skeleton / denegado */
+.skel{display:flex;flex-direction:column;gap:var(--s3)}
+.skel i{display:block;height:20px;border-radius:6px;background:var(--skel);animation:pulse 1.4s ease-in-out infinite}
+.skel i.big{height:88px}
+@keyframes pulse{50%{opacity:.5}}
+.denied{max-width:640px;margin:0 auto;padding:var(--s6);align-items:flex-start}
+.denied h1{font-size:32px;line-height:40px}
+@media (max-width:599px){.denied{padding:var(--s5)}.denied h1{font-size:28px;line-height:36px}}
+
+/* Diálogo */
+.scrim{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:20}
+.dialog{background:var(--color-bg-surface);color:var(--color-text-primary);border:1px solid var(--color-border);border-radius:var(--r-dialog);width:min(100%,560px);max-height:100%;overflow:auto;padding:var(--s5);display:flex;flex-direction:column;gap:var(--s4);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.dialog h2{font-size:24px;line-height:32px}
+.dialog h2:focus{outline:none}
+.dialog dl{margin:0;display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr);gap:var(--s2) var(--s3);font-size:14px;line-height:20px}
+.dialog dt{color:var(--color-text-secondary)}
+.dialog dd{margin:0;font-weight:600}
+.dialog blockquote{margin:0;padding:var(--s2) var(--s3);border-left:3px solid var(--color-border);font-size:14px;line-height:20px;overflow-wrap:anywhere}
+@media (max-width:599px){.dialog{padding:var(--s4)}.dialog dl{grid-template-columns:1fr}.dialog dd{margin-bottom:var(--s1)}}
+.dialog .btnrow{justify-content:flex-end}
+
+.app-foot{border-top:1px solid var(--color-border)}
+.app-foot-in{max-width:1200px;margin:0 auto;padding-block:var(--s4);font-size:14px;color:var(--color-text-secondary)}
+
+/* ---------- Notas ---------- */
+.notes{border-top:2px dashed var(--color-border);background:var(--proto-bg)}
+.notes-in{max-width:1200px;margin:0 auto;padding-block:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s5)}
+.notes h2{font-size:20px;line-height:28px;font-weight:600;margin-bottom:var(--s3)}
+.notes ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.notes b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+</style>
+
+<!-- Banda de control: no forma parte de la pantalla -->
+<div class="proto gutter" role="region" aria-label="Controles del prototipo" id="proto">
+  <div class="proto-in">
+    <span class="proto-tag">Prototipo · no es parte de la pantalla</span>
+    <label for="scenario">Ver estado
+      <select id="scenario">
+        <option value="lectura">Lectura · caso de la URL (por defecto CTR-ATT-4F02, evidencia insuficiente)</option>
+        <option value="cargando">Cargando</option>
+        <option value="insuficiente">Evidencia insuficiente · CTR-ATT-5C21</option>
+        <option value="vacio">Sin observaciones (vacío) · CTR-ATT-3D58</option>
+        <option value="editando">Editando observación</option>
+        <option value="obserror">Observación con errores de validación</option>
+        <option value="atomico">Resolución habilitada · conjunto atómico CTR-8842</option>
+        <option value="rollback">Resolución habilitada · marcador de rollback</option>
+        <option value="enviando">Enviando resolución</option>
+        <option value="conflicto">Conflicto de versión (409)</option>
+        <option value="resuelto">Resuelto · contratación exitosa</option>
+        <option value="error">Error de lectura (última lectura confirmada)</option>
+        <option value="denegado">Acceso denegado (403)</option>
+      </select>
+    </label>
+    <label for="role">Rol
+      <select id="role">
+        <option value="operador">Operador de revisión contractual · Marco Salas</option>
+        <option value="auditor">Auditor · Jorge Lima (solo lectura)</option>
+        <option value="desembolso">Operadora de desembolso · Ana Torres</option>
+      </select>
+    </label>
+    <label for="server">Respuesta al enviar
+      <select id="server">
+        <option value="ok">Normal</option>
+        <option value="conflict">Conflicto de versión (409)</option>
+        <option value="down">Sin confirmación del servidor</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="screen" id="screen">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="app-head gutter">
+    <div class="app-head-in">
+      <span class="logo" aria-label="Altoque, área interna">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span aria-hidden="true">Altoque</span><small aria-hidden="true">Interno</small>
+      </span>
+      <nav class="shell-nav" aria-label="Módulos internos" id="shell-nav"></nav>
+      <div class="ident">
+        <span class="who"><b id="who-name">Marco Salas</b><span class="muted" id="who-role">Operador de revisión contractual</span></span>
+        <a href="P-001-inicio-de-sesion.html">Cerrar sesión</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap gutter" id="contenido" tabindex="-1"></main>
+
+  <footer class="app-foot gutter">
+    <div class="app-foot-in">Entorno de evaluación con datos sintéticos. Fechas en hora de Lima (UTC−5); la evidencia muestra su instante UTC.</div>
+  </footer>
+</div>
+
+<div id="live" class="sr-only" role="status" aria-live="polite"></div>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="dialog" id="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc"></div>
+</div>
+
+<section class="notes gutter" aria-label="Notas para validación" id="notes">
+  <div class="notes-in">
+    <div>
+      <h2>Comportamiento a validar</h2>
+      <ul>
+        <li>Abrir o recargar el caso solo consulta: no cambia estado, versión ni reserva.</li>
+        <li>«Resolver caso» solo aparece con evidencia concluyente. Las opciones las devuelve el backend: con el conjunto atómico, solo <b>Confirmar contratación exitosa</b>; con un marcador de rollback, <b>rechazo de negocio</b>, <b>fallo recuperable</b> o <b>fallo definitivo</b>.</li>
+        <li>Sin evidencia concluyente el panel explica por qué no se puede resolver. La reserva sigue retenida y no se ofrece crear otro intento.</li>
+        <li>Toda observación o resolución exige motivo (mínimo <b>15</b> caracteres, valor ilustrativo) y se envía con versión esperada, correlación y clave de idempotencia.</li>
+        <li>Registrar una observación no cambia la versión del caso. Una resolución confirmada sí la incrementa.</li>
+        <li>Ante un 409 no se reenvía nada: se pide recargar y el motivo escrito se conserva para revisarlo.</li>
+        <li>Si el servidor no confirma el envío, no se muestra éxito ni fallo: se pide recargar para leer el estado confirmado.</li>
+        <li>El auditor ve evidencia, observaciones y auditoría, sin formularios ni botones de comando.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Reglas aplicadas</h2>
+      <ul>
+        <li><b>RN-259</b> Solo <b>OPERADOR_REVISION_CONTRACTUAL</b> observa y resuelve. Se audita actor, instante, motivo, evidencia, correlación, versión y resultado.</li>
+        <li><b>RN-184</b> Evidencia concluyente: conjunto contractual atómico completo, marcador durable de rollback o cierre sin contrato, o resultado autoritativo del gestor transaccional.</li>
+        <li><b>RN-185</b> No inferir resultado por tiempo, ausencia de filas, timeout o lectura no disponible.</li>
+        <li><b>RN-181–183</b> Consulta cada 30 s durante 15 min, luego revisión manual con incidente de objetivo 4 h.</li>
+        <li><b>RN-178 / RN-179 / RN-091</b> Rechazo o fallo definitivo: la reserva se libera exactamente una vez.</li>
+        <li><b>RN-180</b> Fallo recuperable: se mantiene la reserva y se permite un único reintento del mismo intento.</li>
+        <li><b>RN-126</b> Conjunto atómico confirmado → <b>CONTRATACION_EXITOSA</b>.</li>
+        <li><b>RN-082</b> Toda transición valida estado origen y versión esperada.</li>
+        <li><b>RN-239</b> El auditor no produce transiciones. <b>RN-243</b> 403 sin revelar el recurso.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const main = $("contenido");
+  const LATENCY = 1000, MIN_REASON = 15;
+  const NOW = Date.parse("2026-11-14T19:05:00Z");          // 14 nov 2026, 14:05 Lima
+  const CACHED_AT = Date.parse("2026-11-14T18:48:00Z");    // 13:48 Lima
+  const OBJ = 4 * 3600e3;
+
+  const ICON = {
+    info:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    error:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5v5.5M10 13.8v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    warn:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5 18.5 17h-17L10 2.5Z" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/><path d="M10 8v4.2M10 14.6v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    check:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m6.5 10.2 2.4 2.4 4.6-4.9" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    review:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    dash:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-dasharray="3 2.4"/><path d="M6.5 10h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    doc:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h7l3.5 3.5v11.5H5V2.5Z" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/><path d="M8 10h5M8 13h5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+    lock:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="8.5" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>',
+    eye:'<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6Z" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>',
+    refresh:'<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10a6 6 0 1 1-1.8-4.3M16 3.5v3.2h-3.2" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    copy:'<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M13 4.5V4a1.5 1.5 0 0 0-1.5-1.5h-7A1.5 1.5 0 0 0 3 4v7a1.5 1.5 0 0 0 1.5 1.5H5" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>'
+  };
+  const sm = svg => svg.replace('width="20" height="20"', 'width="16" height="16"');
+
+  // ---- Formato ----
+  const MES = ["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"];
+  const toMs = x => typeof x === "number" ? x : Date.parse(x);
+  function lima(x){ const d = new Date(toMs(x) - 5*3600e3);
+    return d.getUTCDate() + " " + MES[d.getUTCMonth()] + " " + d.getUTCFullYear() + ", " + String(d.getUTCHours()).padStart(2,"0") + ":" + String(d.getUTCMinutes()).padStart(2,"0"); }
+  const utc = x => new Date(toMs(x)).toISOString().replace(".000Z","Z");
+  function dur(ms){ const m = Math.floor(ms/60000), d = Math.floor(m/1440), h = Math.floor((m%1440)/60), mm = m%60;
+    return (d ? d + " d " : "") + (d || h ? h + " h " : "") + mm + " min"; }
+  const money = n => "S/ " + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const iso = ms => new Date(ms).toISOString();
+
+  // ---- Dataset sintético ----
+  const M = "Marco Salas";
+  function detailed(){
+    return {
+      "CTR-ATT-4F02": { opp:"OFR-3E91B0", ace:"ACE-91C3E5", aceAt:"2026-11-08T21:23:40Z", reserva:3000, since:"2026-11-08T21:40:05Z", v:7, corr:"corr-4f02-9b1c", inc:"INC-2026-1108-031",
+        ev:[
+          { id:"EVD-4F02-01", src:"Orquestador de contratación", at:"2026-11-08T21:25:05Z", kind:"sys", res:"Registro del sistema", d:"Intento registrado en CONTRATACION_PENDIENTE; reserva de S/ 3 000 retenida.", corr:"corr-4f02-9b1c" },
+          { id:"EVD-4F02-02", src:"Registro contractual", at:"2026-11-08T21:39:35Z", kind:"no", res:"No concluyente", d:"30 consultas cada 30 s sin el conjunto contractual completo.", corr:"corr-4f02-9b1c" },
+          { id:"EVD-4F02-03", src:"Gestor transaccional", at:"2026-11-08T21:40:02Z", kind:"no", res:"No concluyente", d:"Timeout de consulta: lectura no disponible. Un timeout no prueba rollback.", corr:"corr-4f02-9b1c" },
+          { id:"EVD-4F02-04", src:"Gestión de incidentes", at:"2026-11-08T21:40:05Z", kind:"sys", res:"Registro del sistema", d:"Ingreso a CONTRATACION_EN_REVISION_MANUAL. Incidente crítico INC-2026-1108-031 con objetivo de 4 h.", corr:"corr-4f02-9b1c" },
+          { id:"EVD-4F02-05", src:"Gestión de incidentes", at:"2026-11-09T01:40:05Z", kind:"sys", res:"Registro del sistema", d:"Objetivo de 4 h incumplido sin evidencia concluyente. Incidente escalado; el caso sigue en revisión manual.", corr:"corr-4f02-9b1c" },
+          { id:"EVD-4F02-06", src:"Registro contractual", at:"2026-11-14T18:50:22Z", kind:"no", res:"No concluyente", d:"Se encontró la orden única, pero faltan el contrato y la auditoría obligatoria. Conjunto incompleto.", corr:"corr-4f02-9b1c" }
+        ],
+        obs:[
+          { by:M, at:"2026-11-09T14:15:00Z", text:"Pedí al equipo de plataforma la bitácora del gestor transaccional del 8 nov. Aún no responden.", ref:"EVD-4F02-03" },
+          { by:M, at:"2026-11-14T18:55:00Z", text:"La orden única existe, pero sin contrato ni auditoría obligatoria. No es el conjunto atómico completo; la reserva se mantiene.", ref:"EVD-4F02-06" }
+        ],
+        audit:[
+          { at:"2026-11-08T21:25:05Z", who:"Sistema", what:"Transición CONTRATACION_REGISTRANDO → CONTRATACION_PENDIENTE", v:4 },
+          { at:"2026-11-08T21:40:05Z", who:"Sistema", what:"Transición CONTRATACION_PENDIENTE → CONTRATACION_EN_REVISION_MANUAL", v:5 },
+          { at:"2026-11-09T01:40:05Z", who:"Sistema", what:"Incidente escalado, sin cambio de estado", v:6 },
+          { at:"2026-11-09T14:15:00Z", who:M, what:"Observación registrada", v:6 },
+          { at:"2026-11-11T15:00:00Z", who:"Sistema", what:"Incidente reasignado a nivel 2, sin cambio de estado", v:7 },
+          { at:"2026-11-14T18:55:00Z", who:M, what:"Observación registrada", v:7 }
+        ] },
+      "CTR-ATT-5C21": { opp:"OFR-7F3A2C", ace:"ACE-2B7D40", aceAt:"2026-11-14T18:24:30Z", reserva:5000, since:"2026-11-14T18:41:10Z", v:4, corr:"corr-7d1e-44a0", inc:"INC-2026-1114-007",
+        ev:[
+          { id:"EVD-5C21-01", src:"Orquestador de contratación", at:"2026-11-14T18:26:10Z", kind:"sys", res:"Registro del sistema", d:"Intento registrado en CONTRATACION_PENDIENTE; reserva de S/ 5 000 retenida.", corr:"corr-7d1e-44a0" },
+          { id:"EVD-5C21-02", src:"Registro contractual", at:"2026-11-14T18:30:12Z", kind:"no", res:"No concluyente", d:"Sin filas del conjunto contractual. La ausencia de filas no prueba rollback.", corr:"corr-7d1e-44a0" },
+          { id:"EVD-5C21-03", src:"Gestor transaccional", at:"2026-11-14T18:40:41Z", kind:"no", res:"No concluyente", d:"Lectura no disponible: el servicio respondió 503.", corr:"corr-7d1e-44a0" },
+          { id:"EVD-5C21-04", src:"Gestión de incidentes", at:"2026-11-14T18:41:10Z", kind:"sys", res:"Registro del sistema", d:"Ingreso a CONTRATACION_EN_REVISION_MANUAL tras 15 min en pendiente. Incidente crítico INC-2026-1114-007; objetivo: 14 nov 2026, 17:41.", corr:"corr-7d1e-44a0" }
+        ],
+        obs:[
+          { by:M, at:"2026-11-14T18:58:00Z", text:"Caso nuevo. El registro contractual no devuelve filas, lo que no prueba rollback. Espero una lectura autoritativa del gestor transaccional.", ref:"EVD-5C21-02" }
+        ],
+        audit:[
+          { at:"2026-11-14T18:26:10Z", who:"Sistema", what:"Transición CONTRATACION_REGISTRANDO → CONTRATACION_PENDIENTE", v:3 },
+          { at:"2026-11-14T18:41:10Z", who:"Sistema", what:"Transición CONTRATACION_PENDIENTE → CONTRATACION_EN_REVISION_MANUAL", v:4 },
+          { at:"2026-11-14T18:58:00Z", who:M, what:"Observación registrada", v:4 }
+        ] }
+    };
+  }
+  // Casos restantes de la bandeja (mismo patrón, datos más breves)
+  const LIGHT = [
+    ["CTR-ATT-8E33","2026-11-13T23:15:40Z",10000,"OFR-C6E812",9,"Gestor transaccional","Lectura no disponible.","2026-11-14T17:20:03Z"],
+    ["CTR-ATT-7B90","2026-11-14T14:02:18Z",8500,"OFR-A2D5F1",6,"Registro contractual","Sin filas del conjunto contractual.","2026-11-14T18:12:44Z"],
+    ["CTR-ATT-6A17","2026-11-14T15:12:09Z",1200,"SOL-48C1E9",3,"Gestor transaccional","Timeout de consulta.","2026-11-14T15:12:09Z"],
+    ["CTR-ATT-2F76","2026-11-14T16:48:31Z",2400,"SOL-5D2A6E",3,"Registro contractual","Orden única sin contrato ni auditoría obligatoria.","2026-11-14T17:40:15Z"],
+    ["CTR-ATT-3D58","2026-11-14T17:20:52Z",600,"SOL-91B07C",2,"Gestor transaccional","Lectura no disponible.","2026-11-14T17:20:52Z"]
+  ];
+  function lightCase(r){
+    const [id, since, reserva, opp, v, src, res, at] = r, sfx = id.slice(-4), corr = "corr-" + sfx.toLowerCase() + "-" + (parseInt(sfx,16) % 9000 + 1000).toString(16);
+    const s = Date.parse(since), late = NOW - s > OBJ, inc = "INC-" + iso(s).slice(0,10).replace(/-/g,"").replace(/^(\d{4})/,"$1-") + "-0" + (parseInt(sfx,16) % 90 + 10);
+    const ev = [
+      { id:"EVD-"+sfx+"-01", src:"Orquestador de contratación", at:iso(s - 15*60e3), kind:"sys", res:"Registro del sistema", d:"Intento registrado en CONTRATACION_PENDIENTE; reserva de " + money(reserva) + " retenida.", corr },
+      { id:"EVD-"+sfx+"-02", src:"Gestión de incidentes", at:since, kind:"sys", res:"Registro del sistema", d:"Ingreso a CONTRATACION_EN_REVISION_MANUAL tras 15 min en pendiente. Incidente crítico " + inc + " con objetivo de 4 h.", corr }
+    ];
+    if (late) ev.push({ id:"EVD-"+sfx+"-03", src:"Gestión de incidentes", at:iso(s + OBJ), kind:"sys", res:"Registro del sistema", d:"Objetivo de 4 h incumplido sin evidencia concluyente. Incidente escalado.", corr });
+    ev.push({ id:"EVD-"+sfx+"-0" + (ev.length+1), src, at: Date.parse(at) < s ? since : at, kind:"no", res:"No concluyente", d:res, corr });
+    ev.sort((a,b) => toMs(a.at) - toMs(b.at)); ev.forEach((e,i) => { e.id = "EVD-" + sfx + "-0" + (i+1); });
+    const obs = id === "CTR-ATT-3D58" ? [] : [{ by:M, at:iso(Math.min(NOW - 20*60e3, s + 40*60e3)), text:"Revisé la última lectura disponible: no es concluyente. Mantengo la reserva y espero una lectura autoritativa.", ref:ev[ev.length-1].id }];
+    const audit = [{ at:since, who:"Sistema", what:"Transición CONTRATACION_PENDIENTE → CONTRATACION_EN_REVISION_MANUAL", v: late ? v-1 : v }];
+    if (late) audit.push({ at:iso(s + OBJ), who:"Sistema", what:"Incidente escalado, sin cambio de estado", v });
+    obs.forEach(o => audit.push({ at:o.at, who:M, what:"Observación registrada", v }));
+    audit.sort((a,b) => toMs(a.at) - toMs(b.at));
+    return { opp, ace:"ACE-" + sfx + "A" + (v*7 % 10), aceAt:iso(s - 17*60e3), reserva, since, v, corr, inc, ev, obs, audit };
+  }
+  function getCase(id){
+    const d = detailed(); if (d[id]) return d[id];
+    const r = LIGHT.find(x => x[0] === id); return r ? lightCase(r) : null;
+  }
+
+  // Evidencia concluyente que aparece en los escenarios de 5C21
+  const CONCL = {
+    atomico:{ id:"EVD-5C21-05", src:"Registro contractual", at:"2026-11-14T19:02:47Z", kind:"yes", res:"Concluyente", d:"Conjunto contractual atómico completo: contrato CTR-8842, auditoría obligatoria, orden única ORD-8842-01 y consumo de la reserva.", corr:"corr-7d1e-44a0" },
+    rollback:{ id:"EVD-5C21-05", src:"Gestor transaccional", at:"2026-11-14T19:02:47Z", kind:"yes", res:"Concluyente", d:"Marcador durable de rollback: la transacción TX-5C21-0091 se revirtió y cerró sin contrato.", corr:"corr-7d1e-44a0" }
+  };
+  // Opciones que el backend devuelve según la evidencia concluyente
+  const OPTS = {
+    exitosa:{ label:"Confirmar contratación exitosa", to:"CONTRATACION_EXITOSA", desc:"El conjunto contractual atómico está completo.", chip:"success", icon:"check", done:"Contratación exitosa",
+      impact: c => ["Estado final: <b>CONTRATACION_EXITOSA</b> (terminal).", "Reserva de " + money(c.reserva) + ": queda consumida por el contrato <span class=\"code\">CTR-8842</span>; no se libera.", "Oportunidad <span class=\"code\">" + c.opp + "</span>: queda contratada. No se crea otro intento.", "El cliente verá el contrato CTR-8842 en «Mis operaciones»."],
+      reserve:"Consumida por el contrato CTR-8842" },
+    rechazo:{ label:"Rechazo de negocio", to:"CONTRATACION_RECHAZADA", desc:"El rollback se debió al incumplimiento de una guarda de negocio.", chip:"neutral", icon:"dash", done:"Contratación rechazada",
+      impact: c => ["Estado final: <b>CONTRATACION_RECHAZADA</b> (terminal).", "Reserva de " + money(c.reserva) + ": se libera exactamente una vez.", "No se crea otro intento desde esta pantalla.", "El cliente verá que la contratación no se completó."],
+      reserve:"Liberada (una sola vez)" },
+    recuperable:{ label:"Fallo técnico recuperable", to:"CONTRATACION_FALLIDA_RECUPERABLE", desc:"El rollback se debió a un fallo técnico que admite reintento.", chip:"warning", icon:"warn", done:"Fallo técnico recuperable",
+      impact: c => ["Estado: <b>CONTRATACION_FALLIDA_RECUPERABLE</b>.", "Reserva de " + money(c.reserva) + ": se mantiene retenida.", "Se permite un único reintento controlado del mismo intento <span class=\"code\">" + c.id + "</span>. No se crea otro intento.", "El cliente verá que puede reintentar la contratación."],
+      reserve:"Se mantiene retenida" },
+    definitivo:{ label:"Fallo técnico definitivo", to:"CONTRATACION_FALLIDA_DEFINITIVA", desc:"El rollback se debió a un fallo técnico que no admite reintento.", chip:"danger", icon:"error", done:"Fallo técnico definitivo",
+      impact: c => ["Estado final: <b>CONTRATACION_FALLIDA_DEFINITIVA</b> (terminal).", "Reserva de " + money(c.reserva) + ": se libera exactamente una vez.", "No se crea otro intento desde esta pantalla.", "El cliente verá que la contratación no se pudo completar."],
+      reserve:"Liberada (una sola vez)" }
+  };
+  const ROLES = {
+    operador:{ name:"Marco Salas", label:"Operador de revisión contractual", contractual:true, desembolso:false, ro:false },
+    auditor:{ name:"Jorge Lima", label:"Auditor · solo lectura", contractual:true, desembolso:true, ro:true },
+    desembolso:{ name:"Ana Torres", label:"Operadora de revisión de desembolso", contractual:false, desembolso:true, ro:false }
+  };
+
+  // ---- Estado ----
+  const params = new URLSearchParams(location.search);
+  const urlCase = params.get("intento") || "CTR-ATT-4F02";
+  let st = {}, timer = null, conflictUsed = false;
+  $("role").value = ROLES[params.get("rol")] ? params.get("rol") : "operador";
+  const role = () => ROLES[$("role").value];
+  const canCmd = () => !role().ro && !st.resolved && st.phase === "ok";
+
+  function load(id, conclusive){
+    const c = getCase(id);
+    st = { id, c, phase: c ? "ok" : "denied", conclusive:null, opts:[], lastRead:NOW, notice:null, conflict:null,
+      obsText:"", obsRef:"", obsErrors:null, obsBusy:false, newObs:-1,
+      resOpt:"", resReason:"", resErrors:null, resolved:null, newEv:null, idem:null };
+    if (c) c.id = id;
+    if (c && conclusive) setConclusive(conclusive);
+  }
+  function setConclusive(kind){
+    st.conclusive = kind; st.c.ev.push(Object.assign({}, CONCL[kind]));
+    st.c.audit.push({ at:CONCL[kind].at, who:"Sistema", what:"Evidencia durable registrada: " + (kind === "atomico" ? "conjunto contractual atómico" : "marcador de rollback"), v:st.c.v });
+    st.opts = kind === "atomico" ? ["exitosa"] : ["rechazo","recuperable","definitivo"];
+  }
+  const concl = () => st.c.ev.filter(e => e.kind === "yes").slice(-1)[0];
+
+  // ---- Shell ----
+  function renderShell(){
+    const r = role(), q = "?rol=" + $("role").value;
+    $("who-name").textContent = r.name; $("who-role").textContent = r.label;
+    let h = "";
+    if (r.contractual) h += '<a href="P-010-revision-contractual-bandeja.html' + q + '" aria-current="true">Revisión contractual</a>';
+    if (r.desembolso) h += '<a href="P-012-revision-de-desembolso-bandeja.html' + q + '">Revisión desembolso</a>';
+    $("shell-nav").innerHTML = h;
+  }
+  function announce(msg){ const l = $("live"); l.textContent = ""; setTimeout(() => { l.textContent = msg; }, 30); }
+
+  // ---- Piezas de la vista ----
+  function viewDenied(){
+    const r = role();
+    main.innerHTML = '<div class="card denied">' +
+      '<span class="chip chip-neutral">' + sm(ICON.lock) + ' Error 403</span>' +
+      '<h1>No tienes acceso a este recurso</h1>' +
+      '<p class="muted">No podemos mostrar este contenido con tu rol actual. Si crees que deberías tener acceso, pide la asignación al responsable del área interna.</p>' +
+      (r.contractual ? '<a class="btn btn-primary" href="P-010-revision-contractual-bandeja.html?rol=' + $("role").value + '">Volver a la bandeja</a>'
+        : r.desembolso ? '<a class="btn btn-primary" href="P-012-revision-de-desembolso-bandeja.html?rol=' + $("role").value + '">Ir a Revisión desembolso</a>' : '') +
+      '</div>';
+    main.focus();
+  }
+  function viewLoading(){
+    main.innerHTML = crumbs() + '<div class="card skel" aria-hidden="true"><i style="width:35%"></i><i class="big"></i><i></i><i style="width:80%"></i><i class="big"></i><i style="width:60%"></i></div>';
+  }
+  function crumbs(){
+    return '<nav class="crumbs" aria-label="Ruta de navegación"><ol><li><a href="P-010-revision-contractual-bandeja.html?rol=' + $("role").value + '">Revisión contractual</a></li><li><span aria-current="page">Caso ' + (st.c ? '<span class="code">' + st.id + '</span>' : '') + '</span></li></ol></nav>';
+  }
+  function stateChip(){
+    if (st.resolved){ const o = OPTS[st.resolved.opt]; return '<span class="chip chip-' + o.chip + '">' + sm(ICON[o.icon]) + ' ' + o.done + '</span>'; }
+    return '<span class="chip chip-info">' + sm(ICON.review) + ' En revisión manual</span>';
+  }
+  function banner(){
+    const c = st.c, s = Date.parse(c.since), age = (st.resolved ? st.resolved.at : NOW) - s, late = NOW - s > OBJ;
+    const cls = st.resolved ? (st.resolved.opt === "exitosa" ? " ok" : " warn") : (late ? " warn" : "");
+    const stateTxt = st.resolved ? OPTS[st.resolved.opt].to : "CONTRATACION_EN_REVISION_MANUAL";
+    return '<section class="banner' + cls + '" aria-label="Estado del caso">' +
+      '<div><span class="k">Estado</span><span class="v">' + stateChip() + '</span><span class="s code">' + stateTxt + '</span></div>' +
+      '<div><span class="k">' + (st.resolved ? 'Tiempo hasta resolver' : 'Tiempo en revisión') + '</span><span class="v mono">' + dur(age) + '</span><span class="s">Desde ' + lima(c.since) + '</span></div>' +
+      '<div><span class="k">Versión</span><span class="v mono">v' + c.v + '</span><span class="s">Se envía como versión esperada en cada comando</span></div>' +
+      '<div><span class="k">Incidente <span class="code">' + c.inc + '</span></span>' +
+        (st.resolved ? '<span class="v">' + sm(ICON.check) + ' Cerrado con la resolución</span>'
+          : late ? '<span class="v" style="color:var(--color-warning-800)">' + sm(ICON.warn) + ' Escalado</span><span class="s">Objetivo de 4 h incumplido el ' + lima(s + OBJ) + '. No se infiere resultado por el tiempo.</span>'
+          : '<span class="v">' + sm(ICON.info) + ' Dentro del objetivo</span><span class="s">El objetivo de 4 h vence el ' + lima(s + OBJ) + '</span>') + '</div>' +
+      '</section>';
+  }
+  function readRow(){
+    return '<div class="readrow"><span>' + (st.phase === "error" ? 'Última lectura confirmada: ' : 'Leído el ') + '<b class="mono">' + lima(st.lastRead) + '</b>. Consultar el caso no cambia su estado.</span>' +
+      '<button type="button" class="btn btn-secondary btn-sm" id="reload">' + ICON.refresh + ' Recargar caso</button></div>';
+  }
+  function summary(){
+    const c = st.c;
+    return '<section class="card" aria-labelledby="h-res"><h2 class="sec" id="h-res">Resumen</h2><dl class="summary">' +
+      '<div><dt>Intento</dt><dd class="code">' + st.id + '</dd></div>' +
+      '<div><dt>Oportunidad</dt><dd class="code">' + c.opp + '</dd></div>' +
+      '<div><dt>Reserva</dt><dd class="mono">' + money(c.reserva) + '<span class="s">' + (st.resolved ? OPTS[st.resolved.opt].reserve : 'Retenida mientras el caso esté en revisión') + '</span></dd></div>' +
+      '<div><dt>Aceptación</dt><dd class="code">' + c.ace + '<span class="s">Aceptada el ' + lima(c.aceAt) + '</span></dd></div>' +
+      '<div><dt>Correlación</dt><dd><span class="corr"><span class="code" id="corr-val">' + c.corr + '</span><button type="button" class="btn btn-secondary btn-sm" id="copy" aria-label="Copiar correlación ' + c.corr + '">' + ICON.copy + ' Copiar</button></span></dd></div>' +
+      '</dl></section>';
+  }
+  function evidence(){
+    const items = st.c.ev.slice().sort((a,b) => toMs(a.at) - toMs(b.at)).map(e => {
+      const chip = e.kind === "yes" ? '<span class="chip chip-success">' + sm(ICON.check) + ' Concluyente</span>'
+        : e.kind === "no" ? '<span class="chip chip-neutral">' + sm(ICON.dash) + ' No concluyente</span>'
+        : '<span class="chip chip-info">' + sm(ICON.doc) + ' Registro del sistema</span>';
+      return '<li class="ev' + (e.kind === "yes" ? " concl" : "") + (st.newEv === e.id ? " new" : "") + '">' +
+        '<div><span class="k">Fuente</span><span class="id">' + esc(e.src) + '</span><span class="k code">' + e.id + '</span></div>' +
+        '<div><span class="k">Instante UTC</span><time class="code" datetime="' + utc(e.at) + '">' + utc(e.at) + '</time></div>' +
+        '<div><span class="k">Resultado</span>' + chip + '</div>' +
+        '<div><span class="k">Correlación</span><span class="code">' + e.corr + '</span></div>' +
+        '<p class="d">' + esc(e.d) + '</p></li>';
+    }).join("");
+    return '<section class="card" aria-labelledby="h-ev"><h2 class="sec" id="h-ev">Evidencia durable</h2>' +
+      '<p class="hint">Orden cronológico. Solo el conjunto contractual atómico completo, un marcador durable de rollback o un resultado autoritativo del gestor transaccional cuentan como evidencia concluyente.</p>' +
+      '<ol class="evlist">' + items + '</ol></section>';
+  }
+  function fieldErr(id, msg){ return msg ? '<span class="field-error" id="' + id + '">' + sm(ICON.error) + '<span>' + msg + '</span></span>' : ''; }
+  function errSummary(id, errs){
+    if (!errs || !errs.length) return "";
+    return '<div class="alert alert-danger" id="' + id + '" role="alert" tabindex="-1">' + ICON.error + '<div><strong>Revisa ' + (errs.length > 1 ? errs.length + " campos" : "1 campo") + ' antes de continuar</strong><ul>' +
+      errs.map(e => '<li><a href="#' + e[0] + '" data-focus="' + e[0] + '">' + e[1] + '</a></li>').join("") + '</ul></div></div>';
+  }
+  function observations(){
+    const list = st.c.obs.length ? '<ol class="obslist">' + st.c.obs.map((o,i) =>
+      '<li class="obs' + (i === st.newObs ? " new" : "") + '"' + (i === st.newObs ? ' id="obs-new" tabindex="-1"' : '') + '><span class="by"><b>' + esc(o.by) + '</b> · Operador de revisión contractual · <span class="mono">' + lima(o.at) + '</span></span>' +
+      '<p>' + esc(o.text) + '</p><span class="ref">Evidencia: <span class="code">' + o.ref + '</span> · Correlación <span class="code">' + st.c.corr + '</span></span></li>').join("") + '</ol>'
+      : '<p class="empty-inline">' + ICON.info + '<span>Aún no hay observaciones en este caso.' + (role().ro ? '' : ' Registra la primera cuando revises la evidencia.') + '</span></p>';
+    let form = "";
+    if (role().ro) form = '<p class="hint">' + sm(ICON.eye) + ' Modo lectura: tu rol no registra observaciones.</p>';
+    else if (st.resolved) form = '<p class="hint">El caso está resuelto y ya no admite observaciones.</p>';
+    else {
+      const e = st.obsErrors || {}, dis = (!canCmd() || st.obsBusy || st.conflict) ? " disabled" : "";
+      const refs = st.c.ev.map(x => '<option value="' + x.id + '"' + (st.obsRef === x.id ? " selected" : "") + '>' + x.id + ' · ' + esc(x.src) + '</option>').join("");
+      form = '<form id="obs-form" novalidate aria-labelledby="h-newobs">' +
+        '<h3 id="h-newobs">Nueva observación</h3>' +
+        errSummary("obs-sum", st.obsErrors && st.obsErrors.list) +
+        '<div class="field"><label for="obs-text">Motivo u observación</label><span class="hint" id="obs-hint">Obligatorio. Explica qué revisaste y qué concluyes, mínimo ' + MIN_REASON + ' caracteres.</span>' +
+          '<textarea id="obs-text" maxlength="500" aria-describedby="obs-hint obs-count' + (e.text ? " obs-text-err" : "") + '"' + (e.text ? ' aria-invalid="true"' : '') + dis + '>' + esc(st.obsText) + '</textarea>' +
+          '<span class="counter" id="obs-count">' + st.obsText.length + ' / 500</span>' + fieldErr("obs-text-err", e.text) + '</div>' +
+        '<div class="field"><label for="obs-ref">Referencia de evidencia</label>' +
+          '<select class="select" id="obs-ref"' + (e.ref ? ' aria-invalid="true" aria-describedby="obs-ref-err"' : '') + dis + '><option value="">Elige la evidencia</option>' + refs + '</select>' + fieldErr("obs-ref-err", e.ref) + '</div>' +
+        '<div class="btnrow"><button type="submit" class="btn btn-primary" id="obs-save"' + dis + '>' + (st.obsBusy ? '<span class="spinner" aria-hidden="true"></span> Guardando…' : 'Guardar observación') + '</button></div>' +
+        '<p class="hint">Registrar una observación no cambia el estado ni la versión del caso.</p>' +
+        '</form>';
+    }
+    return '<section class="card" aria-labelledby="h-obs"><h2 class="sec" id="h-obs">Observaciones</h2>' + list + form + '</section>';
+  }
+  function auditSec(){
+    return '<section class="card" aria-labelledby="h-aud"><h2 class="sec" id="h-aud">Auditoría</h2><p class="hint">Registros autorizados para tu rol.</p><ol class="audlist">' +
+      st.c.audit.slice().sort((a,b) => toMs(a.at) - toMs(b.at)).map(a => '<li class="aud"><span class="t code">' + utc(a.at) + '</span><span><b>' + esc(a.who) + '</b> · ' + esc(a.what) + '</span><span class="mono muted">v' + a.v + '</span></li>').join("") +
+      '</ol></section>';
+  }
+  function impactHtml(){
+    if (!st.resOpt) return '<p class="muted">Elige un resultado para ver su impacto.</p>';
+    const o = OPTS[st.resOpt], ce = concl();
+    return '<h4>Resumen de impacto</h4><ul>' + o.impact(Object.assign({ id:st.id }, st.c)).map(x => '<li>' + x + '</li>').join("") +
+      '<li>Se auditará: actor ' + esc(role().name) + ', instante, motivo, evidencia <span class="code">' + ce.id + '</span>, correlación <span class="code">' + st.c.corr + '</span>, versión esperada <b>v' + st.c.v + '</b> y resultado.</li></ul>';
+  }
+  function resolvePanel(){
+    if (role().ro) return '<section class="card" aria-labelledby="h-rp"><h2 class="sec" id="h-rp">Resolver caso</h2><div class="alert alert-info" role="note">' + ICON.eye + '<p><b>Modo lectura.</b> Tu rol de auditor no puede resolver casos ni producir transiciones.</p></div></section>';
+    if (st.resolved){
+      const o = OPTS[st.resolved.opt];
+      return '<section class="card" aria-labelledby="h-rp"><h2 class="sec" id="h-rp">Caso resuelto</h2>' +
+        '<div class="alert alert-success" id="resolved-alert" tabindex="-1" role="status">' + ICON.check + '<div><strong>Resolución confirmada por el servidor</strong>' +
+        '<p>Resolviste el caso como <b>' + o.label.toLowerCase() + '</b> (<span class="code">' + o.to + '</span>) el ' + lima(st.resolved.at) + '. Versión actual: v' + st.c.v + '.</p>' +
+        '<p>Reserva: ' + o.reserve.toLowerCase() + '. El caso salió de la bandeja de revisión y ya no admite comandos.</p></div></div>' +
+        '<a class="btn btn-secondary" href="P-010-revision-contractual-bandeja.html?rol=' + $("role").value + '">Volver a la bandeja</a></section>';
+    }
+    let body;
+    if (st.phase === "error"){
+      body = '<div class="alert alert-warning">' + ICON.warn + '<div><strong>No se puede resolver con una lectura no confirmada</strong><p>Recarga el caso. Mientras tanto se muestra la última lectura confirmada y la reserva sigue retenida.</p></div></div>';
+    } else if (!st.opts.length){
+      body = '<div class="alert alert-warning" role="note">' + ICON.warn + '<div><strong>Todavía no se puede resolver este caso</strong>' +
+        '<p>No hay evidencia concluyente. Solo se puede resolver con alguna de estas pruebas:</p><ul><li>el conjunto contractual atómico completo;</li><li>un marcador durable de rollback o de cierre sin contrato;</li><li>un resultado autoritativo del gestor transaccional que pruebe el rollback.</li></ul>' +
+        '<p>El tiempo transcurrido, la ausencia de filas, un timeout o una lectura no disponible no prueban un resultado. La reserva de ' + money(st.c.reserva) + ' sigue retenida y no se crea otro intento.</p>' +
+        (role().ro ? '' : '<p>Puedes registrar una observación con lo que revisaste.</p>') + '</div></div>';
+    } else {
+      const e = st.resErrors || {}, dis = (st.conflict || st.phase !== "ok") ? " disabled" : "", ce = concl();
+      body = '<div class="alert alert-success" role="note">' + ICON.check + '<div><strong>Hay evidencia concluyente</strong><p><span class="code">' + ce.id + '</span> · ' + esc(ce.src) + ' · <span class="code">' + utc(ce.at) + '</span></p><p>' + esc(ce.d) + '</p></div></div>' +
+        '<form id="res-form" novalidate>' + errSummary("res-sum", st.resErrors && st.resErrors.list) +
+        '<fieldset id="res-fs"' + (e.opt ? ' class="fieldset-invalid" aria-describedby="res-opt-err"' : '') + '><legend>Resultado</legend><span class="hint">Opciones habilitadas por el servidor para esta evidencia.</span>' +
+        st.opts.map((k,i) => '<label class="opt"><input type="radio" name="res-opt" value="' + k + '" id="res-opt-' + i + '"' + (st.resOpt === k ? " checked" : "") + dis + '><span><b>' + OPTS[k].label + '</b><span>' + OPTS[k].desc + ' Pasa a <span class="code">' + OPTS[k].to + '</span>.</span></span></label>').join("") +
+        fieldErr("res-opt-err", e.opt) + '</fieldset>' +
+        '<div class="field"><label for="res-reason">Motivo de la resolución</label><span class="hint" id="res-hint">Obligatorio, mínimo ' + MIN_REASON + ' caracteres. Queda en la auditoría del caso.</span>' +
+        '<textarea id="res-reason" maxlength="500" aria-describedby="res-hint' + (e.reason ? " res-reason-err" : "") + '"' + (e.reason ? ' aria-invalid="true"' : '') + dis + '>' + esc(st.resReason) + '</textarea>' + fieldErr("res-reason-err", e.reason) + '</div>' +
+        '<div class="impact" id="impact" aria-live="polite">' + impactHtml() + '</div>' +
+        '<button type="submit" class="btn btn-primary" id="res-btn"' + dis + '>Resolver caso</button>' +
+        '</form>';
+    }
+    return '<section class="card" aria-labelledby="h-rp"><h2 class="sec" id="h-rp">Resolver caso</h2>' + body + '</section>';
+  }
+  function noticeHtml(){
+    let h = "";
+    if (st.conflict) h += '<div class="alert alert-danger" id="conflict" role="alert" tabindex="-1">' + ICON.error + '<div><strong>El caso cambió mientras lo revisabas</strong>' +
+      '<p>El servidor rechazó tu ' + st.conflict.what + ' (409): enviaste la versión esperada v' + st.conflict.expected + ' y el caso ya está en v' + st.conflict.current + '. No se aplicó nada y no la reenviaremos automáticamente.</p>' +
+      '<p>Recarga para ver el estado más reciente. Tu texto se conservará para que lo revises antes de volver a enviarlo.</p>' +
+      '<div class="actions"><button type="button" class="btn btn-primary btn-sm" id="conflict-reload">' + ICON.refresh + ' Recargar caso</button></div></div></div>';
+    if (st.notice){ const n = st.notice, icon = n.kind === "danger" ? ICON.error : n.kind === "success" ? ICON.check : n.kind === "warning" ? ICON.warn : ICON.info;
+      h += '<div class="alert alert-' + n.kind + '" id="notice" tabindex="-1" role="' + (n.kind === "danger" ? "alert" : "status") + '">' + icon + '<div><strong>' + n.title + '</strong><p>' + n.body + '</p>' +
+        (n.reload ? '<div class="actions"><button type="button" class="btn btn-secondary btn-sm" data-reload>' + ICON.refresh + ' ' + n.reload + '</button></div>' : '') + '</div></div>'; }
+    return h;
+  }
+
+  function render(focusSel){
+    renderShell();
+    if (!role().contractual || st.phase === "denied") return viewDenied();
+    if (st.phase === "loading") return viewLoading();
+    main.innerHTML = crumbs() +
+      '<div class="page-head"><h1>Caso contractual<span class="code">' + st.id + '</span></h1>' + (role().ro ? '<span class="chip chip-neutral">' + sm(ICON.eye) + ' Modo lectura</span>' : '') + '</div>' +
+      noticeHtml() + banner() + readRow() + summary() +
+      '<div class="cols"><div>' + evidence() + observations() + auditSec() + '</div><div>' + resolvePanel() + '</div></div>';
+    bind();
+    if (focusSel){ const el = main.querySelector(focusSel); if (el) el.focus(); }
+  }
+
+  // ---- Comandos simulados ----
+  function serverMode(){ const v = $("server").value; if (v === "conflict" && conflictUsed) return "ok"; return v; }
+  function conflictBump(){
+    // Cambio concurrente: el incidente se actualizó en el servidor y subió la versión
+    st.pendingBump = true;
+  }
+  function validateObs(){
+    const errs = [], e = {}, t = st.obsText.trim();
+    if (!t){ e.text = "Escribe el motivo u observación."; errs.push(["obs-text", e.text]); }
+    else if (t.length < MIN_REASON){ e.text = "Describe la observación con al menos " + MIN_REASON + " caracteres."; errs.push(["obs-text", e.text]); }
+    if (!st.obsRef){ e.ref = "Elige la evidencia a la que se refiere la observación."; errs.push(["obs-ref", e.ref]); }
+    st.obsErrors = errs.length ? Object.assign(e, { list:errs }) : null;
+    return !errs.length;
+  }
+  function saveObs(){
+    st.notice = null;
+    if (!validateObs()){ render("#obs-sum"); return; }
+    st.obsBusy = true; render("#obs-save"); announce("Guardando observación…");
+    timer = setTimeout(() => {
+      st.obsBusy = false;
+      const mode = serverMode();
+      if (mode === "conflict"){ conflictUsed = true; conflictBump(); st.conflict = { what:"observación", expected:st.c.v, current:st.c.v + 1 }; render("#conflict"); return; }
+      if (mode === "down"){ st.notice = { kind:"warning", title:"No recibimos confirmación del servidor", body:"No sabemos si la observación se guardó. Tu texto se conserva. Recarga el caso antes de volver a guardarla; un nuevo envío reutiliza la misma clave de idempotencia.", reload:"Recargar caso" }; render("#notice"); return; }
+      st.c.obs.push({ by:role().name, at:iso(NOW), text:st.obsText.trim(), ref:st.obsRef });
+      st.c.audit.push({ at:iso(NOW), who:role().name, what:"Observación registrada", v:st.c.v });
+      st.newObs = st.c.obs.length - 1; st.obsText = ""; st.obsRef = ""; st.obsErrors = null;
+      st.notice = { kind:"success", title:"Observación registrada", body:"Quedó en el historial y en la auditoría. El estado del caso no cambió (versión v" + st.c.v + ")." };
+      render("#notice");
+    }, LATENCY);
+  }
+  function validateRes(){
+    const errs = [], e = {}, t = st.resReason.trim();
+    if (!st.resOpt){ e.opt = "Elige el resultado de la resolución."; errs.push(["res-opt-0", e.opt]); }
+    if (!t){ e.reason = "Escribe el motivo de la resolución."; errs.push(["res-reason", e.reason]); }
+    else if (t.length < MIN_REASON){ e.reason = "Explica el motivo con al menos " + MIN_REASON + " caracteres."; errs.push(["res-reason", e.reason]); }
+    st.resErrors = errs.length ? Object.assign(e, { list:errs }) : null;
+    return !errs.length;
+  }
+
+  // ---- Diálogo de confirmación (trampa de foco) ----
+  const scrim = $("scrim"), dlg = $("dialog");
+  let dlgReturn = null, dlgBusy = false;
+  function openDialog(){
+    const o = OPTS[st.resOpt], ce = concl();
+    st.idem = st.idem || ("res-" + st.id.slice(-4).toLowerCase() + "-" + st.c.v + "-7c1f");
+    dlg.innerHTML = '<h2 id="dlg-title" tabindex="-1">¿Resolver el caso ' + st.id + '?</h2>' +
+      '<p id="dlg-desc" class="muted">Revisa el resultado antes de confirmar. ' + (st.resOpt === "recuperable" ? 'El caso dejará la revisión manual.' : 'Este resultado es terminal y no se puede deshacer.') + '</p>' +
+      '<dl><dt>Resultado</dt><dd>' + o.label + '</dd><dt>Estado destino</dt><dd class="code">' + o.to + '</dd>' +
+      '<dt>Reserva</dt><dd>' + money(st.c.reserva) + ' · ' + o.reserve.toLowerCase() + '</dd>' +
+      '<dt>Evidencia</dt><dd class="code">' + ce.id + '</dd><dt>Versión esperada</dt><dd class="mono">v' + st.c.v + '</dd>' +
+      '<dt>Correlación</dt><dd class="code">' + st.c.corr + '</dd><dt>Clave de idempotencia</dt><dd class="code">' + st.idem + '</dd></dl>' +
+      '<div><span class="hint">Motivo</span><blockquote>' + esc(st.resReason.trim()) + '</blockquote></div>' +
+      '<div class="form-status" id="dlg-status" aria-live="polite"></div>' +
+      '<div class="btnrow"><button type="button" class="btn btn-secondary" id="dlg-cancel">Cancelar</button><button type="button" class="btn btn-primary" id="dlg-ok">Confirmar resolución</button></div>';
+    dlgReturn = document.activeElement;
+    scrim.hidden = false; $("screen").inert = true; $("proto").inert = true; $("notes").inert = true;
+    $("dlg-cancel").addEventListener("click", closeDialog);
+    $("dlg-ok").addEventListener("click", confirmRes);
+    $("dlg-cancel").focus();
+  }
+  function closeDialog(){
+    if (dlgBusy) return;
+    scrim.hidden = true; $("screen").inert = false; $("proto").inert = false; $("notes").inert = false;
+    if (dlgReturn && document.contains(dlgReturn)) dlgReturn.focus();
+  }
+  function forceClose(){ dlgBusy = false; scrim.hidden = true; $("screen").inert = false; $("proto").inert = false; $("notes").inert = false; }
+  scrim.addEventListener("keydown", e => {
+    if (e.key === "Escape"){ e.preventDefault(); closeDialog(); return; }
+    if (e.key !== "Tab") return;
+    const f = [...dlg.querySelectorAll("button:not([disabled]),[tabindex='-1']")].filter(x => x.tagName === "BUTTON");
+    if (!f.length){ e.preventDefault(); return; }
+    const first = f[0], last = f[f.length-1];
+    if (e.shiftKey && (document.activeElement === first || !dlg.contains(document.activeElement))){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (document.activeElement === last || !dlg.contains(document.activeElement))){ e.preventDefault(); first.focus(); }
+  });
+  scrim.addEventListener("mousedown", e => { if (e.target === scrim) closeDialog(); });
+
+  function confirmRes(){
+    dlgBusy = true;
+    $("dlg-ok").disabled = true; $("dlg-cancel").disabled = true;
+    $("dlg-ok").innerHTML = '<span class="spinner" aria-hidden="true"></span> Enviando…';
+    $("dlg-status").innerHTML = '<span>Enviando resolución con versión esperada v' + st.c.v + '. No cierres esta ventana.</span>';
+    $("dlg-title").focus();
+    timer = setTimeout(() => {
+      const mode = serverMode();
+      forceClose();
+      if (mode === "conflict"){ conflictUsed = true; conflictBump(); st.conflict = { what:"resolución", expected:st.c.v, current:st.c.v + 1 }; render("#conflict"); return; }
+      if (mode === "down"){ st.notice = { kind:"warning", title:"No recibimos confirmación del servidor", body:"No sabemos si la resolución se aplicó, así que no mostramos éxito ni fallo. Recarga el caso para leer el estado confirmado. Si vuelves a enviarla, se usará la misma clave de idempotencia (" + st.idem + ").", reload:"Recargar caso" }; render("#notice"); return; }
+      const prev = st.c.v; st.c.v = prev + 1;
+      st.resolved = { opt:st.resOpt, at:NOW + 60e3, reason:st.resReason.trim() };
+      st.c.audit.push({ at:iso(NOW + 60e3), who:role().name, what:"Resolución: CONTRATACION_EN_REVISION_MANUAL → " + OPTS[st.resOpt].to + " · evidencia " + concl().id + " · versión esperada v" + prev, v:st.c.v });
+      announce("Caso resuelto como " + OPTS[st.resOpt].label + ".");
+      render("#resolved-alert");
+    }, LATENCY);
+  }
+
+  function reload(reason){
+    clearTimeout(timer);
+    const keep = { obsText:st.obsText, obsRef:st.obsRef, resReason:st.resReason, resOpt:st.resOpt };
+    const bump = st.pendingBump; st.pendingBump = false;
+    const wasConflict = !!st.conflict;
+    st.phase = "loading"; st.notice = null; st.conflict = null; render(); announce("Recargando caso…");
+    timer = setTimeout(() => {
+      if ($("server").value === "down" && reason !== "retry"){ /* lectura sigue funcionando; solo el envío falla */ }
+      st.phase = "ok"; st.lastRead = NOW + 30e3;
+      if (bump){
+        st.c.v += 1;
+        st.c.audit.push({ at:iso(NOW + 20e3), who:"Sistema", what:"Incidente " + st.c.inc + " asignado a un responsable, sin cambio de estado", v:st.c.v });
+      }
+      Object.assign(st, keep, { obsErrors:null, resErrors:null, idem:null, newObs:-1 });
+      if (wasConflict){ st.resOpt = ""; }
+      st.notice = wasConflict
+        ? { kind:"info", title:"Caso recargado: versión v" + st.c.v, body:"El cambio fue una actualización del incidente; el estado sigue en revisión manual. Revisa la evidencia y vuelve a elegir el resultado antes de enviar. Tu motivo se conservó." }
+        : { kind:"info", title:"Caso recargado", body:"Lectura confirmada el " + lima(st.lastRead) + ". " + (st.resolved ? "" : "El estado y la versión no cambiaron.") };
+      render("#notice");
+    }, LATENCY);
+  }
+
+  // ---- Eventos ----
+  function bind(){
+    const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
+    on("reload", "click", () => reload());
+    on("conflict-reload", "click", () => reload());
+    main.querySelectorAll("[data-reload]").forEach(b => b.addEventListener("click", () => reload(st.phase === "error" ? "retry" : "")));
+    on("copy", "click", async () => {
+      const v = st.c.corr;
+      try { await navigator.clipboard.writeText(v); announce("Correlación " + v + " copiada."); $("copy").innerHTML = sm(ICON.check) + " Copiada"; }
+      catch(_){ const r = document.createRange(); r.selectNodeContents($("corr-val")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); announce("No se pudo copiar automáticamente. La correlación quedó seleccionada."); }
+    });
+    on("obs-text", "input", e => { st.obsText = e.target.value; $("obs-count").textContent = st.obsText.length + " / 500"; if (st.obsErrors && st.obsErrors.text && st.obsText.trim().length >= MIN_REASON){ e.target.removeAttribute("aria-invalid"); const x = $("obs-text-err"); if (x) x.hidden = true; } });
+    on("obs-ref", "change", e => { st.obsRef = e.target.value; if (e.target.value){ e.target.removeAttribute("aria-invalid"); const x = $("obs-ref-err"); if (x) x.hidden = true; } });
+    on("obs-form", "submit", e => { e.preventDefault(); if (!st.obsBusy) saveObs(); });
+    on("res-reason", "input", e => { st.resReason = e.target.value; if (st.resErrors && st.resErrors.reason && st.resReason.trim().length >= MIN_REASON){ e.target.removeAttribute("aria-invalid"); const x = $("res-reason-err"); if (x) x.hidden = true; } });
+    main.querySelectorAll('input[name="res-opt"]').forEach(r => r.addEventListener("change", e => {
+      st.resOpt = e.target.value; st.idem = null; $("impact").innerHTML = impactHtml();
+      const x = $("res-opt-err"); if (x) x.hidden = true; const fs = $("res-fs"); if (fs) fs.classList.remove("fieldset-invalid");
+    }));
+    on("res-form", "submit", e => {
+      e.preventDefault(); st.notice = null;
+      if (!validateRes()){ render("#res-sum"); return; }
+      st.resErrors = null; openDialog();
+    });
+    main.querySelectorAll("[data-focus]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); const t = $(a.dataset.focus); if (t) t.focus(); }));
+  }
+
+  // ---- Selector de estados del prototipo ----
+  function applyScenario(){
+    clearTimeout(timer); forceClose(); conflictUsed = false;
+    $("server").value = "ok";
+    const s = $("scenario").value;
+    switch (s){
+      case "lectura": load(urlCase); break;
+      case "cargando": load(urlCase); st.phase = "loading"; render(); timer = setTimeout(() => { st.phase = st.c ? "ok" : "denied"; render("h1"); }, LATENCY); return;
+      case "insuficiente": load("CTR-ATT-5C21"); break;
+      case "vacio": load("CTR-ATT-3D58"); break;
+      case "editando": load("CTR-ATT-4F02"); st.obsText = "Volví a consultar el registro contractual a las 13:50: sigue faltando el contrato"; st.obsRef = "EVD-4F02-06"; render(); const t = $("obs-text"); if (t){ t.focus(); t.setSelectionRange(t.value.length, t.value.length); } return;
+      case "obserror": load("CTR-ATT-4F02"); st.obsText = "Sin cambios"; validateObs(); render(); return;
+      case "atomico": load("CTR-ATT-5C21", "atomico"); st.newEv = "EVD-5C21-05"; break;
+      case "rollback": load("CTR-ATT-5C21", "rollback"); st.newEv = "EVD-5C21-05"; break;
+      case "enviando": load("CTR-ATT-5C21", "atomico"); st.resOpt = "exitosa"; st.resReason = "EVD-5C21-05 confirma el conjunto contractual atómico completo con el contrato CTR-8842."; render(); openDialog(); confirmRes(); return;
+      case "conflicto": load("CTR-ATT-5C21", "atomico"); st.resOpt = "exitosa"; st.resReason = "EVD-5C21-05 confirma el conjunto contractual atómico completo con el contrato CTR-8842."; st.pendingBump = true; conflictUsed = true; st.conflict = { what:"resolución", expected:4, current:5 }; render(); return;
+      case "resuelto": load("CTR-ATT-5C21", "atomico"); st.c.v = 5; st.resolved = { opt:"exitosa", at:NOW + 60e3 }; st.c.audit.push({ at:iso(NOW + 60e3), who:M, what:"Resolución: CONTRATACION_EN_REVISION_MANUAL → CONTRATACION_EXITOSA · evidencia EVD-5C21-05 · versión esperada v4", v:5 }); break;
+      case "error": load(urlCase); if (st.c){ st.phase = "error"; st.lastRead = CACHED_AT;
+        st.notice = { kind:"danger", title:"No pudimos actualizar el estado", body:"Mostramos la última lectura confirmada (" + lima(CACHED_AT) + "). No inferimos ningún cambio; los comandos están deshabilitados hasta tener una lectura confirmada.", reload:"Reintentar" }; } break;
+      case "denegado": load(urlCase); st.phase = "denied"; break;
+    }
+    render();
+  }
+  $("scenario").addEventListener("change", applyScenario);
+  $("role").addEventListener("change", applyScenario);
+  // Al abrir desde la bandeja, mostrar el caso indicado en la URL
+  applyScenario();
+})();
+</script>

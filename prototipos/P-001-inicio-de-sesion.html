@@ -1,0 +1,441 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Altoque P-001 Inicio de sesión</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+[hidden]{display:none!important}
+/* Layout: banda de controles del prototipo arriba, pantalla real (P-001) en el centro, notas de validación debajo. Tokens = 09-ui-spec.md §4. */
+:root{
+  --color-primary-700:#174EA6; --color-primary-800:#123B7A;
+  --color-secondary-700:#0B6B5B; --color-accent-500:#F5A623;
+  --color-bg-page:#F7F9FC; --color-bg-surface:#FFFFFF;
+  --color-text-primary:#172033; --color-text-secondary:#4B5565;
+  --color-border:#C9D2E3; --color-success-700:#18794E;
+  --color-warning-800:#8A4B08; --color-danger-700:#B42318;
+  --color-info-700:#175CD3; --color-focus:#7C3AED;
+  --on-primary:#FFFFFF;
+  --tint-info:#EAF1FD; --tint-danger:#FDECEA; --tint-warning:#FDF3E4; --tint-success:#E7F5EE;
+  --proto-bg:#EEF1F7; --proto-ink:#4B5565;
+  --font:Inter,"Segoe UI",Roboto,Arial,sans-serif;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s7:48px;--s8:64px;
+  --r-control:8px;--r-card:12px;--r-dialog:16px;
+  --shadow-card:0 1px 3px rgba(23,32,51,.12);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --color-primary-700:#8AB4F8; --color-primary-800:#AECBFA;
+  --color-bg-page:#0F1522; --color-bg-surface:#172033;
+  --color-text-primary:#E6EBF5; --color-text-secondary:#A9B3C6;
+  --color-border:#33405A; --color-success-700:#5CC98F;
+  --color-warning-800:#F0B45A; --color-danger-700:#F97066;
+  --color-info-700:#8AB4F8; --color-focus:#B794F6; --on-primary:#0F1522;
+  --tint-info:#1B2B49; --tint-danger:#3A1C1E; --tint-warning:#36280F; --tint-success:#143024;
+  --proto-bg:#141B2A; --proto-ink:#A9B3C6; --shadow-card:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--color-bg-page);color:var(--color-text-primary);font:400 16px/1.5 var(--font)}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--color-focus);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+a{color:var(--color-primary-700)}
+button{font:inherit}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- Banda del prototipo ---------- */
+.proto{background:var(--proto-bg);border-bottom:2px dashed var(--color-border);color:var(--proto-ink);font-size:14px;line-height:20px}
+.proto-in{max-width:1200px;margin:0 auto;padding-block:var(--s3);display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);align-items:center}
+.proto-tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:12px}
+.proto label{display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
+.proto select{font:inherit;min-height:36px;padding:0 var(--s2);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary)}
+.proto .creds{font-variant-numeric:tabular-nums}
+.proto code{font-family:ui-monospace,Consolas,monospace;font-size:13px;background:var(--color-bg-surface);padding:1px 6px;border-radius:4px;border:1px solid var(--color-border);color:var(--color-text-primary)}
+
+/* ---------- Pantalla ---------- */
+.skip{position:fixed;left:16px;top:8px;transform:translateY(-300%);background:var(--color-primary-700);color:var(--on-primary);padding:var(--s3) var(--s4);border-radius:var(--r-control);z-index:5;text-decoration:none;font-weight:600}
+.skip:focus{transform:none}
+.screen{position:relative}
+.app-head{border-bottom:1px solid var(--color-border);background:var(--color-bg-surface)}
+.app-head-in{max-width:1200px;margin:0 auto;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:var(--s4)}
+.logo{display:flex;align-items:center;gap:var(--s2);font-weight:700;font-size:20px;letter-spacing:-.01em;color:var(--color-text-primary)}
+.logo svg{flex:none}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--color-warning-800);background:var(--tint-warning);border:1px solid currentColor;border-radius:999px;padding:2px 10px}
+main.login{max-width:480px;margin:0 auto;padding-block:var(--s7) var(--s8)}
+.card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-card);box-shadow:var(--shadow-card);padding:var(--s6);display:flex;flex-direction:column;gap:var(--s5)}
+@media (max-width:599px){main.login{padding-block:var(--s5) var(--s7)} .card{padding:var(--s5)}}
+.intro{display:flex;flex-direction:column;gap:var(--s2)}
+.intro h1{font-size:32px;line-height:40px;font-weight:700;letter-spacing:-.015em}
+@media (max-width:599px){.intro h1{font-size:28px;line-height:36px}}
+.muted{color:var(--color-text-secondary)}
+.alert{display:flex;gap:var(--s3);align-items:flex-start;border:1px solid currentColor;border-radius:var(--r-control);padding:var(--s3) var(--s4);font-size:14px;line-height:20px}
+.alert svg{flex:none;margin-top:1px}
+.alert strong{display:block;font-size:16px;line-height:24px;color:var(--color-text-primary)}
+.alert p{margin:0;color:var(--color-text-primary)}
+.alert ul{margin:var(--s1) 0 0;padding-left:20px}
+.alert-info{color:var(--color-info-700);background:var(--tint-info)}
+.alert-danger{color:var(--color-danger-700);background:var(--tint-danger)}
+.alert-warning{color:var(--color-warning-800);background:var(--tint-warning)}
+.alert:focus-visible{outline-offset:3px}
+form{display:flex;flex-direction:column;gap:var(--s5)}
+.field{display:flex;flex-direction:column;gap:var(--s2)}
+.field label{font-weight:600}
+.hint{font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.input{width:100%;min-height:48px;padding:0 var(--s4);border:1px solid var(--color-border);border-radius:var(--r-control);background:var(--color-bg-surface);color:var(--color-text-primary);font:400 16px/24px var(--font);font-variant-numeric:tabular-nums}
+.input:hover{border-color:var(--color-text-secondary)}
+.input[aria-invalid="true"]{border:2px solid var(--color-danger-700)}
+.input:disabled{opacity:.6}
+.pw-row{display:flex;gap:var(--s2)}
+.pw-row .input{flex:1;min-width:0}
+.btn{min-height:44px;border-radius:var(--r-control);padding:0 var(--s4);font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:var(--s2);border:1px solid transparent}
+.btn-primary{background:var(--color-primary-700);color:var(--on-primary);width:100%;min-height:48px;font-size:16px}
+.btn-primary:hover:not(:disabled){background:var(--color-primary-800)}
+.btn-primary:disabled{cursor:not-allowed;opacity:.75}
+.btn-secondary{background:var(--color-bg-surface);color:var(--color-primary-700);border-color:var(--color-border);white-space:nowrap;min-height:48px}
+.btn-secondary:hover{border-color:var(--color-primary-700)}
+.field-error{display:flex;gap:6px;align-items:flex-start;color:var(--color-danger-700);font-size:14px;line-height:20px;font-weight:500}
+.status{display:flex;align-items:center;justify-content:center;gap:var(--s2);min-height:24px;font-size:14px;color:var(--color-text-secondary)}
+.spinner{width:18px;height:18px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.help{font-size:14px;line-height:20px;display:flex;flex-direction:column;gap:var(--s2)}
+.help button.link{background:none;border:0;padding:0;color:var(--color-primary-700);text-decoration:underline;cursor:pointer;font-size:14px;min-height:24px;align-self:flex-start}
+.help-panel{border-left:2px solid var(--color-border);padding-left:var(--s3);color:var(--color-text-secondary)}
+.app-foot{border-top:1px solid var(--color-border)}
+.app-foot-in{max-width:1200px;margin:0 auto;padding-block:var(--s4);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);font-size:14px;color:var(--color-text-secondary)}
+.app-foot details summary{cursor:pointer;color:var(--color-primary-700);text-decoration:underline;min-height:24px}
+.app-foot details p{margin:var(--s2) 0 0;max-width:60ch}
+.mono{font-variant-numeric:tabular-nums}
+
+/* ---------- P-002 simulado ---------- */
+.shell-nav{display:flex;gap:var(--s5);align-items:center;flex-wrap:wrap}
+.shell-nav a{text-decoration:none;font-weight:600;color:var(--color-text-secondary);padding:var(--s2) 0;border-bottom:2px solid transparent}
+.shell-nav a[aria-current="page"]{color:var(--color-primary-700);border-color:var(--color-primary-700)}
+main.next{max-width:1200px;margin:0 auto;padding-block:var(--s7);display:flex;flex-direction:column;gap:var(--s5)}
+main.next h1{font-size:32px;line-height:40px}
+.stub{border:2px dashed var(--color-border);border-radius:var(--r-card);padding:var(--s5);display:flex;flex-direction:column;gap:var(--s3);max-width:640px}
+.stub .row{display:flex;flex-wrap:wrap;gap:var(--s3)}
+.stub .btn{width:auto}
+
+/* ---------- Notas ---------- */
+.notes{border-top:2px dashed var(--color-border);background:var(--proto-bg)}
+.notes-in{max-width:1200px;margin:0 auto;padding-block:var(--s6);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:var(--s5)}
+.notes h2{font-size:20px;line-height:28px;font-weight:600;margin-bottom:var(--s3)}
+.notes ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:var(--s2);font-size:14px;line-height:20px;color:var(--color-text-secondary)}
+.notes b{color:var(--color-text-primary);font-variant-numeric:tabular-nums}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+</style>
+
+<!-- Banda de control: no forma parte de la pantalla -->
+<div class="proto gutter" role="region" aria-label="Controles del prototipo">
+  <div class="proto-in">
+    <span class="proto-tag">Prototipo · no es parte de la pantalla</span>
+    <label for="scenario">Ver estado
+      <select id="scenario">
+        <option value="inicial">Inicial (formulario vacío)</option>
+        <option value="datos">Con datos ingresados</option>
+        <option value="validacion">Validación local con errores</option>
+        <option value="enviando">Enviando</option>
+        <option value="invalidas">Credenciales no válidas</option>
+        <option value="bloqueada">Acceso pausado temporalmente</option>
+        <option value="nodisponible">Servicio no disponible</option>
+        <option value="vencida">Sesión vencida</option>
+        <option value="exito">Ingreso correcto → P-002</option>
+      </select>
+    </label>
+    <label for="server">Respuesta del servidor
+      <select id="server">
+        <option value="ok">Normal</option>
+        <option value="down">No disponible</option>
+      </select>
+    </label>
+    <span class="creds">Cuentas sintéticas: <code>70451238</code> / <code>Prueba#Lima24</code> · <code>45120987</code> / <code>Cielo$Arequipa7</code></span>
+  </div>
+</div>
+
+<div class="screen" id="screen-login">
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="app-head gutter">
+    <div class="app-head-in">
+      <span class="logo" aria-label="Altoque">
+        <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span aria-hidden="true">Altoque</span>
+      </span>
+      <span class="badge">
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 4.5v4M8 11v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Evaluación
+      </span>
+    </div>
+  </header>
+
+  <main class="login gutter" id="contenido" tabindex="-1">
+    <div class="card">
+      <div class="intro">
+        <h1>Inicia sesión</h1>
+        <p class="muted" style="margin:0">Usa las credenciales sintéticas que te entregaron.</p>
+      </div>
+
+      <div class="alert alert-info" role="note">
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <p><b>Entorno de evaluación con datos sintéticos.</b> No ingreses datos personales reales: ni tu DNI ni tus contraseñas habituales.</p>
+      </div>
+
+      <div id="session-alert" class="alert alert-info" role="status" tabindex="-1" hidden>
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5V10l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+        <div><strong>Tu sesión venció</strong><p>Vuelve a ingresar para continuar. Si estabas por aceptar o contratar, tendrás que confirmar esa acción otra vez.</p></div>
+      </div>
+
+      <div id="error-summary" class="alert" role="alert" tabindex="-1" hidden></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="dni">DNI sintético</label>
+          <span class="hint" id="dni-hint">8 dígitos, sin espacios ni guiones.</span>
+          <input class="input" id="dni" name="dni" type="text" inputmode="numeric" autocomplete="off" maxlength="8" aria-describedby="dni-hint dni-error">
+          <span class="field-error" id="dni-error" hidden></span>
+        </div>
+
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <div class="pw-row">
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" aria-describedby="password-error">
+            <button type="button" class="btn btn-secondary" id="toggle-pw" aria-pressed="false" aria-controls="password">Mostrar</button>
+          </div>
+          <span class="field-error" id="password-error" hidden></span>
+        </div>
+
+        <div class="field" style="gap:var(--s3)">
+          <button type="submit" class="btn btn-primary" id="submit">Ingresar</button>
+          <div class="status" id="status" aria-live="polite"></div>
+        </div>
+      </form>
+
+      <div class="help">
+        <button type="button" class="link" id="help-toggle" aria-expanded="false" aria-controls="help-panel">¿Problemas para ingresar?</button>
+        <div class="help-panel" id="help-panel" hidden>
+          Las cuentas las entrega el equipo de evaluación; no es posible registrarse ni recuperar la contraseña desde aquí. Escribe a <b>evaluacion@altoque.example</b> indicando tu DNI sintético. Nunca te pediremos tu contraseña.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot gutter">
+    <div class="app-foot-in">
+      <details><summary>Privacidad de evaluación</summary><p>Esta evaluación usa solo cuentas y datos ficticios. No se guardan credenciales en tu navegador ni se mueve dinero real.</p></details>
+      <details><summary>Accesibilidad</summary><p>Puedes completar todo el ingreso con teclado. Los errores se anuncian a lectores de pantalla y se muestran junto a cada campo.</p></details>
+    </div>
+  </footer>
+</div>
+
+<!-- P-002 simulado tras ingreso correcto -->
+<div class="screen" id="screen-next" hidden>
+  <header class="app-head gutter">
+    <div class="app-head-in">
+      <span class="logo"><svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect width="28" height="28" rx="8" fill="var(--color-primary-700)"/><path d="M8 19.5 14 7l6 12.5M10.6 15h6.8" stroke="var(--on-primary)" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>Altoque</span>
+      <nav class="shell-nav" aria-label="Principal">
+        <a href="#" id="nav-op" aria-current="page">Oportunidades</a>
+        <a href="#" id="nav-mis">Mis operaciones</a>
+      </nav>
+    </div>
+  </header>
+  <main class="next gutter" tabindex="-1" id="next-main">
+    <h1 id="next-title">Tus oportunidades</h1>
+    <div class="stub">
+      <p style="margin:0"><b>Navegación simulada.</b> <span id="next-msg">Sesión iniciada como <span class="mono" id="who">DNI ···1238</span>. Aquí continúa la pantalla P-002 Oportunidades.</span></p>
+      <div class="row">
+        <a class="btn btn-secondary" id="go-next" href="P-002-oportunidades.html" style="text-decoration:none">Abrir prototipo P-002</a>
+        <button type="button" class="btn btn-secondary" id="expire">Simular vencimiento de sesión</button>
+        <button type="button" class="btn btn-secondary" id="logout">Cerrar sesión</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<section class="notes gutter" aria-label="Notas para validación">
+  <div class="notes-in">
+    <div>
+      <h2>Comportamiento a validar</h2>
+      <ul>
+        <li>Ante credenciales incorrectas el mensaje es el mismo exista o no la cuenta. Se conserva el DNI y se limpia la contraseña.</li>
+        <li>Tras <b>3</b> intentos fallidos con el mismo DNI se pausa el acceso <b>60 s</b>. Ambos valores son ilustrativos: el umbral real lo fija la especificación de seguridad.</li>
+        <li>La pausa también aplica a DNI que no existen, para no revelar qué cuentas están precargadas.</li>
+        <li>Tras una sesión vencida se vuelve a la vista de solo lectura; las acciones de aceptar o contratar se confirman de nuevo.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Reglas aplicadas</h2>
+      <ul>
+        <li><b>RN-001</b> Sesión autenticada válida para operar créditos.</li>
+        <li><b>RN-121</b> Solo cuentas sintéticas creadas para la evaluación. Sin registro autónomo.</li>
+        <li><b>RN-124</b> La contraseña es independiente del DNI sintético.</li>
+        <li><b>RN-241</b> Sesión vencida o cerrada exige autenticar de nuevo.</li>
+        <li><b>RN-242</b> Bloqueo temporal tras intentos fallidos reiterados.</li>
+        <li><b>RN-243</b> No revelar existencia ni estado de una cuenta.</li>
+        <li><b>RN-028 / RN-080</b> Operable por teclado, con etiquetas en cada control.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+(() => {
+  const ACCOUNTS = { "70451238": "Prueba#Lima24", "45120987": "Cielo$Arequipa7" };
+  const MAX_ATTEMPTS = 3, LOCK_SECONDS = 60, LATENCY = 1300;
+  const $ = id => document.getElementById(id);
+  const form = $("login-form"), dni = $("dni"), pw = $("password"), submit = $("submit");
+  const status = $("status"), summary = $("error-summary"), sessionAlert = $("session-alert");
+  const attempts = {}; let lockUntil = 0, lockTimer = null, sending = false, pending = null;
+  let returnTo = "Oportunidades";
+
+  const ICON_ERR = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M10 5.5v5.5M10 13.8v.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const ICON_LOCK = '<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="9" width="12" height="8.5" rx="2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>';
+
+  function fieldError(input, msg){
+    const el = $(input.id + "-error");
+    if (msg){ el.innerHTML = ICON_ERR.replace('20" height="20','16" height="16') + "<span>" + msg + "</span>"; el.hidden = false; input.setAttribute("aria-invalid","true"); }
+    else { el.hidden = true; el.textContent = ""; input.removeAttribute("aria-invalid"); }
+  }
+  function showSummary(kind, title, body){
+    summary.className = "alert alert-" + kind;
+    summary.innerHTML = (kind === "warning" ? ICON_LOCK : ICON_ERR) + "<div><strong>" + title + "</strong>" + body + "</div>";
+    summary.hidden = false; summary.focus();
+  }
+  function clearMessages(){ summary.hidden = true; summary.innerHTML = ""; fieldError(dni); fieldError(pw); }
+  function setSending(on){
+    sending = on; submit.disabled = on; dni.readOnly = on; pw.readOnly = on;
+    submit.textContent = on ? "Ingresando…" : "Ingresar";
+    status.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span><span>Verificando acceso</span>' : "";
+  }
+
+  function validate(){
+    const errs = [];
+    const d = dni.value.trim();
+    if (!d) errs.push([dni, "Ingresa tu DNI sintético."]);
+    else if (!/^\d{8}$/.test(d)) errs.push([dni, "El DNI sintético debe tener 8 dígitos numéricos."]);
+    if (!pw.value) errs.push([pw, "Ingresa tu contraseña."]);
+    fieldError(dni); fieldError(pw);
+    errs.forEach(([i, m]) => fieldError(i, m));
+    if (errs.length){
+      const items = errs.map(([i, m]) => '<li><a href="#' + i.id + '" data-focus="' + i.id + '">' + m + "</a></li>").join("");
+      showSummary("danger", "Revisa " + (errs.length > 1 ? "2 campos" : "1 campo") + " antes de continuar", "<ul>" + items + "</ul>");
+    }
+    return errs.length === 0;
+  }
+  summary.addEventListener("click", e => {
+    const t = e.target.closest("[data-focus]"); if (!t) return;
+    e.preventDefault(); $(t.dataset.focus).focus();
+  });
+
+  function secondsLeft(){ return Math.max(0, Math.ceil((lockUntil - Date.now()) / 1000)); }
+  function fmt(s){ return Math.floor(s/60) + ":" + String(s%60).padStart(2,"0"); }
+  function startLock(seconds){
+    lockUntil = Date.now() + seconds * 1000;
+    showSummary("warning", "Acceso pausado temporalmente",
+      '<p>Por seguridad, pausamos los intentos de ingreso. Podrás intentarlo de nuevo en <span class="mono" id="lock-left" aria-hidden="true">' + fmt(seconds) + '</span><span class="sr-only">' + seconds + ' segundos</span>.</p>');
+    clearInterval(lockTimer);
+    lockTimer = setInterval(() => {
+      const s = secondsLeft(), el = $("lock-left");
+      if (el) el.textContent = fmt(s);
+      if (s <= 0){ clearInterval(lockTimer); lockUntil = 0; summary.hidden = true; status.textContent = "Ya puedes intentar ingresar de nuevo."; }
+    }, 1000);
+  }
+
+  function invalidCredentials(){
+    pw.value = ""; pw.type = "password"; syncToggle();
+    showSummary("danger", "No pudimos iniciar sesión", "<p>El DNI o la contraseña no son correctos. Revisa los datos e inténtalo otra vez.</p>");
+  }
+  function serviceDown(){
+    pw.value = "";
+    showSummary("danger", "El servicio no está disponible", "<p>No pudimos verificar tu acceso en este momento. Tus datos no se enviaron a otro lugar. Intenta de nuevo en unos minutos.</p>");
+  }
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    if (sending) return;
+    clearMessages(); status.textContent = "";
+    if (!validate()) return;
+    if (secondsLeft() > 0){ startLock(secondsLeft()); return; }
+    setSending(true);
+    const d = dni.value.trim(), p = pw.value, down = $("server").value === "down";
+    pending = setTimeout(() => {
+      setSending(false);
+      if (down) return serviceDown();
+      if (ACCOUNTS[d] === p){ attempts[d] = 0; return enter(d); }
+      attempts[d] = (attempts[d] || 0) + 1;
+      if (attempts[d] >= MAX_ATTEMPTS){ attempts[d] = 0; pw.value = ""; startLock(LOCK_SECONDS); }
+      else invalidCredentials();
+    }, LATENCY);
+  });
+
+  const toggle = $("toggle-pw");
+  function syncToggle(){ const shown = pw.type === "text"; toggle.textContent = shown ? "Ocultar" : "Mostrar"; toggle.setAttribute("aria-pressed", String(shown)); toggle.setAttribute("aria-label", shown ? "Ocultar contraseña" : "Mostrar contraseña"); }
+  toggle.addEventListener("click", () => { pw.type = pw.type === "password" ? "text" : "password"; syncToggle(); });
+  syncToggle();
+
+  [dni, pw].forEach(i => i.addEventListener("input", () => { if (i.getAttribute("aria-invalid")) fieldError(i); }));
+  dni.addEventListener("input", () => { dni.value = dni.value.replace(/\D/g, "").slice(0, 8); });
+
+  $("help-toggle").addEventListener("click", e => {
+    const open = e.currentTarget.getAttribute("aria-expanded") === "true";
+    e.currentTarget.setAttribute("aria-expanded", String(!open)); $("help-panel").hidden = open;
+  });
+
+  // ---- Navegación simulada ----
+  function enter(d){
+    pw.value = ""; dni.value = ""; sessionAlert.hidden = true;
+    $("screen-login").hidden = true; $("screen-next").hidden = false;
+    $("who").textContent = "DNI ···" + d.slice(-4);
+    const mis = returnTo === "Mis operaciones";
+    $("next-title").textContent = mis ? "Mis operaciones" : "Tus oportunidades";
+    $("nav-op").toggleAttribute("aria-current", !mis); $("nav-mis").toggleAttribute("aria-current", mis);
+    if (mis){ $("nav-mis").setAttribute("aria-current","page"); }
+    else { $("nav-op").setAttribute("aria-current","page"); }
+    $("next-msg").innerHTML = mis
+      ? 'Volviste a <b>Mis operaciones</b> (lectura). Si estabas por aceptar o contratar, confirma esa acción nuevamente.'
+      : 'Sesión iniciada como <span class="mono">DNI ···' + d.slice(-4) + '</span>. Aquí continúa la pantalla P-002 Oportunidades.';
+    returnTo = "Oportunidades";
+    $("next-main").focus();
+  }
+  function backToLogin(expired){
+    $("screen-next").hidden = true; $("screen-login").hidden = false;
+    clearMessages(); status.textContent = "";
+    sessionAlert.hidden = !expired;
+    if (expired){ returnTo = "Mis operaciones"; sessionAlert.focus(); } else dni.focus();
+  }
+  $("expire").addEventListener("click", () => backToLogin(true));
+  $("logout").addEventListener("click", () => backToLogin(false));
+  $("nav-op").addEventListener("click", e => e.preventDefault());
+  $("nav-mis").addEventListener("click", e => e.preventDefault());
+
+  // ---- Selector de estados del prototipo ----
+  function reset(){
+    clearTimeout(pending); clearInterval(lockTimer); lockUntil = 0;
+    setSending(false); clearMessages(); status.textContent = "";
+    sessionAlert.hidden = true; dni.value = ""; pw.value = ""; pw.type = "password"; syncToggle();
+    $("screen-next").hidden = true; $("screen-login").hidden = false; returnTo = "Oportunidades";
+  }
+  $("scenario").addEventListener("change", e => {
+    reset();
+    switch (e.target.value){
+      case "datos": dni.value = "70451238"; pw.value = "Prueba#Lima24"; break;
+      case "validacion": dni.value = "7045"; validate(); break;
+      case "enviando": dni.value = "70451238"; pw.value = "Prueba#Lima24"; setSending(true); break;
+      case "invalidas": dni.value = "70451238"; invalidCredentials(); break;
+      case "bloqueada": dni.value = "70451238"; startLock(LOCK_SECONDS); break;
+      case "nodisponible": dni.value = "70451238"; serviceDown(); break;
+      case "vencida": backToLogin(true); break;
+      case "exito": enter("70451238"); break;
+    }
+  });
+})();
+</script>

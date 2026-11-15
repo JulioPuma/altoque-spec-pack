@@ -1,0 +1,189 @@
+<agente>
+Eres un desarrollador frontend senior. Tu trabajo es convertir un
+wireframe textual en un prototipo visual interactivo.
+</agente>
+<contexto>
+Estoy prototipando la pantalla "P-013 — Revisión de desembolso: caso" de "Altoque".
+--- SCREEN SPEC ---
+<![CDATA[
+### P-013 — Revisión de desembolso: caso
+
+**Propósito:** inspeccionar evidencia y solicitar otra consulta de la misma operación sin duplicarla.  
+**Actor:** operador de revisión de desembolso; auditor en modo lectura.  
+**HUs:** HU-009, HU-014.
+
+**Datos:** orden, `operacionId`, contrato, payload original en modo lectura, estado/versión, evidencia, observaciones, correlación.
+
+**Acciones:** registrar observación; solicitar otra consulta de la operación original; recargar.
+
+**Reglas:** mismo `operacionId`; payload no editable; motivo/correlación/versión/idempotencia obligatorios; sin creación de operación ni cambio de terminal; auditor solo lectura.
+
+**Wireframe textual:**
+
+```text
+[Shell interno + breadcrumb]
+[H1 Caso de desembolso]
+[Banner: estado | versión | última evidencia]
+[Resumen inmutable: operación | contrato | monto | moneda]
+[Payload original colapsable, solo lectura]
+[Timeline de evidencia]
+[Observaciones: historial + formulario con motivo y referencia]
+[Panel Acción, oculto para auditor]
+  [Texto: "Se consultará nuevamente la operación original …"]
+  [Motivo obligatorio]
+  [Botón Solicitar otra consulta]
+  [Diálogo confirma mismo operationId; no permite editarlo]
+[Alerta de conflicto/terminal: recargar, sin reenvío automático]
+```
+
+**Estados:** lectura; consulta permitida; consulta en curso; evidencia aún inconclusa; terminal de solo lectura; conflicto; acceso denegado.
+
+#### Flujo(s) donde participa la pantalla (09-ui-spec.md §2)
+
+### F-07 — Revisión de desembolso interna
+
+1. El operador autorizado abre **P-012** y elige un caso en `DESEMBOLSO_EN_REVISION_MANUAL`.
+2. **P-013** muestra la evidencia y el `operacionId` original.
+3. Puede registrar una observación o solicitar otra consulta del mismo `operacionId`, indicando motivo.
+4. La UI no permite crear un nuevo identificador, editar el payload ni cambiar un estado terminal.
+5. Un auditor puede consultar las vistas autorizadas en modo lectura, sin controles de comando.
+
+#### Consideraciones mínimas (09-ui-spec.md §0, aplican a todas las pantallas)
+
+- La primera evaluación usa exclusivamente cuentas y datos sintéticos. La UI no ofrece registro, recuperación de identidad, RENIEC, movimientos de dinero reales ni productos distintos del crédito de consumo.
+- Todo texto visible está en español claro. Los identificadores técnicos pueden mostrarse al usuario solo cuando faciliten soporte o trazabilidad, con etiqueta comprensible y opción de copiar.
+- Todos los flujos principales son operables por teclado, con orden de foco coherente, foco visible, enlace «Saltar al contenido», etiquetas programáticas, mensajes de error asociados al campo y anuncios mediante regiones `aria-live`.
+- El contraste cumple WCAG 2.2 AA. El color nunca es el único medio para comunicar estado; cada estado usa texto y, cuando aporte claridad, icono con nombre accesible.
+- El frontend presenta los cálculos recibidos del backend y nunca recalcula cuota, intereses, TCEA, costo total ni cronograma.
+- Las fechas visibles usan formato local comprensible (`14 nov 2026, 13:45`) y, cuando exista vencimiento, indican la zona o el carácter exacto del límite. La autoridad de vigencia sigue siendo el reloj UTC del backend.
+- Las acciones de aceptación, contratación y revisión son explícitas. «Aceptar condiciones» no se presenta como sinónimo de «Contratar».
+- Ante una lectura no confirmada, la UI muestra «No pudimos actualizar el estado» y la última lectura confirmada; nunca infiere éxito o fallo desde caché o por el paso del tiempo.
+- Los estados terminales se muestran como solo lectura. Los reintentos visibles reutilizan la misma identidad y solo aparecen si el backend declara la operación recuperable.
+- En pantallas angostas, las tablas se convierten en listas o tarjetas semánticas sin perder encabezados ni relaciones de datos.
+]]>
+--- DESIGN TOKENS ---
+<![CDATA[
+## 4. Design Tokens
+
+Los valores son una propuesta visual, no parámetros de negocio. Deben validarse con herramientas de contraste y pruebas en dispositivos objetivo antes de integrar.
+
+### 4.1 Color
+
+| Token | Valor sugerido | Uso |
+|---|---|---|
+| `color-primary-700` | `#174EA6` | Botón primario, enlaces y foco sobre fondo claro |
+| `color-primary-800` | `#123B7A` | Hover/pressed primario |
+| `color-secondary-700` | `#0B6B5B` | Elementos secundarios y estados informativos positivos |
+| `color-accent-500` | `#F5A623` | Acento limitado; nunca texto pequeño sobre blanco |
+| `color-bg-page` | `#F7F9FC` | Fondo general |
+| `color-bg-surface` | `#FFFFFF` | Tarjetas, diálogos, formularios |
+| `color-text-primary` | `#172033` | Texto principal |
+| `color-text-secondary` | `#4B5565` | Texto auxiliar |
+| `color-border` | `#C9D2E3` | Bordes y divisores |
+| `color-success-700` | `#18794E` | Éxito, acompañado de texto/icono |
+| `color-warning-800` | `#8A4B08` | Advertencia y pendientes |
+| `color-danger-700` | `#B42318` | Error y acciones destructivas |
+| `color-info-700` | `#175CD3` | Información y revisión |
+| `color-focus` | `#7C3AED` | Anillo de foco de alto contraste |
+
+### 4.2 Tipografía
+
+- Familia: `Inter, "Segoe UI", Roboto, Arial, sans-serif`; usar fuente del sistema como fallback y no bloquear la interfaz por descarga.
+- Base: 16 px; altura de línea 1.5.
+- H1: 32/40 px, peso 700; móvil 28/36 px.
+- H2: 24/32 px, peso 700.
+- H3: 20/28 px, peso 600.
+- Cuerpo: 16/24 px, peso 400.
+- Texto auxiliar: 14/20 px; no usar menos de 14 px para información funcional.
+- Valores monetarios: cifras tabulares (`font-variant-numeric: tabular-nums`) sin reducir la legibilidad.
+
+### 4.3 Espaciado, forma y elevación
+
+- Escala de espaciado: 4, 8, 12, 16, 24, 32, 48 y 64 px.
+- Ancho máximo de contenido cliente: 1200 px; formularios: 640 px; lectura financiera: 960 px.
+- Radio: controles 8 px, tarjetas 12 px, diálogos 16 px.
+- Borde estándar: 1 px; borde enfatizado: 2 px.
+- Sombra de tarjeta: `0 1px 3px rgba(23,32,51,.12)`; no depender de sombra para delimitar superficies.
+
+### 4.4 Componentes y objetivos táctiles
+
+| Componente | Tamaño mínimo | Reglas |
+|---|---:|---|
+| Botón | 44 px de alto | Etiqueta verbal; loading preserva ancho; disabled no sustituye explicación. |
+| Input/select | 48 px de alto | Label visible; ayuda y error asociados mediante `aria-describedby`. |
+| Checkbox/radio | Área activa 44 × 44 px | Control nativo o semántica equivalente; label completo clicable. |
+| Icon button | 44 × 44 px | Nombre accesible y tooltip que no sea la única etiqueta. |
+| Tarjeta accionable | Variable | Una acción primaria inequívoca; foco visible; no anidar controles interactivos inválidos. |
+| Diálogo | 320–640 px | Foco inicial razonable, trampa de foco y retorno al disparador; Escape salvo comando irreversible en proceso. |
+| Tabla | Fila mínima 48 px | Encabezados `th`; caption; alternativa responsive conservando rótulos. |
+
+### 4.5 Breakpoints y comportamiento responsive
+
+- `sm`: 0–599 px, una columna y navegación compacta.
+- `md`: 600–959 px, una o dos columnas según contenido.
+- `lg`: 960–1279 px, grillas y tablas completas.
+- `xl`: 1280 px o más, contenido centrado con ancho máximo.
+- No existe desplazamiento horizontal de página a 320 CSS px. El cronograma puede usar contenedor de tabla con aviso accesible o tarjetas, prefiriendo tarjetas en móvil.
+
+### 4.6 Estados y mensajes
+
+- **Cargando:** skeleton o spinner con texto accesible; no desplazar el foco sin causa.
+- **Vacío:** explicar qué significa y ofrecer una acción válida, si existe.
+- **Error de campo:** resumen enfocable y mensaje junto al campo.
+- **Error de red:** no borrar datos confirmados; marcar la fecha de última lectura.
+- **Pendiente:** icono + texto + siguiente paso; sin animación que sugiera progreso garantizado.
+- **Éxito:** solo tras evidencia durable del backend.
+- **Acción destructiva:** botón danger, consecuencias concretas y confirmación; P-003 cancelar solicitud es el único caso del recorrido cliente definido aquí.
+]]>
+--- REGLAS DE NEGOCIO RELEVANTES ---
+<![CDATA[
+Reglas consideradas y validadas para P-013: 24 (fuente: speck-pack/03-reglas-de-negocio.md).
+Origen = «Prototipo»: la regla está aplicada y citada en prototipos/P-013-revision-de-desembolso-caso.html.
+Origen = «Validación»: la regla aplica a la pantalla, se añadió al validar contra el catálogo porque no estaba citada en las notas del prototipo; confirmar su cobertura en la próxima iteración.
+
+| ID | Regla EARS | Prioridad | Fuente | Origen |
+|---|---|---|---|---|
+| RN-023 | Cuando se recupera un desembolso pendiente, el sistema DEBE consultar la operación original. | MUST | Ronda 7 | Prototipo |
+| RN-024 | Durante la recuperación, el sistema NO DEBE crear otro identificador ni iniciar una segunda operación lógica de desembolso; solo puede consultar o reentregar idempotentemente el comando original. | MUST | INV-05, INV-14 | Prototipo |
+| RN-052 | Si el core responde «operación no encontrada», el sistema DEBE mantener el desembolso pendiente hasta obtener evidencia concluyente. | MUST | DEC-74 | Prototipo |
+| RN-072 | Mientras la revisión manual carezca de evidencia concluyente, el sistema DEBE conservar pendiente el resultado del desembolso. | MUST | DEC-98 | Prototipo |
+| RN-082 | Cuando se intenta una transición, el sistema DEBE validar estado origen y versión de entidad antes de confirmarla. | MUST | DEC-72 | Validación |
+| RN-133 | Después de una caída o pérdida de respuesta en `DESEMBOLSO_PROCESANDO`, el sistema DEBE consultar la operación original y solo puede reentregar el comando usando exactamente el mismo identificador persistente y los mismos datos. | MUST | INV-14, RN-023–024 | Prototipo |
+| RN-135 | Cuando el core simulado recibe nuevamente un identificador con los mismos datos, DEBE devolver la operación original sin ejecutar otro desembolso simulado; si los datos son distintos, DEBE rechazar por conflicto sin ejecutar. | MUST | INV-05, INV-14 | Prototipo |
+| RN-144 | Cuando el core simulado responde `RECIBIDA` o `PROCESANDO`, el sistema DEBE mantener el resultado pendiente y consultar la operación original. | MUST | Cierre de PA-04 | Prototipo |
+| RN-145 | Cuando el core simulado responde `EXITOSA`, el sistema DEBE confirmar `DESEMBOLSO_SIMULADO_EXITOSO` solo después de persistir localmente el resultado. | MUST | INV-17 | Prototipo |
+| RN-146 | Cuando el core simulado responde `RECHAZADA`, el sistema DEBE confirmar `DESEMBOLSO_RECHAZADO` solo después de persistir localmente el resultado. | MUST | INV-17 | Validación |
+| RN-147 | Cuando el core simulado responde `FALLIDA_DEFINITIVA`, el sistema DEBE confirmar `DESEMBOLSO_FALLIDO` solo si la respuesta acredita que la operación no se ejecutó ni puede completarse y después de persistir localmente el resultado. | MUST | RN-053, INV-17 | Validación |
+| RN-148 | Cuando el core simulado responde `NO_ENCONTRADA`, el sistema DEBE tratar la consulta como inconclusa y puede reentregar idempotentemente el comando original conforme a RN-133; NO DEBE confirmar un fallo ni crear otra operación. | MUST | RN-052, INV-14 | Prototipo |
+| RN-149 | Cuando ocurre timeout, desconexión, respuesta inválida o código de resultado desconocido, el sistema DEBE tratar el resultado como inconcluso. | MUST | INV-06 | Prototipo |
+| RN-150 | Cuando una consulta descubre `RECHAZADA`, el sistema DEBE permitir la transición desde `DESEMBOLSO_CONSULTANDO_ESTADO` o `DESEMBOLSO_EN_REVISION_MANUAL` a `DESEMBOLSO_RECHAZADO`. | MUST | Cierre de PA-04 | Validación |
+| RN-151 | Cuando llega una respuesta tardía, el sistema DEBE aplicarla únicamente si el estado local no es terminal y la versión esperada sigue vigente. | MUST | INV-10, INV-17 | Prototipo |
+| RN-153 | Cuando el core simulado confirma un resultado terminal, DEBE conservarlo inmutable y devolverlo en las consultas posteriores de la misma operación. | MUST | INV-17 | Validación |
+| RN-232 | Mientras un desembolso esté en revisión manual, solo un actor con rol `OPERADOR_REVISION_DESEMBOLSO` DEBE poder consultar su evidencia, registrar observaciones o solicitar otra consulta de la operación original. | MUST | PA-12, PA-15 | Prototipo |
+| RN-233 | Mientras un desembolso esté en revisión manual, el operador NO DEBE crear otra operación de desembolso, modificar un terminal confirmado ni declarar un resultado sin evidencia concluyente del core simulado. | MUST | PA-12, INV-05, INV-07 | Prototipo |
+| RN-234 | Cuando la revisión manual obtiene y persiste una respuesta `EXITOSA`, `RECHAZADA` o `FALLIDA_DEFINITIVA`, el sistema DEBE resolver el desembolso conforme a RN-145–147; sin esa evidencia, DEBE mantenerlo en revisión. | MUST | PA-12 | Prototipo |
+| RN-235 | Cuando un actor realiza una acción de revisión manual, el sistema DEBE auditar su identidad, instante, motivo, evidencia consultada, correlación, versión y resultado. | MUST | PA-12, INV-09 | Prototipo |
+| RN-236 | Cuando una evidencia contradice un terminal local confirmado, el sistema DEBE crear un expediente de conflicto separado y NO DEBE modificar el terminal. | MUST | PA-12, RN-152 | Prototipo |
+| RN-238 | El rol `OPERADOR_REVISION_DESEMBOLSO` solo DEBE poder actuar sobre casos en revisión dentro de las facultades de RN-232–235 y NO DEBE acceder a credenciales ni crear contratos. | MUST | PA-15 | Prototipo |
+| RN-239 | El rol `AUDITOR` solo DEBE poder consultar estados y registros de auditoría autorizados y NO DEBE producir transiciones de negocio. | MUST | PA-15 | Prototipo |
+| RN-243 | Cuando un actor intenta consultar u operar un recurso ajeno o no autorizado, el sistema NO DEBE revelar su existencia ni contenido. | MUST | PA-15, RN-122 | Prototipo |
+]]>
+</contexto>
+<tarea>
+Genera un prototipo visual de esta pantalla como un artifact HTML/CSS/JS
+interactivo. Debe:
+1. Reflejar fielmente el wireframe textual.
+2. Incluir datos de ejemplo realistas (no lorem ipsum).
+3. Ser responsive (funcionar en móvil y desktop).
+4. Incluir estados: vacío, con datos, error, loading.
+5. Usar los design tokens definidos.
+</tarea>
+<restricciones>
+- NO es código de producción: es un prototipo para validar con
+stakeholders.
+- Priorizar claridad del flujo sobre pixel-perfection.
+- Incluir interacciones básicas (clics, navegación simulada,
+validaciones).
+- Si una sección depende de datos dinámicos, usar datos ficticios del
+caso.
+</restricciones>
