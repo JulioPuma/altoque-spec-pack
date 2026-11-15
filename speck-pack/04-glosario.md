@@ -52,6 +52,7 @@
 | Conjunto contractual | Unidad atómica formada por contrato, auditoría contractual obligatoria, orden única de desembolso y conversión de la reserva en consumo. Se confirma o revierte completa. |
 | Evidencia durable contractual | Lectura autoritativa de datos confirmados que acredita el conjunto contractual o el cierre sin contrato. Una ausencia de respuesta o una lectura inconclusa no constituye evidencia de cierre. |
 | Evidencia concluyente contractual | Conjunto contractual atómico completo, marcador durable de rollback o cierre sin contrato, o resultado autoritativo del gestor transaccional que pruebe el rollback. El tiempo transcurrido, la ausencia de filas, un timeout o una lectura no disponible no son evidencia concluyente. |
+| Evento KPI canónico | Evidencia append-only de uno de los hechos aprobados en RN-261. Su identidad, fuente, instante UTC, correlación, deduplicación y versión de esquema son obligatorios; no implica que la fórmula KPI esté aprobada. |
 | Revisión manual contractual | Evaluación de un intento contractual incierto después de 15 minutos de recuperación automática. Tiene objetivo de resolución de 4 horas; si no obtiene evidencia concluyente, conserva la reserva y escala el incidente crítico. |
 | Operación original | Operación persistida cuyo resultado se recupera mediante su identificador. En desembolso, la orden se identifica antes del envío y, una vez en `DESEMBOLSO_PROCESANDO`, solo puede consultarse, no reenviarse. |
 | Oferta | Condiciones de crédito identificadas para un cliente. Puede ser preferencial o base. |
@@ -62,6 +63,7 @@
 | Revisión manual | Evaluación del procesamiento original que solo puede cerrar con evidencia concluyente. Si falta evidencia, el resultado sigue pendiente. |
 | CLIENTE_SINTETICO | Rol de una cuenta sintética que solo puede consultar y operar sus propios recursos de crédito. |
 | OPERADOR_REVISION_DESEMBOLSO | Rol autorizado para consultar evidencia y registrar actuaciones sobre desembolsos en revisión, sin crear otra operación ni modificar terminales sin evidencia. |
+| OPERADOR_REVISION_CONTRACTUAL | Rol autorizado para consultar evidencia autoritativa, registrar observaciones y resolver contrataciones en revisión únicamente conforme a evidencia concluyente, sin liberar reservas, crear otro intento ni inferir resultados. |
 | AUDITOR | Rol de consulta de estados y registros de auditoría autorizados, sin facultad para producir transiciones de negocio. |
 | SERVICIO_INTERNO | Rol de un proceso automático limitado a las acciones expresamente asignadas a su función. |
 | Evidencia de presentación | Registro auditable que acredita que la versión íntegra de una simulación y todas sus condiciones obligatorias estuvieron disponibles para el cliente antes de su aceptación. |
@@ -82,6 +84,7 @@
 | Solicitud regular activa | Solicitud regular que todavía no ha cerrado con contrato ni sin contrato. Nace antes de solicitar su primera preevaluación y solo puede existir una por cliente; las reconsultas versionan su preevaluación sin cambiar su identidad. |
 | SOLICITUD_ESPERANDO_AUTORIZACION | Estado no terminal de una solicitud cuya preevaluación exige evaluación adicional y cuya autorización todavía está `PENDIENTE`. No permite simular ni contratar. |
 | SOLICITUD_FALLIDA_RECUPERABLE | Fallo técnico confirmado no terminal que permite reintentar de forma controlada la misma solicitud. |
+| SOLICITUD_CANCELADA | Terminal confirmado de una solicitud cancelada idempotentemente por su cliente propietario antes de que exista cualquier simulación, intento, reserva o contrato. Su identidad no se reutiliza. |
 | SOLICITUD_FALLIDA_DEFINITIVA | Fallo técnico confirmado terminal de una solicitud. |
 | SIMULACION_FALLIDA_RECUPERABLE | Fallo técnico confirmado no terminal que permite recalcular de forma controlada la misma simulación. |
 | SIMULACION_FALLIDA_DEFINITIVA | Fallo técnico confirmado terminal de una simulación; incluye la imposibilidad de obtener una TCEA válida. |

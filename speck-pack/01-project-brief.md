@@ -54,7 +54,7 @@ ofertas únicas contratadas atribuibles a la semana /
 ofertas únicas visualizadas del conjunto definido × 100
 ```
 
-La definición exacta del conjunto y el tratamiento del denominador intersemanal permanecen en PA-05; por ello la fórmula todavía no es implementable sin esa decisión.
+El catálogo técnico mínimo de eventos se encuentra aprobado por PA-24 y RN-261. La definición exacta del conjunto y el tratamiento del denominador intersemanal permanecen en PA-05; por ello la fórmula todavía no es implementable sin esa decisión.
 
 ### KPI-02 — Tiempo activo hasta aceptación
 
@@ -67,7 +67,7 @@ La definición exacta del conjunto y el tratamiento del denominador intersemanal
 T_activo = Σ min(Δt entre eventos válidos consecutivos, 5 minutos)
 ```
 
-DEC-89 fija visualización, cambios de simulación, consulta del cronograma y aceptación. El primer intervalo, los datos incompletos y el catálogo técnico se precisan en PA-06 y PA-24.
+DEC-89 fija visualización, cambios de simulación, consulta del cronograma y aceptación. PA-24 y RN-261 aprueban el catálogo técnico mínimo; el primer intervalo, la población y los datos incompletos permanecen en PA-06.
 
 ## 6. Riesgos
 

@@ -4,7 +4,7 @@
 **Versión:** 0.1  
 **Estado:** Alcance funcional consolidado
 
-La primera evaluación se realiza en un entorno cerrado con datos sintéticos y cuentas creadas previamente. No incluye registro autónomo, alta de personas reales ni integración con servicios externos de identidad. El cliente sintético con oferta preferencial puede simularla. El cliente sintético sin oferta preferencial sigue el flujo regular, que puede requerir evaluación y habilitar una oferta de monto reducido. Se asume que existe una preevaluación.
+La primera evaluación se realiza en un entorno cerrado con datos sintéticos y cuentas creadas previamente. No incluye registro autónomo, alta de personas reales ni integración con servicios externos de identidad. El cliente sintético con oferta preferencial puede simularla y también puede elegir explícitamente iniciar el flujo regular sin invalidar su oferta. El cliente sintético sin oferta preferencial también puede elegir el flujo regular, que puede requerir evaluación y habilitar una oferta de monto reducido. El flujo regular nunca se inicia automáticamente. Se asume que existe una preevaluación.
 
 ## 1. Alcance incluido — MUST
 
@@ -106,7 +106,7 @@ Los valores y rangos configurables para la primera evaluación son los definidos
 | DEP-03 | Módulo financiero | Requerida. |
 | DEP-04 | Core simulado con consulta por operación | Requerida; catálogo funcional aprobado en RN-144–153 y contrato técnico documentado en OpenAPI. |
 | DEP-05 | Persistencia transaccional y auditoría | Requerida. |
-| DEP-06 | Instrumentación de eventos | Requerida; catálogo pendiente. |
+| DEP-06 | Instrumentación de eventos | Requerida; catálogo mínimo aprobado en RN-261. PA-05 y PA-06 mantienen pendientes únicamente las fórmulas y políticas de agregación. |
 
 ## 7. Criterios de aceptación transversales
 
@@ -162,15 +162,16 @@ Los valores y rangos configurables para la primera evaluación son los definidos
 45. Dada una reconsulta concluyente que cambia estado, máximo o autorización, se crea una nueva versión auditada que reemplaza la versión activa e invalida para contratación sus simulaciones y aceptaciones. `NO_DISPONIBLE` no reemplaza una versión concluyente todavía vigente.
 46. Dada una nueva emisión o reemplazo de oferta preferencial, se crea un `ofertaId` nuevo y se conserva la emisión anterior en historial. Una oferta vencida, reemplazada o contratada no admite nuevas simulaciones ni contrataciones.
 47. Dadas varias ofertas preferenciales vigentes, el cliente elige explícitamente una. Cada `ofertaId` constituye una oportunidad distinta, admite como máximo un contrato y compite por la línea compartida.
-48. Dado que una oferta preferencial vence, se reemplaza o se contrata, el sistema no inicia automáticamente el flujo regular. Este solo se habilita mediante una preevaluación vigente.
+48. Dado que una oferta preferencial vence, se reemplaza o se contrata, el sistema no inicia automáticamente el flujo regular. Un cliente con o sin oferta preferencial vigente puede elegir iniciarlo explícitamente; este solo se habilita mediante una preevaluación vigente. La solicitud regular y la oferta preferencial son oportunidades independientes, comparten la misma línea y no se invalidan entre sí por el solo inicio del otro recorrido.
 49. Dado un cliente, puede tener como máximo una solicitud regular activa. Reconsultar la preevaluación crea una versión dentro de esa solicitud y no otra oportunidad.
 50. Dada una solicitud regular con contrato, queda cerrada. Dada una solicitud cerrada sin contrato, tampoco se reutiliza. Un nuevo préstamo requiere otro `solicitudId` y una nueva preevaluación.
 51. Dado un error recuperable, solo se reintenta de forma controlada la misma operación. Dado un error definitivo, no se reintenta. Dado un resultado incierto, permanece pendiente hasta obtener evidencia concluyente.
 52. Dado un desembolso en revisión manual, el operador autorizado puede consultar evidencia y registrar observaciones, pero no crear otra operación ni modificar un terminal sin evidencia concluyente.
-53. Dado un cliente, operador, auditor o proceso automático, cada actor solo puede ejecutar las acciones autorizadas para su rol y ámbito. Una operación sobre un recurso ajeno no revela su contenido.
+53. Dado un cliente, operador contractual, operador de desembolso, auditor o proceso automático, cada actor solo puede ejecutar las acciones autorizadas para su rol y ámbito. Una operación sobre un recurso ajeno no revela su contenido. Los operadores de revisión contractual y de desembolso tienen facultades separadas y no intercambiables.
 54. Dada una contratación repetida con la misma clave y datos, se devuelve el intento original. La misma clave con datos distintos produce conflicto sin ejecución; una clave nueva no evita las guardas vigentes.
 55. Dada una simulación presentada, la aceptación solo se confirma si corresponde a la misma versión íntegra, propia, exitosa, vigente y no invalidada que estuvo disponible para el cliente.
 56. Antes de integrar, la verificación de seguridad no presenta hallazgos críticos ni altos abiertos. Un riesgo medio solo continúa con aceptación humana documentada.
+57. Dada una solicitud propia en `SOLICITUD_INICIADA` o `SOLICITUD_HABILITADA` sin simulaciones asociadas, intento, reserva ni contrato, cuando el cliente sintético propietario la cancela, entonces pasa idempotentemente a `SOLICITUD_CANCELADA`, se audita la acción y esa identidad no se reutiliza. Una solicitud posterior recibe otro `solicitudId` y nueva preevaluación. La cancelación concurrente con una simulación se serializa por la oportunidad y revalida las guardas antes de confirmar.
 
 ## 8. Control del alcance
 

@@ -215,7 +215,7 @@ Se conservan los IDs RN-001–RN-041 de v0.1. Las reglas compuestas se desglosan
 | RN-169 | Cuando un cliente tiene varias ofertas preferenciales vigentes, el sistema DEBE exigir que seleccione explícitamente el `ofertaId` que desea simular o contratar. | MUST | INV-19 |
 | RN-170 | Cuando se procesa una oferta preferencial, el sistema DEBE tratar cada `ofertaId` como una oportunidad independiente con un máximo de un contrato y sujeta a la línea compartida. | MUST | INV-03, INV-19 |
 | RN-171 | Cuando una oferta preferencial vence, se reemplaza o se contrata, el sistema NO DEBE iniciar automáticamente el flujo regular. | MUST | INV-19 |
-| RN-172 | Cuando el cliente elige explícitamente iniciar el flujo regular y no existe otra solicitud regular activa, el sistema DEBE crear primero un `solicitudId` en `SOLICITUD_INICIADA` y después obtener una preevaluación vinculada a esa solicitud. | MUST | INV-18, INV-19, PA-38 |
+| RN-172 | Cuando el cliente, tenga o no una oferta preferencial vigente, elige explícitamente iniciar el flujo regular y no existe otra solicitud regular activa, el sistema DEBE crear primero un `solicitudId` en `SOLICITUD_INICIADA` y después obtener una preevaluación vinculada a esa solicitud. El inicio del flujo regular NO DEBE invalidar una oferta preferencial vigente. | MUST | INV-18, INV-19, PA-38 |
 | RN-173 | Mientras un cliente tenga una solicitud regular activa, el sistema NO DEBE crear otra solicitud regular para ese cliente. | MUST | INV-19 |
 | RN-174 | Cuando se reconsulta la preevaluación de una solicitud regular activa, el sistema DEBE crear una nueva versión dentro del mismo `solicitudId` sin crear otra oportunidad. | MUST | INV-18, INV-19 |
 | RN-175 | Cuando una solicitud regular obtiene un contrato, el sistema DEBE cerrarla y NO DEBE reutilizar su `solicitudId`. | MUST | INV-19 |
@@ -302,6 +302,9 @@ Se conservan los IDs RN-001–RN-041 de v0.1. Las reglas compuestas se desglosan
 | RN-256 | Cuando se repite la aceptación de la misma versión por el mismo cliente, el sistema DEBE devolver la aceptación existente sin duplicarla. | MUST | PA-30, RN-092 |
 | RN-257 | La aceptación DEBE conservar cliente, simulación, versión íntegra presentada, instante, acción expresa y vínculo con la evidencia de presentación. | MUST | PA-30, RN-105 |
 | RN-258 | El mecanismo técnico de integridad de la versión y las respuestas de la API DEBEN documentarse en OpenAPI o ADR sin sustituir la evidencia funcional exigida por RN-253–257. | MUST | PA-30, PRINCIPIO-014 |
+| RN-259 | Mientras una contratación esté en `CONTRATACION_EN_REVISION_MANUAL`, solo un actor con rol `OPERADOR_REVISION_CONTRACTUAL` DEBE poder consultar la evidencia autoritativa, registrar observaciones y resolver el caso conforme a RN-184; NO DEBE liberar la reserva, inferir un resultado ni crear otro intento sin evidencia concluyente. Toda acción DEBE auditar actor, instante, motivo, evidencia, correlación, versión y resultado. | MUST | INV-09, INV-13, PA-15, PA-37 |
+| RN-260 | Cuando el `CLIENTE_SINTETICO` propietario cancela una solicitud en `SOLICITUD_INICIADA` o `SOLICITUD_HABILITADA`, el sistema DEBE confirmar `SOLICITUD_CANCELADA` de forma idempotente únicamente si no existe ninguna simulación asociada ni intento, reserva o contrato; DEBE serializar por oportunidad, revalidar las guardas después de esperar y auditar cliente, actor, instante, motivo, correlación, estado origen y versión. La identidad cancelada NO DEBE reutilizarse y una solicitud posterior DEBE recibir otro `solicitudId` y nueva preevaluación. | MUST | PA-13, INV-09, INV-15, INV-19 |
+| RN-261 | Para instrumentar KPI sin calcular fórmulas todavía abiertas, el sistema DEBE conservar los eventos canónicos `OPPORTUNITY_VIEWED`, `SIMULATION_PARAMETERS_CHANGED`, `SCHEDULE_VIEWED`, `ACCEPTANCE_CONFIRMED` y `CONTRACT_CONFIRMED`. Cada evento DEBE incluir `eventId`, `eventType`, `customerId`, tipo e identificador de oportunidad, `occurredAt` UTC autoritativo o validado por backend, `correlationId`, operación y versión fuente, clave de deduplicación y versión de esquema; además DEBE incluir `simulationId`, `acceptanceId` o `contractId` cuando aplique. Los eventos son append-only, una repetición técnica no duplica evidencia y la ausencia de un campo obligatorio rechaza el evento sin completar valores por defecto. `OPPORTUNITY_VIEWED` deduplica la visualización contabilizable por cliente, tipo y oportunidad; las interacciones posteriores pueden conservarse con `interactionId` único para KPI-02 sin duplicar el denominador de KPI-01. Un evento tardío conserva su `occurredAt` y NO DEBE asignarse a una semana ni agregarse hasta aprobar PA-05 o PA-06. | MUST | PA-24, RN-026–027, M-09 |
 
 ## 7. Cuatro máquinas de estados
 
@@ -329,7 +332,7 @@ Cada fila conserva el catálogo funcional aprobado o aplica una decisión de las
 | SOLICITUD_PENDIENTE | Evidencia de rechazo | SOLICITUD_RECHAZADA | RN-219 |
 | SOLICITUD_PENDIENTE | Evidencia de fallo técnico recuperable | SOLICITUD_FALLIDA_RECUPERABLE | RN-219 |
 | SOLICITUD_PENDIENTE | Evidencia de fallo técnico definitivo | SOLICITUD_FALLIDA_DEFINITIVA | RN-219 |
-| SOLICITUD_INICIADA o SOLICITUD_HABILITADA | Cancelación permitida | SOLICITUD_CANCELADA | DEC-58, PA-13 |
+| SOLICITUD_INICIADA o SOLICITUD_HABILITADA | Cancelación idempotente solicitada por el cliente propietario; no existen simulaciones, intentos, reservas ni contrato; guardas revalidadas bajo serialización por oportunidad | SOLICITUD_CANCELADA | RN-260 |
 
 ### Simulación
 
